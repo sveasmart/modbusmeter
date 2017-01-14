@@ -22,7 +22,10 @@ function tick() {
   };
 
   request(options, function (error, response, body) {
-    console.log("Sent request. Got response: ", error, response, body)
+    if (error) {
+      console.log("Got error: ", error)
+    }
+    console.log("Got body: ", body)
   });
 }
 
