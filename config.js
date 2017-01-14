@@ -8,6 +8,7 @@ function getConfig(name, defaultValue) {
       throw "Missing environment variable: '" + name + "', and I don't have a default!"
     }
   } else {
+    console.log(name + " = " + value)
     return value
   }
 }
