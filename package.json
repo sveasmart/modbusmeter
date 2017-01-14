@@ -1,29 +1,19 @@
 {
-  "name": "simple-server-node",
+  "name": "smartgrid-meter",
   "version": "1.0.0",
-  "description": "A simple Expressjs Web server on resin.io",
-  "main": "server.js",
+  "description": "Listens for ticks and sends to a server",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node main.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/resin-io-projects/simple-server-node.git"
+    "url": "git+https://github.com/hkniberg/smartgrid-meter.git"
   },
-  "keywords": [
-    "resin.io",
-    "webserver",
-    "nodejs",
-    "expressjs"
-  ],
-  "author": "Shaun Mulligan <shaun@resin.io>",
+  "author": "Henrik Kniberg <h@kniberg.com>",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/resin-io-projects/simple-server-node/issues"
-  },
-  "homepage": "https://github.com/resin-io-projects/simple-server-node#readme",
   "dependencies": {
-    "express": "*"
+    "js-gpiozero": "*"
   }
 }
