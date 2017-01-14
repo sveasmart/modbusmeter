@@ -14,5 +14,6 @@
   "author": "Henrik Kniberg <h@kniberg.com>",
   "license": "ISC",
   "dependencies": {
+    "onoff": "*"
   }
 }
