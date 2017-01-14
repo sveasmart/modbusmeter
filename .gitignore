@@ -1,6 +1,8 @@
 # Temporary files.
 .#*
 
+.idea
+
 # Log files.
 *.log
 
