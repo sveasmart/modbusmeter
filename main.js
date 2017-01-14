@@ -4,7 +4,7 @@ var getConfig = require("./config.js")
 
 var meterName = getConfig("meterName", "DefaultName")
 var tickUrl = getConfig("tickUrl")
-
+var simulate = getConfig("simulate", "0")
 
 function tick() {
   var tick = new Date().toISOString();
@@ -30,5 +30,11 @@ if (button) {
   });
 }
 
-console.log("Sending a test tick")
-tick()
+if (simulate !== "") {
+  var simulateIntervalSeconds = parseInt(simulate)
+  if (simulateIntervalSeconds > 0) {
+    console.log("I will simulate a tick every " + simulateIntervalSeconds + " seconds")
+    setInterval(tick, simulateIntervalSeconds * 1000)
+  }
+}
+
