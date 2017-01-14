@@ -1,41 +1,25 @@
-var Gpio = require('onoff').Gpio,
-  button = new Gpio(18, 'in', 'both');
 
-var request = require("request");
+var serverCommunicator = require("./server_communicator.js")
 
-var meterName = "432617536";
+// CONFIGURATION (TODO)
+var meterName = "432617536"
 
 function tick() {
   var date = new Date();
-  var dateIso = date.toISOString();
-  var payload = {
-    "meterName": meterName,
-    "ticks": [dateIso]
-  };
-
-  console.log("Will send payload: ", payload);
-
-  var options = {
-    uri: 'http://monitor.smartmeter.se/api/ticks',
-    method: 'POST',
-    json: payload
-  };
-
-  request(options, function (error, response, body) {
-    if (error) {
-      console.log("Got error: ", error)
-    }
-    console.log("Got body: ", body)
-  });
+  var dateIso = date.toISOString()
+  var ticks = [dateIso]
+  serverCommunicator.sendTicks(meterName, ticks)
 }
 
+var onoff = require('onoff')
+var button = new onoff.Gpio(18, 'in', 'both')
 button.watch(function(err, value) {
-  console.log("Button pressed! Will send a tick.");
-  tick();
+  console.log("Button pressed! Will send a tick.")
+  tick()
 });
 
-console.log("Sending a test tick");
-tick();
+console.log("Sending a test tick")
+tick()
 
-console.log("Waiting for more ticks...");
+console.log("Waiting for more ticks...")
 
