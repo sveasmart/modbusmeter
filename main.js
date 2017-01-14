@@ -3,7 +3,7 @@ var Gpio = require('onoff').Gpio,
 
 var request = require("request");
 
-var meterName = 432617536;
+var meterName = "432617536";
 
 function tick() {
   var date = new Date();
