@@ -16,6 +16,6 @@
   "dependencies": {
     "onoff": "*",
     "request": "*",
-    "queue": "*"
+    "retry": "*"
   }
 }
