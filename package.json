@@ -4,7 +4,7 @@
   "description": "Listens for ticks and sends to a server",
   "scripts": {
     "start": "node src/start.js",
-    "test": "mocha"
+    "test": "mocha  --timeout 10000"
   },
   "repository": {
     "type": "git",
