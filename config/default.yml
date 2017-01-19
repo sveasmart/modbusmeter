@@ -1,0 +1,25 @@
+#------------------------------------------------
+# This is the default configuration for Meter.
+# Override it by creating a local.yml next to it.
+# The config isn't hot-reloaded, so you need to restart
+# the meter if you change anything.
+#------------------------------------------------
+
+
+# The name used to identify this meter when talking to the backend
+meterName: DefaultName
+
+# The URL of the backend to which ticks are posted
+tickUrl: http://localhost:3000/api/ticks
+
+# If simulate is 0, then no ticks are simulated.
+# If > 0, then a fake tick is sent every X seconds
+simulate: 30
+
+# Retry settings for when the tickUrl isn't reachable.
+retry:
+  minTimeout: 1000 #First retry is after 1 second
+  factor: 2 #and next retry will be after 2 seconds, then 4 seconds, 8 seconds, 16 seconds...
+  maxTimeout: 30000 #and all retries after that will be in 30 second intervals
+  retries: 100000 #That's about 1 month of retrying! 100,000 x 30 seconds.
+

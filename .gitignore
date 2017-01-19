@@ -1,6 +1,10 @@
 # Temporary files.
 .#*
 
+#local config
+config/local.yml
+
+# IDE
 .idea
 
 # Log files.

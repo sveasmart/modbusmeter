@@ -1,16 +1,10 @@
 var request = require("request")
 var retry = require('retry')
 
-//Using 'retry', a nifty package that handles retry automatically.
-//See https://github.com/tim-kos/node-retry
-var operation = retry.operation({
-  minTimeout: 1 * 1000, //First retry is after 1 second
-  factor: 2, //... and next retry will be after 2 seconds, then 4 seconds, 8 seconds, 16 seconds...
-  maxTimeout: 30 * 1000, //... and all retries after that will be in 30 second intervals
-  retries: 100000 //That's about 1 month of retrying! 100,000 x 30 seconds.
-});
-
-function sendTickAndRetryOnFailure(tickUrl, meterName, tick, callback) {
+function sendTickAndRetryOnFailure(tickUrl, meterName, tick, retryConfig, callback) {
+  //Using 'retry', a nifty package that handles retry automatically.
+  //See https://github.com/tim-kos/node-retry
+  const operation = retry.operation(retryConfig)
 
   operation.attempt(function(currentAttempt) {
     console.log("(attempt #" + currentAttempt + ")")
@@ -18,20 +12,22 @@ function sendTickAndRetryOnFailure(tickUrl, meterName, tick, callback) {
       if (operation.retry(err)) {
         return
       }
-      callback(err ? operation.mainError() : null, responseBody)
+      if (err) {
+        console.log("Failed all attempts to send tick", tick)
+        callback(operation.mainError(), responseBody)
+      } else {
+        console.log("Sent tick", tick, " and got response ", responseBody)
+        callback(null, responseBody)
+      }
     })
   });
 }
 
-
 function sendTick(tickUrl, meterName, tick, callback) {
   var payload = {
-    "meterName": meterName,
+    "meterName": "" + meterName,
     "ticks": [tick]
   }
-
-  console.log("Will send payload: ", payload);
-
   var options = {
     uri: tickUrl,
     method: 'POST',
@@ -39,12 +35,15 @@ function sendTick(tickUrl, meterName, tick, callback) {
   }
 
   request(options, function(error, response, body) {
+    if (response.statusCode < 200 || response.statusCode > 299) {
+      callback("Got status code " + response.statusCode + ":" + response.statusMessage)
+      return
+    }
     if (error) {
       console.log("Got error: ", error)
       callback(error)
       return
     }
-    console.log("Got body: ", body)
     callback(null, body)
   })
 }

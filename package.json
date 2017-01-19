@@ -1,21 +1,26 @@
 {
-  "name": "smartgrid-meter",
+  "name": "meter",
   "version": "1.0.0",
   "description": "Listens for ticks and sends to a server",
-  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node main.js"
+    "start": "node src/start.js",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hkniberg/smartgrid-meter.git"
+    "url": "git+https://github.com/sveasmart/meter.git"
   },
-  "author": "Henrik Kniberg <h@kniberg.com>",
-  "license": "ISC",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "nock": "^9.0.2"
+  },
   "dependencies": {
-    "onoff": "*",
-    "request": "*",
-    "retry": "*"
+    "config": "^1.24.0",
+    "js-yaml": "^3.7.0",
+    "onoff": "^1.1.1",
+    "request": "^2.79.0",
+    "retry": "^0.10.1"
   }
 }
