@@ -4,10 +4,12 @@ var meterName = config.get('meterName')
 var tickUrl = config.get('tickUrl')
 var simulate = config.get('simulate')
 var retryConfig = config.get('retry')
+var tickInputGpio = config.get('tickInputGpio')
 
 var meter = require('./meter')
 
 console.log("I am meter " + meterName)
+console.log("I receive ticks on GPIO " + tickInputGpio)
 console.log("I will talk to " + tickUrl)
 if (simulate > 0) {
   console.log("I will also sent a simulated tick every " + simulate + " seconds.")
@@ -26,7 +28,7 @@ function registerTick() {
 var button = null
 try {
   var onoff = require('onoff')
-  button = new onoff.Gpio(18, 'in', 'both')
+  button = new onoff.Gpio(tickInputGpio, 'in', 'both')
 } catch (err) {
   console.log("WARNING: Seems like I don't have a button. So I'll skip the button. Who needs buttons anyway. " + err)
 }

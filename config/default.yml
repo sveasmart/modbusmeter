@@ -16,6 +16,9 @@ tickUrl: http://localhost:3000/api/ticks
 # If > 0, then a fake tick is sent every X seconds
 simulate: 30
 
+# Which GPIO the ticks are reported through.
+tickInputGpio: 18
+
 # Retry settings for when the tickUrl isn't reachable.
 retry:
   minTimeout: 1000 #First retry is after 1 second
