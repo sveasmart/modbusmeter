@@ -9,6 +9,8 @@
 # The name used to identify this meter when talking to the backend
 meterName: DefaultName
 
+deviceId: ?
+
 # The URL of the backend to which ticks are posted
 tickUrl: http://localhost:3000/api/ticks
 

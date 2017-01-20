@@ -1,6 +1,7 @@
 var config = require('config')
 
 var meterName = config.get('meterName')
+var deviceId = config.get('deviceId')
 var tickUrl = config.get('tickUrl')
 var simulate = config.get('simulate')
 var retryConfig = config.get('retry')
@@ -18,7 +19,7 @@ console.log("Here is my retry config: ")
 console.log(retryConfig)
 
 function registerTick() {
-  meter.registerTick(tickUrl, meterName, retryConfig, function(err, result) {
+  meter.registerTick(tickUrl, meterName, deviceId, retryConfig, function(err, result) {
     if (err) {
       console.log("Darn! Gave up on trying to send tick", err)
     }

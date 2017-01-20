@@ -1,14 +1,14 @@
 var request = require("request")
 var retry = require('retry')
 
-function sendTickAndRetryOnFailure(tickUrl, meterName, tick, retryConfig, callback) {
+function sendTickAndRetryOnFailure(tickUrl, meterName, deviceId, tick, retryConfig, callback) {
   //Using 'retry', a nifty package that handles retry automatically.
   //See https://github.com/tim-kos/node-retry
   const operation = retry.operation(retryConfig)
 
   operation.attempt(function(currentAttempt) {
     console.log("(attempt #" + currentAttempt + ")")
-    sendTick(tickUrl, meterName, tick, function(err, responseBody) {
+    sendTick(tickUrl, meterName, deviceId, tick, function(err, responseBody) {
       if (operation.retry(err)) {
         return
       }
@@ -23,9 +23,10 @@ function sendTickAndRetryOnFailure(tickUrl, meterName, tick, retryConfig, callba
   });
 }
 
-function sendTick(tickUrl, meterName, tick, callback) {
+function sendTick(tickUrl, meterName, deviceId, tick, callback) {
   var payload = {
     "meterName": "" + meterName,
+    "deviceId": "" + deviceId,
     "ticks": [tick]
   }
   var options = {

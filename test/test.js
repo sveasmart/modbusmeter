@@ -33,7 +33,7 @@ describe('Meter', function() {
     }
 
     //Ask the meter to register a tick
-    meter.registerTick('http://fake.meterbackend.com', "111222", retryConfig, function(err, result) {
+    meter.registerTick('http://fake.meterbackend.com', "111222", "deviceA", retryConfig, function(err, result) {
       done(err, result)
     })
   })
@@ -51,7 +51,7 @@ describe('Meter', function() {
     }
 
     //Ask the meter to register a tick
-    meter.registerTick('http://fake.meterbackend.com', "111222", retryConfig, function(err, result) {
+    meter.registerTick('http://fake.meterbackend.com', "111222", "deviceA", retryConfig, function(err, result) {
       if (err) {
         //Good. It should fail!
         done()
