@@ -5,6 +5,7 @@ node_js:
 
 notifications:
   slack: sveasolar:SlVckMxaT9VUoDiPEA5mcutq
+  email: false
 
 env:
   - CXX=g++-4.8
