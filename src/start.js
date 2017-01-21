@@ -3,7 +3,7 @@ var config = require('config')
 var meterName = config.get('meterName')
 var deviceId = config.get('deviceId')
 var tickUrl = config.get('tickUrl')
-var simulate = config.get('simulate')
+var simulate = 1 //config.get('simulate')
 var retryConfig = config.get('retry')
 var tickInputGpio = config.get('tickInputGpio')
 
