@@ -1,0 +1,13 @@
+# systemd service script for the updater
+
+[Unit]
+Description=Meter
+After=multi-user.target # https://www.freedesktop.org/software/systemd/man/bootup.html
+
+[Service]
+Type=simple
+ExecStart=/home/pi/apps/meter/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
