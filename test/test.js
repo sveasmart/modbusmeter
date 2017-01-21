@@ -18,6 +18,7 @@ describe('Meter', function() {
         //OK, we got a POST. Now let's see if the body is correct.
         assert.isOk(payload)
         assert.equal(payload.meterName, "111222")
+        assert.equal(payload.deviceId, "deviceA")
         assert.isOk(payload.ticks)
         assert.equal(payload.ticks.length, 1)
 
