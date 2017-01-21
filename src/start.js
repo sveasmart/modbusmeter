@@ -38,7 +38,9 @@ if (button) {
   console.log("Listening for button presses...")
   button.watch(function(err, value) {
     console.log("Button pressed! Will send a tick.")
-    registerTick()
+    for (i=0;i<1000;++i) {
+      registerTick()
+    }
   });
 }
 
