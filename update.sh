@@ -20,6 +20,8 @@ cp $update_root/README.md $apps_root/meter/
 cp $update_root/package.json $apps_root/meter/
 cp $update_root/install/start.sh $apps_root/meter/
 
+chmod a+x $apps_root/meter/start.sh
+
 echo "Installing/restarting the systemd service..."
 cp $update_root/install/meter.service /lib/systemd/system
 systemctl enable meter.service
