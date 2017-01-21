@@ -3,7 +3,7 @@ var config = require('config')
 var meterName = config.get('meterName')
 var deviceId = config.get('deviceId')
 var tickUrl = config.get('tickUrl')
-var simulate = 1 //config.get('simulate')
+var simulate = config.get('simulate')
 var retryConfig = config.get('retry')
 var tickInputGpio = config.get('tickInputGpio')
 
@@ -38,9 +38,7 @@ if (button) {
   console.log("Listening for button presses...")
   button.watch(function(err, value) {
     console.log("Button pressed! Will send a tick.")
-    for (i=0;i<1000;++i) {
-      registerTick()
-    }
+    registerTick()
   });
 }
 
