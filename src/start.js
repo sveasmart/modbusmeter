@@ -39,7 +39,9 @@ try {
     var pressed = !rpio.read(pin)
     if (pressed) {
       console.log("Tick signal received! Will upload a tick.")
-      registerTick()
+      for (times = 0; times < 100; ++times) {
+        registerTick()
+      }
     } else {
       console.log(" (tick signal ended)")
     }
