@@ -27,7 +27,7 @@ function sendTick(tickUrl, meterName, deviceId, tick, callback) {
   var payload = {
     "meterName": "" + meterName,
     "deviceId": "" + deviceId,
-    "ticks": [tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick, tick]
+    "ticks": [tick]
   }
   var options = {
     uri: tickUrl,
