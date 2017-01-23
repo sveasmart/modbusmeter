@@ -5,12 +5,12 @@ var deviceId = config.get('deviceId')
 var tickUrl = config.get('tickUrl')
 var simulate = config.get('simulate')
 var retryConfig = config.get('retry')
-var tickInputGpio = config.get('tickInputGpio')
+var tickInputPin = config.get('tickInputPin')
 
 var meter = require('./meter')
 
 console.log("I am meter " + meterName)
-console.log("I receive ticks on GPIO " + tickInputGpio)
+console.log("I receive ticks on pin " + tickInputPin)
 console.log("I will talk to " + tickUrl)
 if (simulate > 0) {
   console.log("I will also sent a simulated tick every " + simulate + " seconds.")
@@ -26,21 +26,33 @@ function registerTick() {
   })
 }
 
-var button = null
 try {
-  var onoff = require('onoff')
-  button = new onoff.Gpio(tickInputGpio, 'in', 'both')
+  var rpio = require('rpio')
+  rpio.open(tickInputPin, rpio.INPUT, rpio.PULL_UP);
+
+  rpio.poll(tickInputPin, function(pin) {
+    /*
+     * Interrupts aren't supported by the underlying hardware, so events
+     * may be missed during the 1ms poll window.  The best we can do is to
+     * print the current state after a event is detected.
+     */
+    var pressed = !rpio.read(pin)
+    if (pressed) {
+      console.log("Tick signal received! Will upload a tick.")
+      registerTick()
+    } else {
+      console.log(" (tick signal ended)")
+    }
+  });
+
+  process.on("beforeExit", function() {
+    rpio.close(tickInputPin)
+  })
+
 } catch (err) {
-  console.log("WARNING: Seems like I don't have a button. So I'll skip the button. Who needs buttons anyway. " + err)
+  console.log("WARNING: Seems like I don't have GPIO ports. Guess I'm not running on a Raspberry then. So I can't receive hardware ticks. " + err)
 }
 
-if (button) {
-  console.log("Listening for button presses...")
-  button.watch(function(err, value) {
-    console.log("Button pressed! Will send a tick.")
-    registerTick()
-  });
-}
 
 if (simulate !== "") {
   var simulateIntervalSeconds = parseInt(simulate)
