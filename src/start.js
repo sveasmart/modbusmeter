@@ -42,6 +42,7 @@ try {
       for (times = 0; times < 100; ++times) {
         registerTick()
       }
+      
     } else {
       console.log(" (tick signal ended)")
     }
