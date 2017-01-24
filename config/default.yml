@@ -17,8 +17,9 @@ tickUrl: http://localhost:3000/api/ticks
 simulate: 10
 
 # Minimum number of seconds between each send.
-# Higher number means more batching.
+# Higher number means fewer http requests and more ticks per batch.
 # Must be at least 1 second.
+# 1 second pretty much means it will send every tick immediately (= no batching of ticks).
 minSendInterval: 1
 
 # The folder that contains batched and sent ticks.
