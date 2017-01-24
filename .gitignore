@@ -1,9 +1,10 @@
 # Temporary files.
 .#*
-updatetest
+ticks
 
 #local config
 config/local.yml
+
 
 # IDE
 .idea

@@ -1,32 +1,34 @@
 var request = require("request")
 var retry = require('retry')
 
-function sendTickAndRetryOnFailure(tickUrl, meterName, tick, retryConfig, callback) {
+function sendTicksAndRetryOnFailure(tickUrl, meterName, ticks, retryConfig, callback) {
   //Using 'retry', a nifty package that handles retry automatically.
   //See https://github.com/tim-kos/node-retry
   const operation = retry.operation(retryConfig)
 
   operation.attempt(function(currentAttempt) {
     console.log("(attempt #" + currentAttempt + ")")
-    sendTick(tickUrl, meterName, tick, function(err, responseBody) {
+    sendTicks(tickUrl, meterName, ticks, function(err, responseBody) {
+      console.log("sentTicks callback called", err)
+
       if (operation.retry(err)) {
         return
       }
       if (err) {
-        console.log("Failed all attempts to send tick", tick)
+        console.log("Failed all attempts to send ticks", ticks)
         callback(operation.mainError(), responseBody)
       } else {
-        console.log("Sent tick", tick, " and got response ", responseBody)
+        console.log("Sent ticks", ticks, " and got response ", responseBody)
         callback(null, responseBody)
       }
     })
   });
 }
 
-function sendTick(tickUrl, meterName, tick, callback) {
+function sendTicks(tickUrl, meterName, ticks, callback) {
   var payload = {
     "meterName": "" + meterName,
-    "ticks": [tick]
+    "ticks": ticks
   }
   var options = {
     uri: tickUrl,
@@ -48,4 +50,4 @@ function sendTick(tickUrl, meterName, tick, callback) {
   })
 }
 
-module.exports.sendTickAndRetryOnFailure = sendTickAndRetryOnFailure
+module.exports.sendTicksAndRetryOnFailure = sendTicksAndRetryOnFailure

@@ -19,8 +19,10 @@
   "dependencies": {
     "config": "^1.24.0",
     "js-yaml": "^3.7.0",
-    "rpio": "^0.9.14",
+    "line-by-line": "^0.1.5",
+    "mock-fs": "^3.12.1",
     "request": "^2.79.0",
-    "retry": "^0.10.1"
+    "retry": "^0.10.1",
+    "rpio": "^0.9.14"
   }
 }

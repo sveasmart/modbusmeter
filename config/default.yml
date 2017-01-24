@@ -14,7 +14,14 @@ tickUrl: http://localhost:3000/api/ticks
 
 # If simulate is 0, then no ticks are simulated.
 # If > 0, then a fake tick is sent every X seconds
-simulate: 10
+simulate: 2
+
+# If > 0, then ticks will be batched up and sent
+# to the server every X seconds
+batchTimeSeconds: 10
+
+# The folder that contains batched and sent ticks.
+tickStoragePath: ticks
 
 # Which pin the ticks are reported through (pin number, not GPIO number)
 tickInputPin: 12
