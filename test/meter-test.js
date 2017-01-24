@@ -30,24 +30,21 @@ describe('Meter', function() {
     assert.equal(backend.getRequestCount(), 0)
     assert.equal(backend.getTickCount(), 0)
 
-    this.meter.registerTick( (err) => {
+    this.meter.registerTick()
+    this.meter.sendAllBatchedTicksAndRetryIfFailed( (err) => {
       if (err) return done(err)
 
-      this.meter.sendAllBatchedTicks( (err) => {
-        if (err) return done(err)
+      assert.equal(backend.getRequestCount(), 1)
+      assert.equal(backend.getTickCount(), 1)
 
-        assert.equal(backend.getRequestCount(), 1)
-        assert.equal(backend.getTickCount(), 1)
+      const lastRequest = backend.getLastRequest()
+      assert.isOk(lastRequest)
+      console.log("lastRequest", lastRequest)
+      assert.equal(lastRequest.meterName, "111222")
+      assert.isOk(lastRequest.ticks)
+      assert.equal(lastRequest.ticks.length, 1)
 
-        const lastRequest = backend.getLastRequest()
-        assert.isOk(lastRequest)
-        console.log("lastRequest", lastRequest)
-        assert.equal(lastRequest.meterName, "111222")
-        assert.isOk(lastRequest.ticks)
-        assert.equal(lastRequest.ticks.length, 1)
-
-        done()
-      })
+      done()
     })
   })
 
@@ -60,33 +57,27 @@ describe('Meter', function() {
 
 
     this.meter.tickUrl = 'http://fakefail.meterbackend.com'
-    this.meter.registerTick((err) => {
-      if (err) return done(err)
-
-      this.meter.sendAllBatchedTicks((err) => {
-        if (err) {
-          //Good. It should fail!
-          done()
-        } else {
-          //Darn. It should have failed!
-          done(new Error("Hey, it should have failed!"))
-        }
-      })
+    this.meter.registerTick()
+    this.meter.sendAllBatchedTicksAndRetryIfFailed((err) => {
+      if (err) {
+        //Good. It should fail!
+        done()
+      } else {
+        //Darn. It should have failed!
+        done(new Error("Hey, it should have failed!"))
+      }
     })
 
   })
   
-  it('can batch ticks', function(done) {
+  it('can batch ticks', function() {
 
 
     assert.equal(backend.getRequestCount(), 0)
     
-    this.meter.registerTick(function(err, result) {
-      if (err) return done(err)
+    this.meter.registerTick()
 
-      assert.equal(backend.getRequestCount(), 0)
-      done()
-    })
+    assert.equal(backend.getRequestCount(), 0)
   })
 
   it('can send a batched tick', function(done) {
@@ -95,40 +86,31 @@ describe('Meter', function() {
     assert.equal(backend.getRequestCount(), 0)
     assert.notOk(fs.exists("ticks/sending"))
 
-    this.meter.registerTick( (err) => {
-      if (err) return done(err)
-      assert.notOk(fs.exists("ticks/sending"))
+    this.meter.registerTick()
+    assert.notOk(fs.exists("ticks/sending"))
 
-      assert.equal(backend.getRequestCount(), 0)
-      this.meter.sendAllBatchedTicks( (err) => {
-        if (err) return done(err)
-        assert.equal(backend.getRequestCount(), 1)
-        assert.equal(backend.getTickCount(), 1)
-        done()
-      })
+    assert.equal(backend.getRequestCount(), 0)
+    this.meter.sendAllBatchedTicksAndRetryIfFailed( (err) => {
+      if (err) return done(err)
+      assert.equal(backend.getRequestCount(), 1)
+      assert.equal(backend.getTickCount(), 1)
+      done()
     })
   })
 
-  it('asdfasd can send two batched ticks', function(done) {
+  it('Can send two batched ticks', function(done) {
+
+    this.meter.registerTick()
+    this.meter.registerTick()
 
     assert.equal(backend.getRequestCount(), 0)
+    assert.equal(backend.getTickCount(), 0)
 
-    this.meter.registerTick(function(err) {
-      done()
-
+    this.meter.sendAllBatchedTicksAndRetryIfFailed(function (err) {
       if (err) return done(err)
-
-      meter.registerTick(function(err) {
-        if (err) return done(err)
-
-        assert.equal(backend.getRequestCount(), 0)
-        meter.sendAllBatchedTicks(function (err) {
-          if (err) return done(err)
-          assert.equal(backend.getRequestCount(), 1)
-          assert.equal(backend.getTickCount(), 2)
-          done()
-        })
-      })
+      assert.equal(backend.getRequestCount(), 1)
+      assert.equal(backend.getTickCount(), 2)
+      done()
     })
   })
 

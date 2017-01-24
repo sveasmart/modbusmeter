@@ -14,11 +14,12 @@ tickUrl: http://localhost:3000/api/ticks
 
 # If simulate is 0, then no ticks are simulated.
 # If > 0, then a fake tick is sent every X seconds
-simulate: 2
+simulate: 10
 
-# If > 0, then ticks will be batched up and sent
-# to the server every X seconds
-batchTimeSeconds: 10
+# Minimum number of seconds between each send.
+# Higher number means more batching.
+# Must be at least 1 second.
+minSendInterval: 1
 
 # The folder that contains batched and sent ticks.
 tickStoragePath: ticks

@@ -7,9 +7,11 @@ function sendTicksAndRetryOnFailure(tickUrl, meterName, ticks, retryConfig, call
   const operation = retry.operation(retryConfig)
 
   operation.attempt(function(currentAttempt) {
-    console.log("(attempt #" + currentAttempt + ")")
+    if (currentAttempt > 1) {
+      console.log("(attempt #" + currentAttempt + ")")
+    }
+
     sendTicks(tickUrl, meterName, ticks, function(err, responseBody) {
-      console.log("sentTicks callback called", err)
 
       if (operation.retry(err)) {
         return

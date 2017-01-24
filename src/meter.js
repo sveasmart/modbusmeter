@@ -14,21 +14,14 @@ class Meter {
     this.meterName = meterName
     this.retryConfig = retryConfig
     this.storage = new TickStorage(storagePath)
-    console.log("meter constructor storage", this.storage)
-  }
-
-  initStorage(callback) {
-    console.log("meter initStorage storage", this.storage)
-    this.storage.init(callback)
   }
 
   /**
    * Saves this tick in 'pending'. Will be sent to the server next time sendAllBatchedTicks is called.
    */
-  registerTick(callback) {
-    console.log("meter registerTick storage", this.storage)
+  registerTick() {
     var tick = new Date().toISOString();
-    this.storage.addTickToPending(tick, callback)
+    this.storage.addTickToPending(tick)
   }
 
   /*
@@ -36,37 +29,29 @@ class Meter {
    If successful, the ticks are moved to 'sent' and the callback is called.
    If something goes wrong, it will retry based on the retryConfig (see config/default.yml).
    So if the network is down it might take a while before the callback is called!
-   If it gives up retrying it will fail the callback.
-   */
-  sendAllBatchedTicks(callback) {
-    console.log("meter sendAllBatchedTicks storage", this)
-    console.log("meter.sendAllBatchedTicks...")
+   If it gives up retrying it will fail the callback, and return all 'sending' to 'pending'
 
-    this.storage.movePendingTicksToSending( (err, ticks) => {
+   The number of ticks is returned through the callback.
+   */
+  sendAllBatchedTicksAndRetryIfFailed(callback) {
+    const ticks = this.storage.movePendingTicksToSending()
+    if (ticks.length == 0) {
+      callback(null, 0)
+      return
+    }
+
+    serverCommunicator.sendTicksAndRetryOnFailure(this.tickUrl, this.meterName, ticks, this.retryConfig, (err, response) => {
       if (err) {
-        console.log("meter.sendAllBatchedTicks DONE", err)
-        return callback(err)
+        this.storage.moveSendingTicksBackToPending()
+        callback(err)
+        return
       }
-      if (ticks.length == 0) {
-        console.log("meter.sendAllBatchedTicks DONE (no ticks)", err)
-        return callback()
-      }
-      serverCommunicator.sendTicksAndRetryOnFailure(this.tickUrl, this.meterName, ticks, this.retryConfig, (err, response) => {
-        if (err) {
-          console.log("meter.sendAllBatchedTicks DONE", err)
-          callback(err)
-        } else {
-          this.storage.moveSendingTicksToSent(function(err) {
-            console.log("meter.sendAllBatchedTicks DONE", err)
-            callback(err)
-          })
-        }
-      })
+
+      this.storage.moveSendingTicksToSent()
+      callback(null, ticks.length)
     })
 
   }
-
 }
-
 
 exports.Meter = Meter

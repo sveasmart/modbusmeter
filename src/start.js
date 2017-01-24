@@ -5,31 +5,24 @@ var tickUrl = config.get('tickUrl')
 var simulate = parseInt(config.get('simulate'))
 var retryConfig = config.get('retry')
 var tickInputPin = config.get('tickInputPin')
-var batchTimeSeconds = parseInt(config.get('batchTimeSeconds'))
+var minSendInterval = parseInt(config.get('minSendInterval'))
+if (minSendInterval <= 0) {
+  throw new Error("minSendInterval was " + minSendInterval + ", but it should be > 0. ")
+}
 var tickStoragePath = config.get('tickStoragePath')
+
 
 var Meter = require('./meter').Meter
 
 console.log("I am meter " + meterName)
 console.log("I receive ticks on pin " + tickInputPin)
 console.log("I will talk to " + tickUrl)
-if (simulate > 0) {
-  console.log("I will also sent a simulated tick every " + simulate + " seconds.")
-}
 console.log("Here is my retry config: ")
 console.log(retryConfig)
 
 const meter = new Meter(tickUrl, meterName, retryConfig, tickStoragePath)
 
-
-meter.initStorage(function(err) {
-  const fs = require("fs")
-  console.log("sending exists: " + fs.existsSync("ticks/sending"))
-
-  if (err) {
-    console.log("Failed to initialize storage! Bailing out.", err)
-    return
-  }
+function startMeter() {
 
   try {
     initRpio()
@@ -37,71 +30,60 @@ meter.initStorage(function(err) {
     console.log("WARNING: Seems like I don't have GPIO ports. Guess I'm not running on a Raspberry then. So I can't receive hardware ticks. " + err)
   }
 
-  console.log("XXXXXX")
-  meter.sendAllBatchedTicks(function(err) {
-    if (err) {
-      console.log(err)
-      return
-    }
+  //OK, we will do batching. So let's schedule the batch uploads.
+  console.log("I will send any previously batched ticks now, and then send any additional ticks every " + minSendInterval + " seconds.")
+  sendBatchedTicksAndScheduleItAgainAfterDone()
 
-    if (batchTimeSeconds > 0) {
-      console.log("will set batch interval")
-      setInterval( ()=> {
-        sendAllBatchedTicks()
-      }, batchTimeSeconds * 1000)
-    }
-
-    if (simulate > 0) {
-      registerTick()
-      console.log("will set tick interval")
-      setInterval(() => {
-        registerTick()
-      }, simulate * 1000)
-    }
-  })
-})
-
-function sendAllBatchedTicks() {
-  meter.sendAllBatchedTicks(function(err) {
-    if (err) {
-      console.log("Error when sending all batched ticks", err)
-    } else {
-      console.log("Sent batch!")
-    }
-  })
+  if (simulate > 0) {
+    console.log("I will register a simulated tick every " + simulate + " seconds.")
+    setInterval(function() {
+      console.log("Simulating a tick")
+      meter.registerTick()
+    }, simulate * 1000)
+  }
 }
-
 
 /**
- * Registers a tick. If batchTimeSeconds is 0, then it will
- * send the tick immediately.
- * Logs any errors
+ * This starts the whole loop of "let's send all ticks every 24 hours" (or whatever the minSendInterval is).
+ * It keeps doing that even if things go wrong.
  */
-function registerTick() {
-  console.log("start.registerTick...")
-
-  meter.registerTick(function(err) {
-    console.log("start.registerTick DONE", err)
-
-    if (err) {
-      //console.log("Darn! Couldn't register tick!", err)
-      return
-    }
-
-    if (batchTimeSeconds === 0) {
-      //No batching. Send it immediately!
-      console.log("No batching! Send immediately!")
-      meter.sendAllBatchedTicks(function(err) {
-        console.log("start.registerTick DONE", err)
-
-        if (err) {
-          console.log("Darn! Gave up on trying to send this tick", err)
-        }
-      })
-    }
+function sendBatchedTicksAndScheduleItAgainAfterDone() {
+  //console.log("Sending batched ticks to " + tickUrl + " ...")
+  sendAllBatchedTicksNowAndRetryIfFailed(function() {
+    //No matter how it went, we'll go ahead and schedule it again.
+    //And no need to log the result here, that happens inside sendAllBatchedTicksNowAndRetryIfFailed
+    //console.log("Will send batched ticks again in " + minSendInterval + " seconds...")
+    setTimeout(sendBatchedTicksAndScheduleItAgainAfterDone, minSendInterval * 1000)
   })
 }
 
+/**
+ * Sends all batched ticks right now (with retries if needed).
+ * Catches and logs any errors. This method is asynchronous.
+ */
+function sendAllBatchedTicksNowAndRetryIfFailed(callback) {
+  try {
+    meter.sendAllBatchedTicksAndRetryIfFailed(function(err, tickCount) {
+      if (err) {
+        console.log("Something went wrong (asynchronously) when sending batched ticks!", err)
+      } else {
+        if (tickCount > 0) {
+          console.log("Successfully Sent " + tickCount + " batched ticks")
+        } else {
+          //console.log("There weren't any batched ticks to send.")
+        }
+      }
+      if (callback) {
+        callback(err, tickCount)
+      }
+    })
+  } catch (err) {
+    console.log("Something went wrong (synchronously) when sending batched ticks!", err)
+    if (callback) {
+      callback(err, tickCount)
+    }
+  }
+}
 
 
 function initRpio() {
@@ -116,7 +98,7 @@ function initRpio() {
      */
     var pressed = !rpio.read(pin)
     if (pressed) {
-      console.log("Tick signal received! Will upload a tick.")
+      console.log("Tick signal received! Will register a tick.")
       registerTick()
 
     } else {
@@ -127,5 +109,6 @@ function initRpio() {
   process.on("beforeExit", function() {
     rpio.close(tickInputPin)
   })
-
 }
+
+startMeter()
