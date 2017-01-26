@@ -1,8 +1,8 @@
 # systemd service script for the updater
-
+# https://www.freedesktop.org/software/systemd/man/bootup.html
 [Unit]
 Description=Meter
-After=multi-user.target # https://www.freedesktop.org/software/systemd/man/bootup.html
+After=multi-user.target
 
 [Service]
 Type=simple
