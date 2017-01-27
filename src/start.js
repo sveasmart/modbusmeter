@@ -99,7 +99,7 @@ function initRpio() {
     var pressed = !rpio.read(pin)
     if (pressed) {
       console.log("Tick signal received! Will register a tick.")
-      registerTick()
+      meter.registerTick()
 
     } else {
       console.log(" (tick signal ended)")
