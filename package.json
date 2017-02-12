@@ -14,13 +14,12 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
-    "nock": "^9.0.2"
+    "nock": "^9.0.2",
+    "mock-fs": "^3.12.1"
   },
   "dependencies": {
     "config": "^1.24.0",
     "js-yaml": "^3.7.0",
-    "line-by-line": "^0.1.5",
-    "mock-fs": "^3.12.1",
     "request": "^2.79.0",
     "retry": "^0.10.1",
     "rpio": "^0.9.14"
