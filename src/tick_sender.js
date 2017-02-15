@@ -1,10 +1,14 @@
 var serverCommunicator = require("./server_communicator.js")
 
-const TickStorage = require("./storage").TickStorage
-
-class Meter {
+const TickStorage = require("./tick_storage").TickStorage
+/**
+ * My job is to make sure ticks get stored safely until they reach the server.
+ * I store ticks using a tickStorage, and send them to the server using the
+ * serverCommunicator. I also manage batching and retries.
+ */
+class TickSender {
   /**
-   * Creates a new Meter that saves ticks in the given storagePath
+   * Creates a new TickSender that saves ticks in the given storagePath
    * and talks to the given tickUrl.
    * The params are explained in config/default.yml
    * All are required.
@@ -54,4 +58,4 @@ class Meter {
   }
 }
 
-exports.Meter = Meter
+exports.Meter = TickSender

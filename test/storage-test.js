@@ -1,7 +1,7 @@
 const mocha = require("mocha")
 const chai = require('chai')
 const assert = chai.assert
-const TickStorage = require('../src/storage').TickStorage
+const TickStorage = require('../src/tick_storage').TickStorage
 const fakeFilesystem = require("./fake-filesystem")
 const fs = require('fs')
 

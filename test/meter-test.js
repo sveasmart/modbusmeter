@@ -3,14 +3,14 @@ const mocha = require("mocha")
 const chai = require('chai')
 const assert = chai.assert
 
-const Meter = require('../src/meter').Meter
+const Meter = require('../src/tick_sender').Meter
 
 const backend = require('./fake-tick-backend')
 
 const fakeFilesystem = require("./fake-filesystem")
 const fs = require('fs')
 
-describe('Meter', function() {
+describe('TickSender', function() {
 
   beforeEach(function() {
     backend.init()
