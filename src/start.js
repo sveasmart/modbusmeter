@@ -1,6 +1,12 @@
-var config = require('config')
+const RpioClickDetector = require('./rpio_click_detector')
+const FakeClickDetector = require('./fake_click_detector')
+const TickSender = require('./tick_sender')
+const TickWatcher = require('./tick_watcher')
+const waitUntil = require('wait-until')
 
-var meterName = config.get('meterName')
+var config = require('config')
+var deviceIdPath = config.get("deviceIdPath")
+var registrationUrl = config.get("registrationUrl")
 var tickUrl = config.get('tickUrl')
 var simulate = parseInt(config.get('simulate'))
 var retryConfig = config.get('retry')
@@ -11,39 +17,55 @@ if (minSendInterval <= 0) {
 }
 var tickStoragePath = config.get('tickStoragePath')
 
-
-const RpioClickDetector = require('./rpio_click_detector')
-const FakeClickDetector = require('./fake_click_detector')
-const TickSender = require('./tick_sender')
-const TickWatcher = require('./tick_watcher')
-
-console.log("I am meter " + meterName)
 console.log("I receive ticks on pin " + tickInputPin)
 console.log("I will talk to " + tickUrl)
 console.log("Here is my retry config: ")
 console.log(retryConfig)
 
+function watchForTicks(meterName) {
+  console.log("I am meter " + meterName)
 
-var clickDetector
-if (RpioClickDetector.hasRpio()) {
-  console.log("RPIO detected. Will listen for clicks on pin " + tickInputPin)
-  clickDetector = new RpioClickDetector(tickInputPin)
-} else {
-  console.log("No RPIO detected. Fake click detector is available, type 't' to manually simulate a tick.")
-  clickDetector = new FakeClickDetector()
+  var clickDetector
+  if (RpioClickDetector.hasRpio()) {
+    console.log("RPIO detected. Will listen for clicks on pin " + tickInputPin)
+    clickDetector = new RpioClickDetector(tickInputPin)
+  } else {
+    console.log("No RPIO detected. Fake click detector is available, type 't' to manually simulate a tick.")
+    clickDetector = new FakeClickDetector()
+  }
+
+  const tickSender = new TickSender(tickUrl, meterName, retryConfig, tickStoragePath)
+
+  const tickWatcher = new TickWatcher(clickDetector, tickSender, minSendInterval)
+//OK, we will do batching. So let's schedule the batch uploads.
+  console.log("I will send any previously batched ticks now, and then send any additional ticks every " + minSendInterval + " seconds.")
+  tickWatcher.start()
+
+  if (simulate > 0) {
+    console.log("I will register a simulated tick every " + simulate + " seconds.")
+    setInterval(function() {
+      console.log("Simulating a tick")
+      tickSender.registerTick()
+    }, simulate * 1000)
+  }
 }
 
-const tickSender = new TickSender(tickUrl, meterName, retryConfig, tickStoragePath)
+if (!config.has("meterName")) {
+  //Oh, meterName hasn't been set. Show barcode.
+  console.log("meterName isn't set. Waiting for it to be set...")
 
-const tickWatcher = new TickWatcher(clickDetector, tickSender, minSendInterval)
-//OK, we will do batching. So let's schedule the batch uploads.
-console.log("I will send any previously batched ticks now, and then send any additional ticks every " + minSendInterval + " seconds.")
-tickWatcher.start()
-
-if (simulate > 0) {
-  console.log("I will register a simulated tick every " + simulate + " seconds.")
-  setInterval(function() {
-    console.log("Simulating a tick")
-    tickSender.registerTick()
-  }, simulate * 1000)
+  //Wait until meterName has been set.
+  waitUntil()
+    .interval(500)
+    .times(Infinity)
+    .condition(function() {
+      delete require.cache[require.resolve('config')]
+      config = require('config')
+      return config.has("meterName")
+    })
+    .done(function() {
+      watchForTicks(config.get('meterName'))
+    })
+} else {
+  watchForTicks(config.get('meterName'))
 }
