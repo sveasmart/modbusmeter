@@ -3,10 +3,12 @@ const FakeClickDetector = require('./fake_click_detector')
 const TickSender = require('./tick_sender')
 const TickWatcher = require('./tick_watcher')
 const waitUntil = require('wait-until')
+const adafruit = require('adafruit-mcp23008-ssd1306-node-driver')
+const fs = require('fs')
 
 var config = require('config')
 var deviceIdPath = config.get("deviceIdPath")
-var registrationUrl = config.get("registrationUrl")
+var registrationBaseUrl = config.get("registrationBaseUrl")
 var tickUrl = config.get('tickUrl')
 var simulate = parseInt(config.get('simulate'))
 var retryConfig = config.get('retry')
@@ -22,8 +24,20 @@ console.log("I will talk to " + tickUrl)
 console.log("Here is my retry config: ")
 console.log(retryConfig)
 
+console.log("Adafruit available: " + adafruit.hasDriver())
+var display
+if (adafruit.hasDriver()) {
+  display = new adafruit.DisplayDriver()
+} else {
+  display = new adafruit.FakeDisplayDriver()
+}
+
+
+
+
 function watchForTicks(meterName) {
   console.log("I am meter " + meterName)
+  display.text("I am meter " + meterName)
 
   var clickDetector
   if (RpioClickDetector.hasRpio()) {
@@ -52,7 +66,14 @@ function watchForTicks(meterName) {
 
 if (!config.has("meterName")) {
   //Oh, meterName hasn't been set. Show barcode.
-  console.log("meterName isn't set. Waiting for it to be set...")
+  console.log("meterName isn't set. Showing bar code and waiting for it to be set...")
+
+  const deviceId = fs.readFileSync(deviceIdPath)
+  console.log("deviceId", deviceId)
+
+
+  const registrationUrl  = registrationBaseUrl + "/" + deviceId
+  display.qrCode(registrationUrl)
 
   //Wait until meterName has been set.
   waitUntil()
