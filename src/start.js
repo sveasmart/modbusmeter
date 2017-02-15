@@ -69,7 +69,7 @@ if (!config.has("meterName")) {
   console.log("meterName isn't set. Showing bar code and waiting for it to be set...")
 
   const deviceId = fs.readFileSync(deviceIdPath)
-  console.log("deviceId", deviceId)
+  console.log("deviceId", deviceId.toString())
 
 
   const registrationUrl  = registrationBaseUrl + "/" + deviceId
