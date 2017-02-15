@@ -1,3 +1,5 @@
+
+
 /**
  * The purpose of this class is to encapsulate the
  * hardware-specific Rpio stuff for detecting button clicks and other similar RPIO signals.
@@ -6,6 +8,15 @@
 class RpioClickDetector {
   constructor(rpioPin) {
     this.rpioPin = rpioPin
+  }
+
+  static hasRpio() {
+    try {
+      require('rpio')
+      return true
+    } catch (err) {
+      return false
+    }
   }
 
   /**
@@ -42,3 +53,5 @@ class RpioClickDetector {
     })
   }
 }
+
+module.exports = RpioClickDetector

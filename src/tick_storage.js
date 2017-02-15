@@ -118,4 +118,4 @@ class TickStorage {
 }
 
 
-exports.TickStorage = TickStorage
+module.exports = TickStorage

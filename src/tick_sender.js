@@ -1,6 +1,6 @@
 var serverCommunicator = require("./server_communicator.js")
 
-const TickStorage = require("./tick_storage").TickStorage
+const TickStorage = require("./tick_storage")
 /**
  * My job is to make sure ticks get stored safely until they reach the server.
  * I store ticks using a tickStorage, and send them to the server using the
@@ -58,4 +58,4 @@ class TickSender {
   }
 }
 
-exports.Meter = TickSender
+module.exports = TickSender

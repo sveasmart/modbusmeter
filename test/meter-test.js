@@ -3,7 +3,7 @@ const mocha = require("mocha")
 const chai = require('chai')
 const assert = chai.assert
 
-const Meter = require('../src/tick_sender').Meter
+const TickSender = require('../src/tick_sender')
 
 const backend = require('./fake-tick-backend')
 
@@ -20,7 +20,7 @@ describe('TickSender', function() {
       minTimeout: 100,
       retries: 0
     }
-    this.meter = new Meter('http://fake.meterbackend.com', "111222", retryConfig, "ticks")
+    this.meter = new TickSender('http://fake.meterbackend.com', "111222", retryConfig, "ticks")
 
   })
 
