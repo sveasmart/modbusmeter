@@ -1,6 +1,7 @@
 # Temporary files.
 .#*
 ticks
+storagetest
 
 #local config
 config/local.yml
