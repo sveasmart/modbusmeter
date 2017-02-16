@@ -42,7 +42,7 @@ if (adafruit.hasDriver()) {
 
 function watchForTicks(meterName) {
   console.log("I am meter " + meterName)
-  display.text("Mätare " + meterName)
+  display.text("Meter " + meterName)
 
   var clickDetector
   if (RpioClickDetector.hasRpio()) {
