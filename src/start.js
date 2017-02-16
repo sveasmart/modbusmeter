@@ -25,11 +25,16 @@ console.log("Here is my retry config: ")
 console.log(retryConfig)
 
 console.log("Adafruit available: " + adafruit.hasDriver())
+
 var display
+var buttons
+
 if (adafruit.hasDriver()) {
   display = new adafruit.DisplayDriver()
+  buttons = new adafruit.ButtonDriver()
 } else {
   display = new adafruit.FakeDisplayDriver()
+  buttons = new adafruit.FakeButtonDriver()
 }
 
 
@@ -37,7 +42,7 @@ if (adafruit.hasDriver()) {
 
 function watchForTicks(meterName) {
   console.log("I am meter " + meterName)
-  display.text("I am meter " + meterName)
+  display.text("Mätare " + meterName)
 
   var clickDetector
   if (RpioClickDetector.hasRpio()) {
@@ -64,16 +69,33 @@ function watchForTicks(meterName) {
   }
 }
 
+function getRegistrationUrl() {
+  const deviceId = fs.readFileSync(deviceIdPath)
+  return registrationBaseUrl + "#" + deviceId
+}
+
+function showQrCode() {
+  display.qrCode(getRegistrationUrl())
+}
+
+function showRegistrationUrl() {
+  display.text(getRegistrationUrl())
+}
+
+buttons.watchAllButtons(function(buttonId) {
+  console.log("button pressed " + buttonId)
+  if (buttonId == 0) {
+    showQrCode()
+  } else {
+    showRegistrationUrl()
+  }
+})
+
 if (!config.has("meterName")) {
   //Oh, meterName hasn't been set. Show barcode.
   console.log("meterName isn't set. Showing bar code and waiting for it to be set...")
 
-  const deviceId = fs.readFileSync(deviceIdPath)
-  console.log("deviceId", deviceId.toString())
-
-
-  const registrationUrl  = registrationBaseUrl + "#" + deviceId
-  display.qrCode(registrationUrl)
+  showQrCode()
 
   //Wait until meterName has been set.
   waitUntil()
@@ -90,3 +112,4 @@ if (!config.has("meterName")) {
 } else {
   watchForTicks(config.get('meterName'))
 }
+
