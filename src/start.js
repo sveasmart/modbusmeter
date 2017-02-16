@@ -72,7 +72,7 @@ if (!config.has("meterName")) {
   console.log("deviceId", deviceId.toString())
 
 
-  const registrationUrl  = registrationBaseUrl + "/" + deviceId
+  const registrationUrl  = registrationBaseUrl + "#" + deviceId
   display.qrCode(registrationUrl)
 
   //Wait until meterName has been set.

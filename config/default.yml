@@ -7,12 +7,15 @@
 
 
 # The name used to identify this meter when talking to the backend
+# If not set, a QR code will be displayed pointing to registrationBaseUrl
 # meterName:
 
 # The URL of the backend to which ticks are posted
 tickUrl: http://localhost:3000/api/ticks
 
-# /deviceId will be appended. Don't end with a slash.
+# The URL that will be used in the QR code that is displayed when no meterName is set.
+# The deviceId will be passed along using an # (anchor tag).
+# Example: http://my.server/register#abcdefgh
 registrationBaseUrl: http://localhost:3000/register
 
 deviceIdPath: ./test/device-id
