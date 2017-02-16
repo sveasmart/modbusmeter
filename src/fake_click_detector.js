@@ -8,7 +8,14 @@ class FakeClickDetector {
   }
 
   setClickListener(onClickFunction) {
+
     var stdin = process.stdin;
+
+    if (!stdin || !(stdin.setRawMode)) {
+      console.log("I don't have a stdin.setRawMode. Probably means I'm not running in an interactive console. " +
+        "Anyway that means I have no way of receiving fake button clicks via key presses. Sorry.")
+      return
+    }
 
     // without this, we would only get streams once enter is pressed
     stdin.setRawMode( true );
