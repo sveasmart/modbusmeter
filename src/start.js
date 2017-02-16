@@ -24,15 +24,15 @@ console.log("I will talk to " + tickUrl)
 console.log("Here is my retry config: ")
 console.log(retryConfig)
 
-console.log("Adafruit available: " + adafruit.hasDriver())
-
 var display
 var buttons
 
 if (adafruit.hasDriver()) {
+  console.log("Adafruit is available, so this device appears to have a display :)")
   display = new adafruit.DisplayDriver()
   buttons = new adafruit.ButtonDriver()
 } else {
+  console.log("Adafruit is not available, so we'll fake the display using the console")
   display = new adafruit.FakeDisplayDriver()
   buttons = new adafruit.FakeButtonDriver()
 }
