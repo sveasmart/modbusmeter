@@ -42,7 +42,7 @@ if (adafruit.hasDriver()) {
 
 function watchForTicks(meterName) {
   console.log("I am meter " + meterName)
-  display.text("Meter " + meterName)
+  showMeterName()
 
   var clickDetector
   if (RpioClickDetector.hasRpio()) {
@@ -82,12 +82,22 @@ function showRegistrationUrl() {
   display.text(getRegistrationUrl())
 }
 
+function showMeterName() {
+  if (config.has("meterName")) {
+    display.text("Meter " + config.get("meterName"))
+  } else {
+    display.text("Unregistered meter")
+  }
+}
+
 buttons.watchAllButtons(function(buttonId) {
   console.log("button pressed " + buttonId)
   if (buttonId == 0) {
     showQrCode()
-  } else {
+  } else if (buttonId == 1) {
     showRegistrationUrl()
+  } else {
+    showMeterName()
   }
 })
 
