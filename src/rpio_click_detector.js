@@ -15,6 +15,7 @@ class RpioClickDetector {
       require('rpio')
       return true
     } catch (err) {
+      console.log("Problem loading rpio package", err)
       return false
     }
   }
