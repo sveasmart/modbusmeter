@@ -3,7 +3,6 @@ const FakeClickDetector = require('./fake_click_detector')
 const TickSender = require('./tick_sender')
 const TickWatcher = require('./tick_watcher')
 const waitUntil = require('wait-until')
-const adafruit = require('adafruit-mcp23008-ssd1306-node-driver')
 const fs = require('fs')
 
 var config = require('config')
@@ -27,12 +26,20 @@ console.log(retryConfig)
 var display
 var buttons
 
-if (adafruit.hasDriver()) {
-  console.log("Adafruit is available, so this device appears to have a display :)")
-  display = new adafruit.DisplayDriver()
-  buttons = new adafruit.ButtonDriver()
-} else {
-  console.log("Adafruit is not available, so we'll fake the display using the console")
+try {
+  const adafruit = require('adafruit-mcp23008-ssd1306-node-driver')
+  if (adafruit.hasDriver()) {
+    console.log("Adafruit is available, so this device appears to have a display :)")
+    display = new adafruit.DisplayDriver()
+    buttons = new adafruit.ButtonDriver()
+  } else {
+    console.log("Adafruit is not available, so we'll fake the display using the console")
+    display = new adafruit.FakeDisplayDriver()
+    buttons = new adafruit.FakeButtonDriver()
+  }
+
+} catch (err) {
+  console.log("Failed to load Adafruit, so we'll fake the display using the console" + err)
   display = new adafruit.FakeDisplayDriver()
   buttons = new adafruit.FakeButtonDriver()
 }
