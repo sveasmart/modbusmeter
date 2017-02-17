@@ -40,8 +40,8 @@ try {
 
 } catch (err) {
   console.log("Failed to load Adafruit, so we'll fake the display using the console" + err)
-  display = new adafruit.FakeDisplayDriver()
-  buttons = new adafruit.FakeButtonDriver()
+  display = null
+  buttons = null
 }
 
 
@@ -82,31 +82,45 @@ function getRegistrationUrl() {
 }
 
 function showQrCode() {
-  display.qrCode(getRegistrationUrl())
+  if (display) {
+    display.qrCode(getRegistrationUrl())
+  } else {
+    console.log("Pretending to show QR code for " + getRegistrationUrl())
+  }
 }
 
 function showRegistrationUrl() {
-  display.text(getRegistrationUrl())
+  if (display) {
+    display.text(getRegistrationUrl())
+  } else {
+    console.log("Pretending to show registration URL " + getRegistrationUrl())
+  }
 }
 
 function showMeterName() {
-  if (config.has("meterName")) {
-    display.text("Meter " + config.get("meterName"))
+  if (display) {
+    if (config.has("meterName")) {
+      display.text("Meter " + config.get("meterName"))
+    } else {
+      display.text("Unregistered meter")
+    }
   } else {
-    display.text("Unregistered meter")
+    console.log("Meter " + config.get("meterName")) 
   }
 }
-
-buttons.watchAllButtons(function(buttonId) {
-  console.log("button pressed " + buttonId)
-  if (buttonId == 0) {
-    showQrCode()
-  } else if (buttonId == 1) {
-    showRegistrationUrl()
-  } else {
-    showMeterName()
-  }
-})
+if (buttons) {
+  buttons.watchAllButtons(function(buttonId) {
+    console.log("button pressed " + buttonId)
+    if (buttonId == 0) {
+      showQrCode()
+    } else if (buttonId == 1) {
+      showRegistrationUrl()
+    } else {
+      showMeterName()
+    }
+  })
+  
+}
 
 if (!config.has("meterName")) {
   //Oh, meterName hasn't been set. Show barcode.
