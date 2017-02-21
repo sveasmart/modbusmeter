@@ -42,7 +42,7 @@ class RpioClickDetector {
        */
       var pressed = !rpio.read(pin)
       if (pressed) {
-        console.log("click detected received on RPIO pin " + this.rpioPin)
+        console.log("click detected received on RPIO pin " + pin)
         onClickFunction()
       } else {
         console.log(" (click ended)")
