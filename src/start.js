@@ -23,30 +23,6 @@ console.log("I will talk to " + tickUrl)
 console.log("Here is my retry config: ")
 console.log(retryConfig)
 
-var display
-var buttons
-
-try {
-  const adafruit = require('adafruit-mcp23008-ssd1306-node-driver')
-  if (adafruit.hasDriver()) {
-    console.log("Adafruit is available, so this device appears to have a display :)")
-    display = new adafruit.DisplayDriver()
-    buttons = new adafruit.ButtonDriver()
-  } else {
-    console.log("Adafruit is not available, so we'll fake the display using the console")
-    display = new adafruit.FakeDisplayDriver()
-    buttons = new adafruit.FakeButtonDriver()
-  }
-
-} catch (err) {
-  console.log("Failed to load Adafruit, so we'll fake the display using the console" + err)
-  display = null
-  buttons = null
-}
-
-
-
-
 function watchForTicks(meterName) {
   console.log("I am meter " + meterName)
   showMeterName()
@@ -108,6 +84,24 @@ function showMeterName() {
     console.log("Meter " + config.get("meterName")) 
   }
 }
+
+
+var display = null
+var buttons = null
+
+try {
+  const adafruit = require('adafruit-mcp23008-ssd1306-node-driver')
+  if (adafruit.hasDriver()) {
+    console.log("Adafruit is available, so this device appears to have a display :)")
+    display = new adafruit.DisplayDriver()
+    buttons = new adafruit.ButtonDriver()
+  } else {
+    console.log("Adafruit is not available, so we'll fake the display using the console")
+  }
+} catch (err) {
+  console.log("Failed to load Adafruit, so we'll fake the display using the console" + err)
+}
+
 if (buttons) {
   buttons.watchAllButtons(function(buttonId) {
     console.log("button pressed " + buttonId)
@@ -119,7 +113,6 @@ if (buttons) {
       showMeterName()
     }
   })
-  
 }
 
 if (!config.has("meterName")) {
