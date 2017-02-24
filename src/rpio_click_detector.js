@@ -26,15 +26,17 @@ class RpioClickDetector {
    * @param onClickFunction a function with no arguments
    */
   setClickListener(onClickFunction) {
+    const rpioPin = this.rpioPin
+
     if (this.onClickFunction) {
       throw new Error("setClickListener has already been called")
     }
     this.onClickFunction = onClickFunction
 
     var rpio = require('rpio')
-    rpio.open(this.rpioPin, rpio.INPUT, rpio.PULL_UP);
+    rpio.open(rpioPin, rpio.INPUT, rpio.PULL_UP);
 
-    rpio.poll(this.rpioPin, function(pin) {
+    rpio.poll(rpioPin, function(pin) {
       /*
        * Interrupts aren't supported by the underlying hardware, so events
        * may be missed during the 1ms poll window.  The best we can do is to
@@ -50,7 +52,7 @@ class RpioClickDetector {
     });
 
     process.on("beforeExit", function() {
-      rpio.close(tickInputPin)
+      rpio.close(rpioPin)
     })
   }
 }
