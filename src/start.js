@@ -88,7 +88,14 @@ function showRegistrationUrl() {
 function showMeterName() {
   if (display) {
     if (config.has("meterName")) {
-      display.text("Meter " + config.get("meterName"))
+      const meterName = config.get("meterName")
+      const oled = display.getOled()
+      oled.fillRect(0, 0, 128, 62, 0);
+      oled.setCursor(1,1)
+      oled.writeString(display.font, 1, "Meter " + meterName, 1, true)
+      oled.setCursor(1, 20)
+      oled.writeString(display.font, 2, "Running", 1, true)
+      oled.update()
     } else {
       display.text("Unregistered meter")
     }
