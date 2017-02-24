@@ -53,8 +53,11 @@ function watchForTicks(meterName) {
 }
 
 function getRegistrationUrl() {
-  const deviceId = fs.readFileSync(deviceIdPath)
-  return registrationBaseUrl + "#" + deviceId
+  return registrationBaseUrl + "#" + getDeviceId()
+}
+
+function getDeviceId() {
+  return fs.readFileSync(deviceIdPath).toString()
 }
 
 function showQrCode() {
@@ -67,7 +70,16 @@ function showQrCode() {
 
 function showRegistrationUrl() {
   if (display) {
-    display.text(getRegistrationUrl())
+    const oled = display.getOled()
+    oled.fillRect(0, 0, 128, 62, 0);
+    oled.setCursor(1,1)
+    oled.writeString(display.font, 1, registrationBaseUrl, 1, true)
+    oled.setCursor(1, 20)
+    oled.writeString(display.font, 1, "Device ID:", 1, true)
+    oled.setCursor(1, 40)
+    oled.writeString(display.font, 2, getDeviceId().toUpperCase() , 1, true)
+    oled.update()
+
   } else {
     console.log("Pretending to show registration URL " + getRegistrationUrl())
   }

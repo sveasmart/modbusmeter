@@ -5,6 +5,7 @@ storagetest
 
 #local config
 config/local.yml
+config/local.json
 
 
 # IDE
