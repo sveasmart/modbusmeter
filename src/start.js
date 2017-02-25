@@ -70,15 +70,12 @@ function showQrCode() {
 
 function showRegistrationUrl() {
   if (display) {
-    const oled = display.getOled()
-    oled.fillRect(0, 0, 128, 62, 0);
-    oled.setCursor(1,1)
-    oled.writeString(display.font, 1, registrationBaseUrl, 1, true)
-    oled.setCursor(1, 20)
-    oled.writeString(display.font, 1, "Device ID:", 1, true)
-    oled.setCursor(1, 40)
-    oled.writeString(display.font, 2, getDeviceId().toUpperCase() , 1, true)
-    oled.update()
+    display.texts([
+      registrationBaseUrl,
+      "Device ID:",
+      getDeviceId().toUpperCase()
+    ])
+
 
   } else {
     console.log("Pretending to show registration URL " + getRegistrationUrl())
@@ -88,16 +85,16 @@ function showRegistrationUrl() {
 function showMeterName() {
   if (display) {
     if (config.has("meterName")) {
-      const meterName = config.get("meterName")
-      const oled = display.getOled()
-      oled.fillRect(0, 0, 128, 62, 0);
-      oled.setCursor(1,1)
-      oled.writeString(display.font, 1, "Meter " + meterName, 1, true)
-      oled.setCursor(1, 20)
-      oled.writeString(display.font, 2, "Running", 1, true)
-      oled.update()
+      display.texts([
+        "Meter",
+        meterName,
+        "RUNNING :)"
+      ])
     } else {
-      display.text("Unregistered meter")
+      display.texts([
+        "Unregistered",
+        "meter"
+      ])
     }
   } else {
     console.log("Meter " + config.get("meterName")) 
