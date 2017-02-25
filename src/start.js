@@ -87,7 +87,7 @@ function showMeterName() {
     if (config.has("meterName")) {
       display.texts([
         "Meter",
-        meterName,
+        config.get("meterName"),
         "RUNNING :)"
       ])
     } else {
