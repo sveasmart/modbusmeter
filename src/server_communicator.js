@@ -36,7 +36,8 @@ function sendTicks(tickUrl, meterName, ticks, callback) {
   var options = {
     uri: tickUrl,
     method: 'POST',
-    json: payload
+    json: payload,
+    followAllRedirects: true    
   }
 
   request(options, function(error, response, body) {
