@@ -14,6 +14,7 @@ function sendTicksAndRetryOnFailure(tickUrl, meterName, ticks, retryConfig, call
     sendTicks(tickUrl, meterName, ticks, function(err, responseBody) {
 
       if (operation.retry(err)) {
+        console.log("operation.retry(err): " + err )
         return
       }
       if (err) {
