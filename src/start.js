@@ -17,6 +17,8 @@ if (minSendInterval <= 0) {
   throw new Error("minSendInterval was " + minSendInterval + ", but it should be > 0. ")
 }
 var tickStoragePath = config.get('tickStoragePath')
+var tickCount = 0
+
 
 console.log("I receive ticks on pin " + tickInputPin)
 console.log("I will talk to " + tickUrl)
@@ -25,7 +27,7 @@ console.log(retryConfig)
 
 function watchForTicks(meterName) {
   console.log("I am meter " + meterName)
-  showMeterName()
+  showMeterNameAndTicks()
 
   var clickDetector
   if (RpioClickDetector.hasRpio()) {
@@ -38,7 +40,7 @@ function watchForTicks(meterName) {
 
   const tickSender = new TickSender(tickUrl, meterName, retryConfig, tickStoragePath)
 
-  const tickWatcher = new TickWatcher(clickDetector, tickSender, minSendInterval)
+  const tickWatcher = new TickWatcher(clickDetector, tickSender, minSendInterval, showTickOnDisplay)
 //OK, we will do batching. So let's schedule the batch uploads.
   console.log("I will send any previously batched ticks now, and then send any additional ticks every " + minSendInterval + " seconds.")
   tickWatcher.start()
@@ -50,6 +52,11 @@ function watchForTicks(meterName) {
       tickSender.registerTick()
     }, simulate * 1000)
   }
+}
+
+function showTickOnDisplay() {
+  tickCount = tickCount + 1
+  showMeterNameAndTicks()
 }
 
 function getRegistrationUrl() {
@@ -82,18 +89,20 @@ function showRegistrationUrl() {
   }
 }
 
-function showMeterName() {
+function showMeterNameAndTicks() {
   if (display) {
     if (config.has("meterName")) {
       display.texts([
         "Meter",
         config.get("meterName"),
-        "RUNNING :)"
+        "RUNNING :)",
+        "Ticks: " + tickCount
       ])
     } else {
       display.texts([
         "Unregistered",
-        "meter"
+        "meter",
+        "Ticks: " + tickCount
       ])
     }
   } else {
@@ -126,7 +135,7 @@ if (buttons) {
     } else if (buttonId == 1) {
       showRegistrationUrl()
     } else {
-      showMeterName()
+      showMeterNameAndTicks()
     }
   })
 }

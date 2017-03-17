@@ -5,10 +5,11 @@
  */
 class TickWatcher {
 
-  constructor(clickDetector, tickSender, minSendIntervalSeconds) {
+  constructor(clickDetector, tickSender, minSendIntervalSeconds, localTickLogFunction) {
     this.clickDetector = clickDetector
     this.tickSender = tickSender
     this.minSendIntervalSeconds = minSendIntervalSeconds
+    this.localTickLogFunction = localTickLogFunction
   }
   /**
    * This starts the whole loop of "let's listen for incoming ticks,
@@ -17,6 +18,10 @@ class TickWatcher {
    */
   start() {
     this.clickDetector.setClickListener(() => {
+      if (this.localTickLogFunction) {
+        this.localTickLogFunction()
+      }
+
       this.tickSender.registerTick()
     })
     this._sendBatchedTicksAndScheduleItAgainAfterDone()
