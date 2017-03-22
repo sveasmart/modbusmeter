@@ -19,6 +19,8 @@ if (minSendInterval <= 0) {
 var tickStoragePath = config.get('tickStoragePath')
 var tickCount = 0
 
+let showingTicks = false
+
 
 console.log("I receive ticks on pin " + tickInputPin)
 console.log("I will talk to " + tickUrl)
@@ -26,8 +28,7 @@ console.log("Here is my retry config: ")
 console.log(retryConfig)
 
 function watchForTicks(meterName) {
-  console.log("I am meter " + meterName)
-  showMeterNameAndTicks()
+  console.log("I am meter " + meterName + ", and my tickUrl is " + tickUrl)
 
   var clickDetector
   if (RpioClickDetector.hasRpio()) {
@@ -56,7 +57,9 @@ function watchForTicks(meterName) {
 
 function showTickOnDisplay() {
   tickCount = tickCount + 1
-  showMeterNameAndTicks()
+  if (showingTicks == true) {
+    showMeterNameAndTicks()
+  }
 }
 
 function getRegistrationUrl() {
@@ -68,14 +71,17 @@ function getDeviceId() {
 }
 
 function showQrCode() {
+  showingTicks = false
+
   if (display) {
     display.qrCode(getRegistrationUrl())
   } else {
-    console.log("Pretending to show QR code for " + getRegistrationUrl())
+    console.log("Pretending to show QR code for " + getRegistrationUrl() + " " + tickCount + " pulses")
   }
 }
 
 function showRegistrationUrl() {
+  showingTicks = false
   if (display) {
     display.texts([
       registrationBaseUrl,
@@ -90,24 +96,23 @@ function showRegistrationUrl() {
 }
 
 function showMeterNameAndTicks() {
+  showingTicks = true
   if (display) {
-    if (config.has("meterName")) {
-      display.texts([
-        "Meter",
-        config.get("meterName"),
-        "RUNNING :)",
-        "Ticks: " + tickCount
-      ])
-    } else {
-      display.texts([
-        "Unregistered",
-        "meter",
-        "Ticks: " + tickCount
-      ])
-    }
+    display.texts([
+      "Meter",
+      config.get("meterName"),
+      "Ticks: " + tickCount
+    ])
   } else {
     console.log("Meter " + config.get("meterName")) 
   }
+}
+
+function getMeterName() {
+  delete require.cache[require.resolve('config')]
+  config = require('config')
+  const meterName = config.get("meterName")
+  return meterName
 }
 
 
@@ -140,25 +145,14 @@ if (buttons) {
   })
 }
 
-if (!config.has("meterName")) {
-  //Oh, meterName hasn't been set. Show barcode.
+const meterName = getMeterName()
+
+watchForTicks(meterName)
+
+if (meterName == "Unregistered") {
+  //Oh, meterName hasn't been set. Show QR code.
   console.log("meterName isn't set. Showing bar code and waiting for it to be set...")
-
   showQrCode()
-
-  //Wait until meterName has been set.
-  waitUntil()
-    .interval(500)
-    .times(Infinity)
-    .condition(function() {
-      delete require.cache[require.resolve('config')]
-      config = require('config')
-      return config.has("meterName")
-    })
-    .done(function() {
-      watchForTicks(config.get('meterName'))
-    })
 } else {
-  watchForTicks(config.get('meterName'))
+  showMeterNameAndTicks()
 }
-

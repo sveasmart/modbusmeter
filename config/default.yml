@@ -8,7 +8,7 @@
 
 # The name used to identify this meter when talking to the backend
 # If not set, a QR code will be displayed pointing to registrationBaseUrl
-# meterName:
+meterName: Unregistered
 
 # The URL of the backend to which ticks are posted
 tickUrl: http://localhost:3000/api/ticks
@@ -20,7 +20,7 @@ registrationBaseUrl: http://localhost:3000/register
 
 deviceIdPath: ./test/device-id
 
-# If simulate is 0, then no ticks are simulated.
+# If simulate is 0, thenfi no ticks are simulated.
 # If > 0, then a fake tick is sent every X seconds
 simulate: 0
 
@@ -42,4 +42,3 @@ retry:
   factor: 2 #and next retry will be after 2 seconds, then 4 seconds, 8 seconds, 16 seconds...
   maxTimeout: 30000 #and all retries after that will be in 30 second intervals
   retries: 100000 #That's about 1 month of retrying! 100,000 x 30 seconds.
-
