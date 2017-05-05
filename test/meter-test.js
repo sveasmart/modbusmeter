@@ -11,8 +11,8 @@ const backend = require('./fake-tick-backend')
 const fakeFilesystem = require("./fake-filesystem")
 const fs = require('fs')
 
-function registerTick(meter) {
-  meter.storage.addTickToPending(new Date().toISOString())
+function registerTick(meter, optionalCallback) {
+  meter.storage.addTickToPending(new Date().toISOString(), optionalCallback)
 }
 
 describe('TickSender', function() {
@@ -107,17 +107,28 @@ describe('TickSender', function() {
 
   it('Can send two batched ticks', function(done) {
 
-    registerTick(this.meter)
-    registerTick(this.meter)
+    registerTick(this.meter, (err) => {
+      if (err) {
+        return done(err)
+      }
 
-    assert.equal(backend.getRequestCount(), 0)
-    assert.equal(backend.getTickCount(), 0)
+      registerTick(this.meter, (err) => {
+        if (err) {
+          return done(err)
+        }
 
-    this.meter.sendAllBatchedTicksAndRetryIfFailed(function (err) {
-      if (err) return done(err)
-      assert.equal(backend.getRequestCount(), 1)
-      assert.equal(backend.getTickCount(), 2)
-      done()
+
+        assert.equal(backend.getRequestCount(), 0)
+        assert.equal(backend.getTickCount(), 0)
+
+        this.meter.sendAllBatchedTicksAndRetryIfFailed(function (err) {
+          assert.equal(backend.getRequestCount(), 1)
+          assert.equal(backend.getTickCount(), 2)
+          done(err)
+        })
+
+      })
+
     })
   })
 

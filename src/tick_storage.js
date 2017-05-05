@@ -35,10 +35,13 @@ class TickStorage {
    * Adds the given tick (a date string) to the 'pending' file.
    * Also increments the counter.
    */
-  addTickToPending(tick) {
+  addTickToPending(tick, optionalCallback) {
     fs.appendFile(this.pending, tick + "\n", function(err) {
       if (err) {
         console.log("Something went wrong when adding a tick to pending", tick, err)
+      }
+      if (optionalCallback) {
+        optionalCallback(err)        
       }
     })
     this._incrementCounter()

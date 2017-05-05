@@ -10,34 +10,42 @@ describe('Storage', function() {
     fakeFilesystem.init()
   })
 
-  it('can store 1 tick in pending', function() {
+  it('can store 1 tick in pending', function(done) {
     const storage = new TickStorage('ticks')
     assert.notOk(fs.existsSync("ticks/pending"))
     assert.notOk(fs.existsSync("ticks/sending"))
-    assert.notOk(fs.existsSync("ticks/sent"))
 
-    storage.addTickToPending("T1")
-    assert.isOk(fs.existsSync("ticks/pending"))
-    assert.notOk(fs.existsSync("ticks/sending"))
-    assert.notOk(fs.existsSync("ticks/sent"))
-    assertFileContent("ticks/pending", "T1\n")
+    storage.addTickToPending("T1", function(err) {
+      assert.isOk(fs.existsSync("ticks/pending"))
+      assert.notOk(fs.existsSync("ticks/sending"))
+      assertFileContent("ticks/pending", "T1\n")
+      done(err)
+    })
   })
 
-  it('can add another tick to a file that already has 1 tick', function() {
+  it('can add another tick to a file that already has 1 tick', function(done) {
     const storage = new TickStorage('ticks')
-    storage.addTickToPending("T1")
-    storage.addTickToPending("T2")
-    assertFileContent("ticks/pending", "T1\nT2\n")
+    storage.addTickToPending("T1", function(err) {
+      if (err) {
+        return done(err)
+      }
+      storage.addTickToPending("T2", function(err) {
+        assertFileContent("ticks/pending", "T1\nT2\n")
+        done(err)
+      })
+    })
   })
 
-  it('can move ticks from Pending to Sending', function() {
+  it('can move ticks from Pending to Sending', function(done) {
     const storage = new TickStorage('ticks')
-    storage.addTickToPending("T1")
-    assert.notOk(fs.existsSync("ticks/sending"))
+    storage.addTickToPending("T1", function(err) {
+      assert.notOk(fs.existsSync("ticks/sending"))
 
-    storage.movePendingTicksToSending()
-    assert.notOk(fs.existsSync("ticks/pending"))
-    assertFileContent("ticks/sending", "T1\n")
+      storage.movePendingTicksToSending()
+      assert.notOk(fs.existsSync("ticks/pending"))
+      assertFileContent("ticks/sending", "T1\n")
+      done(err)
+    })
   })
 
   it('cant move from Pending to Sending if Sending already exists', function() {
