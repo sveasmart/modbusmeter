@@ -10,6 +10,10 @@ const backend = require('./fake-tick-backend')
 const fakeFilesystem = require("./fake-filesystem")
 const fs = require('fs')
 
+function registerTick(meter) {
+  meter.storage.addTickToPending(new Date().toISOString())
+}
+
 describe('TickSender', function() {
 
   beforeEach(function() {
@@ -21,6 +25,7 @@ describe('TickSender', function() {
       retries: 0
     }
     this.meter = new TickSender('http://fake.meterbackend.com', "111222", retryConfig, "ticks")
+    
 
   })
 
@@ -30,7 +35,8 @@ describe('TickSender', function() {
     assert.equal(backend.getRequestCount(), 0)
     assert.equal(backend.getTickCount(), 0)
 
-    this.meter.registerTick()
+    registerTick(this.meter)
+    
     this.meter.sendAllBatchedTicksAndRetryIfFailed( (err) => {
       if (err) return done(err)
 
@@ -57,7 +63,7 @@ describe('TickSender', function() {
 
 
     this.meter.tickUrl = 'http://fakefail.meterbackend.com'
-    this.meter.registerTick()
+    registerTick(this.meter)
     this.meter.sendAllBatchedTicksAndRetryIfFailed((err) => {
       if (err) {
         //Good. It should fail!
@@ -75,7 +81,7 @@ describe('TickSender', function() {
 
     assert.equal(backend.getRequestCount(), 0)
     
-    this.meter.registerTick()
+    registerTick(this.meter)
 
     assert.equal(backend.getRequestCount(), 0)
   })
@@ -86,7 +92,7 @@ describe('TickSender', function() {
     assert.equal(backend.getRequestCount(), 0)
     assert.notOk(fs.exists("ticks/sending"))
 
-    this.meter.registerTick()
+    registerTick(this.meter)
     assert.notOk(fs.exists("ticks/sending"))
 
     assert.equal(backend.getRequestCount(), 0)
@@ -100,8 +106,8 @@ describe('TickSender', function() {
 
   it('Can send two batched ticks', function(done) {
 
-    this.meter.registerTick()
-    this.meter.registerTick()
+    registerTick(this.meter)
+    registerTick(this.meter)
 
     assert.equal(backend.getRequestCount(), 0)
     assert.equal(backend.getTickCount(), 0)
