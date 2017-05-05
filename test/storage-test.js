@@ -53,41 +53,6 @@ describe('Storage', function() {
     }
   })
 
-  it('can move ticks from Sending to Sent', function() {
-
-    const storage = new TickStorage('ticks')
-
-    fs.writeFileSync("ticks/sending", "T1\n")
-    storage.moveSendingTicksToSent()
-    assert.notOk(fs.existsSync("ticks/sending"))
-    assert.ok(fs.existsSync("ticks/sent"))
-
-    assertFileContent("ticks/sent", "T1\n")
-  })
-
-  it('can move ticks from Sending to Sent even if there is previously sent stuff already there', function() {
-
-    const storage = new TickStorage('ticks')
-
-    fs.writeFileSync("ticks/sent", "T1\n")
-    fs.writeFileSync("ticks/sending", "T2\n")
-
-    storage.moveSendingTicksToSent()
-    assert.notOk(fs.existsSync("ticks/sending"))
-    assert.ok(fs.existsSync("ticks/sent"))
-    assertFileContent("ticks/sent", "T1\nT2\n")
-  })
-
-  it('can do moveSendingTicksToSent even if sending is empty', function() {
-    assert.notOk(fs.existsSync("ticks/sending"))
-    assert.notOk(fs.existsSync("ticks/sent"))
-
-    const storage = new TickStorage('ticks')
-    storage.moveSendingTicksToSent()
-    assert.notOk(fs.existsSync("ticks/sending"))
-    assert.notOk(fs.existsSync("ticks/sent"))
-  })
-
   it('can do movePendingTicksToSending even if pending is empty', function() {
     assert.notOk(fs.existsSync("ticks/pending"))
     assert.notOk(fs.existsSync("ticks/sending"))

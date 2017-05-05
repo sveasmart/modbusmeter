@@ -3,10 +3,9 @@
  */
 class TickWatcher {
 
-  constructor(tickSender, minSendIntervalSeconds, localTickLogFunction) {
+  constructor(tickSender, minSendIntervalSeconds) {
     this.tickSender = tickSender
     this.minSendIntervalSeconds = minSendIntervalSeconds
-    this.localTickLogFunction = localTickLogFunction
   }
   /**
    * This starts the whole loop of "let's listen for incoming ticks,
@@ -20,7 +19,6 @@ class TickWatcher {
 
   _sendBatchedTicksAndScheduleItAgainAfterDone() {
     this._sendAllBatchedTicksNowAndRetryIfFailed((err, tickCount) => {
-      this.localTickLogFunction(tickCount)
       //No matter how it went, we'll go ahead and schedule it again.
       //And no need to log the result here, that happens inside sendAllBatchedTicksNowAndRetryIfFailed
       //console.log("Will send batched ticks again in " + minSendInterval + " seconds...")

@@ -30,11 +30,17 @@ simulate: 0
 # 1 second pretty much means it will send every tick immediately (= no batching of ticks).
 minSendInterval: 1
 
+logPulseDetection: false
+
 # The folder that contains batched and sent ticks.
 tickStoragePath: ticks
 
 # Which pin the ticks are reported through (pin number, not GPIO number)
 tickInputPin: 12
+
+# How many seconds between each update of the display
+# (when displaying tick counter)
+counterDisplayInterval: 1
 
 # Retry settings for when the tickUrl isn't reachable.
 retry:

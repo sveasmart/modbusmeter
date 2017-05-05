@@ -20,15 +20,28 @@ class TickStorage {
 
     this.pending = path.join(storagePath, "pending")
     this.sending = path.join(storagePath, "sending")
-    this.sent = path.join(storagePath, "sent")
+    this.counter = path.join(storagePath, "counter")
+    if (!fs.existsSync(this.counter)) {
+      fs.writeFileSync(this.counter, "0")
+    }
+
+    //Clean up any old 'sent' file, since we used to log ticks to that file and it kept growing.
+    fs.unlink(path.join(storagePath, "sent"), function(err) {})
+
     this.moveSendingTicksBackToPending()
   }
 
   /**
    * Adds the given tick (a date string) to the 'pending' file.
+   * Also increments the counter.
    */
   addTickToPending(tick) {
-    fs.appendFileSync(this.pending, tick + "\n")
+    fs.appendFile(this.pending, tick + "\n", function(err) {
+      if (err) {
+        console.log("Something went wrong when adding a tick to pending", tick, err)
+      }
+    })
+    this._incrementCounter()
   }
 
   moveSendingTicksBackToPending() {
@@ -69,11 +82,12 @@ class TickStorage {
     return this._readTicks(this.sending)
   }
 
-  /**
-   * Removes sending
-   */
-  moveSendingTicksToSent() {
-    this._moveTicks(this.sending, this.sent)
+  readTickCountSync() {
+    return parseInt(fs.readFileSync(this.counter))
+  }
+
+  removeSending() {
+    fs.unlinkSync(this.sending)
   }
 
   /**
@@ -115,6 +129,20 @@ class TickStorage {
     return ticks
   }
 
+  _incrementCounter() {
+    fs.readFile(this.counter, (err, counterString) => {
+      if (err) {
+        console.log("Something went wrong when reading the counter", err)
+        return
+      }
+      let counterInt = parseInt(counterString)
+      fs.writeFile(this.counter, counterInt + 1, function(err) {
+        if (err) {
+          console.log("Something went wrong when writing the counter", err)
+        }
+      })
+    })
+  }
 }
 
 

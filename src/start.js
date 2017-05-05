@@ -1,5 +1,6 @@
 const TickSender = require('./tick_sender')
 const TickWatcher = require('./tick_watcher')
+const TickStorage = require('./tick_storage')
 const fs = require('fs')
 
 var config = require('config')
@@ -13,7 +14,8 @@ if (minSendInterval <= 0) {
   throw new Error("minSendInterval was " + minSendInterval + ", but it should be > 0. ")
 }
 var tickStoragePath = config.get('tickStoragePath')
-var tickCount = 0
+
+var counterDisplayInterval = parseInt(config.get('counterDisplayInterval'))
 
 let showingTicks = false
 
@@ -21,22 +23,18 @@ console.log("I will talk to " + tickUrl)
 console.log("Here is my retry config: ")
 console.log(retryConfig)
 
+const tickStorage = new TickStorage(tickStoragePath)
+
 function watchForTicks(meterName) {
   console.log("I am meter " + meterName + ", and my tickUrl is " + tickUrl)
 
-  const tickSender = new TickSender(tickUrl, meterName, retryConfig, tickStoragePath)
+  const tickSender = new TickSender(tickUrl, meterName, retryConfig, tickStorage)
 
-  const tickWatcher = new TickWatcher(tickSender, minSendInterval, showTickOnDisplay)
+  const tickWatcher = new TickWatcher(tickSender, minSendInterval)
   tickWatcher.start()
 
 }
 
-function showTickOnDisplay(inc) {
-  tickCount = tickCount + inc
-  if (showingTicks == true) {
-    showMeterNameAndTicks()
-  }
-}
 
 function getRegistrationUrl() {
   return registrationBaseUrl + "#" + getDeviceId()
@@ -52,7 +50,7 @@ function showQrCode() {
   if (display) {
     display.qrCode(getRegistrationUrl())
   } else {
-    console.log("Pretending to show QR code for " + getRegistrationUrl() + " " + tickCount + " pulses")
+    console.log("Pretending to show QR code for " + getRegistrationUrl() + " " + getTickCount() + " pulses")
   }
 }
 
@@ -77,10 +75,10 @@ function showMeterNameAndTicks() {
     display.texts([
       "Meter",
       config.get("meterName"),
-      "Ticks: " + tickCount
+      "Ticks: " + getTickCount()
     ])
   } else {
-    console.log("Meter " + config.get("meterName"))
+    console.log("Meter " + config.get("meterName") + "  Ticks: " + getTickCount())
   }
 }
 
@@ -132,3 +130,14 @@ if (meterName == "Unregistered") {
 } else {
   showMeterNameAndTicks()
 }
+
+function getTickCount() {
+  return tickStorage.readTickCountSync()
+}
+
+//Update the display every second (if showing tick count)
+setInterval(function() {
+  if (showingTicks == true) {
+    showMeterNameAndTicks()
+  }
+}, counterDisplayInterval * 1000)

@@ -5,6 +5,7 @@ const config = require('config')
 const tickInputPin = config.get('tickInputPin')
 const storagePath = config.get('tickStoragePath')
 const simulate = parseInt(config.get('simulate'))
+const logPulseDetection = config.get('logPulseDetection')
 
 const TickStorage = require("./tick_storage")
 const storage = new TickStorage(storagePath)
@@ -29,7 +30,9 @@ clickDetector.setClickListener(registerPulse)
 function registerPulse() {
   let pulse = new Date().toISOString();
   storage.addTickToPending(pulse)
-  console.log("Detected pulse and stored it: " + pulse)
+  if (logPulseDetection) {
+    console.log("Detected pulse and stored it: " + pulse)
+  }
 }
 
 if (simulate > 0) {

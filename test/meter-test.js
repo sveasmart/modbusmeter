@@ -4,6 +4,7 @@ const chai = require('chai')
 const assert = chai.assert
 
 const TickSender = require('../src/tick_sender')
+const TickStorage = require('../src/tick_storage')
 
 const backend = require('./fake-tick-backend')
 
@@ -24,7 +25,7 @@ describe('TickSender', function() {
       minTimeout: 100,
       retries: 0
     }
-    this.meter = new TickSender('http://fake.meterbackend.com', "111222", retryConfig, "ticks")
+    this.meter = new TickSender('http://fake.meterbackend.com', "111222", retryConfig, new TickStorage("ticks"))
     
 
   })

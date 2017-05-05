@@ -13,11 +13,11 @@ class TickSender {
    * The params are explained in config/default.yml
    * All are required.
    */
-  constructor(tickUrl, meterName, retryConfig, storagePath) {
+  constructor(tickUrl, meterName, retryConfig, tickStorage) {
     this.tickUrl = tickUrl
     this.meterName = meterName
     this.retryConfig = retryConfig
-    this.storage = new TickStorage(storagePath)
+    this.storage = tickStorage
   }
 
   /*
@@ -42,8 +42,7 @@ class TickSender {
         callback(err)
         return
       }
-
-      this.storage.moveSendingTicksToSent()
+      this.storage.removeSending()
       callback(null, ticks.length)
     })
 
