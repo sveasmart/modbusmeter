@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Listens for ticks and sends to a server",
   "scripts": {
-    "start": "node src/start.js",
+    "start": "parallelshell 'node src/start.js' 'node src/start_pulse_detector.js' ",
     "test": "mocha  --timeout 10000"
   },
   "repository": {
@@ -21,6 +21,7 @@
     "adafruit-mcp23008-ssd1306-node-driver": "1.1.3",
     "config": "1.24.0",
     "js-yaml": "3.7.0",
+    "parallelshell": "2.0.0",
     "request": "2.79.0",
     "retry": "0.10.1",
     "rpio": "0.9.14",

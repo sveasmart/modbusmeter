@@ -1,12 +1,9 @@
 /**
- * Handles the loop of listening for ticks (via a clickDetector) and registering them (via a tickSender).
- * 
- * Watches for ticks. When a tick is detected, registers it
+ * Handles the loop of checking for stored tics and registering them (via a tickSender).
  */
 class TickWatcher {
 
-  constructor(clickDetector, tickSender, minSendIntervalSeconds, localTickLogFunction) {
-    this.clickDetector = clickDetector
+  constructor(tickSender, minSendIntervalSeconds, localTickLogFunction) {
     this.tickSender = tickSender
     this.minSendIntervalSeconds = minSendIntervalSeconds
     this.localTickLogFunction = localTickLogFunction
@@ -17,18 +14,13 @@ class TickWatcher {
    * It keeps doing that even if things go wrong.
    */
   start() {
-    this.clickDetector.setClickListener(() => {
-      if (this.localTickLogFunction) {
-        this.localTickLogFunction()
-      }
-
-      this.tickSender.registerTick()
-    })
+    console.log("I will send any previously batched ticks now, and then send any additional ticks every " + this.minSendIntervalSeconds + " seconds.")
     this._sendBatchedTicksAndScheduleItAgainAfterDone()
   }
 
   _sendBatchedTicksAndScheduleItAgainAfterDone() {
     this._sendAllBatchedTicksNowAndRetryIfFailed((err, tickCount) => {
+      this.localTickLogFunction(tickCount)
       //No matter how it went, we'll go ahead and schedule it again.
       //And no need to log the result here, that happens inside sendAllBatchedTicksNowAndRetryIfFailed
       //console.log("Will send batched ticks again in " + minSendInterval + " seconds...")
@@ -50,8 +42,6 @@ class TickWatcher {
         } else {
           if (tickCount > 0) {
             console.log("Successfully Sent " + tickCount + " batched ticks")
-          } else {
-            //console.log("There weren't any batched ticks to send.")
           }
         }
         if (callback) {
@@ -64,7 +54,7 @@ class TickWatcher {
         callback(err, tickCount)
       }
     }
-  }  
+  }
 }
 
 module.exports = TickWatcher

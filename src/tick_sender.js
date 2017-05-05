@@ -20,14 +20,6 @@ class TickSender {
     this.storage = new TickStorage(storagePath)
   }
 
-  /**
-   * Saves this tick in 'pending'. Will be sent to the server next time sendAllBatchedTicks is called.
-   */
-  registerTick() {
-    var tick = new Date().toISOString();
-    this.storage.addTickToPending(tick)
-  }
-
   /*
    Moves all batched ticks from 'pending' to 'sending', and sends them to the server.
    If successful, the ticks are moved to 'sent' and the callback is called.

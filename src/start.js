@@ -1,15 +1,11 @@
-const RpioClickDetector = require('./rpio_click_detector')
-const FakeClickDetector = require('./fake_click_detector')
 const TickSender = require('./tick_sender')
 const TickWatcher = require('./tick_watcher')
-const waitUntil = require('wait-until')
 const fs = require('fs')
 
 var config = require('config')
 var deviceIdPath = config.get("deviceIdPath")
 var registrationBaseUrl = config.get("registrationBaseUrl")
 var tickUrl = config.get('tickUrl')
-var simulate = parseInt(config.get('simulate'))
 var retryConfig = config.get('retry')
 var tickInputPin = config.get('tickInputPin')
 var minSendInterval = parseInt(config.get('minSendInterval'))
@@ -21,8 +17,6 @@ var tickCount = 0
 
 let showingTicks = false
 
-
-console.log("I receive ticks on pin " + tickInputPin)
 console.log("I will talk to " + tickUrl)
 console.log("Here is my retry config: ")
 console.log(retryConfig)
@@ -30,33 +24,15 @@ console.log(retryConfig)
 function watchForTicks(meterName) {
   console.log("I am meter " + meterName + ", and my tickUrl is " + tickUrl)
 
-  var clickDetector
-  if (RpioClickDetector.hasRpio()) {
-    console.log("RPIO detected. Will listen for clicks on pin " + tickInputPin)
-    clickDetector = new RpioClickDetector(tickInputPin)
-  } else {
-    console.log("No RPIO detected. Fake click detector is available, type 't' to manually simulate a tick.")
-    clickDetector = new FakeClickDetector()
-  }
-
   const tickSender = new TickSender(tickUrl, meterName, retryConfig, tickStoragePath)
 
-  const tickWatcher = new TickWatcher(clickDetector, tickSender, minSendInterval, showTickOnDisplay)
-//OK, we will do batching. So let's schedule the batch uploads.
-  console.log("I will send any previously batched ticks now, and then send any additional ticks every " + minSendInterval + " seconds.")
+  const tickWatcher = new TickWatcher(tickSender, minSendInterval, showTickOnDisplay)
   tickWatcher.start()
 
-  if (simulate > 0) {
-    console.log("I will register a simulated tick every " + simulate + " seconds.")
-    setInterval(function() {
-      console.log("Simulating a tick")
-      tickSender.registerTick()
-    }, simulate * 1000)
-  }
 }
 
-function showTickOnDisplay() {
-  tickCount = tickCount + 1
+function showTickOnDisplay(inc) {
+  tickCount = tickCount + inc
   if (showingTicks == true) {
     showMeterNameAndTicks()
   }
@@ -104,7 +80,7 @@ function showMeterNameAndTicks() {
       "Ticks: " + tickCount
     ])
   } else {
-    console.log("Meter " + config.get("meterName")) 
+    console.log("Meter " + config.get("meterName"))
   }
 }
 
