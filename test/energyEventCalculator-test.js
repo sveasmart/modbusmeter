@@ -20,7 +20,6 @@ describe('Energy Event Calculator', function() {
   })
 
   it('one tick in one second', function () {
-    const startTime = new Date("2016-01-01 00:00:00")
     const ticks = [
       new Date("2016-01-01 00:00:01")
     ]
@@ -38,7 +37,6 @@ describe('Energy Event Calculator', function() {
   })
 
   it('100 pulses per kWh', function () {
-    const startTime = new Date("2016-01-01 00:00:00")
     const ticks = [
       new Date("2016-01-01 00:00:01")
     ]
@@ -56,7 +54,6 @@ describe('Energy Event Calculator', function() {
   })
 
   it('1 hour event interval', function () {
-    const startTime = new Date("2016-01-01 00:00:00")
     const ticks = [
       new Date("2016-01-01 00:00:01")
     ]
