@@ -14,7 +14,7 @@ describe('Energy Event Calculator', function() {
     const pulsesPerkWh = 1000
 
     assert.deepEqual(
-      getEnergyEventsFromPulses(ticks, eventInterval),
+      getEnergyEventsFromPulses(ticks, eventInterval, pulsesPerkWh),
       []
     )
   })
