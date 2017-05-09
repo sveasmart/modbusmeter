@@ -5,7 +5,7 @@ const assert = chai.assert
 
 getEnergyEventsFromPulses = require("../src/energy_event_calculator").getEnergyEventsFromPulses
 
-describe.only('Energy Event Calculator', function() {
+describe('Energy Event Calculator', function() {
 
   it('no ticks', function () {
     const ticks = [

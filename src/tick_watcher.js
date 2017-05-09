@@ -8,9 +8,11 @@ class TickWatcher {
     this.notificationIntervalSeconds = notificationIntervalSeconds
   }
   /**
-   * This starts the whole loop of "let's listen for incoming ticks,
-   * and let's send all ticks to the server every 24 hours" (or whatever the notificationInterval is).
-   * It keeps doing that even if things go wrong.
+   * This starts the watch loop:
+   * - Clear the buffer of pulses and send energy events to the server
+   * - Wait notificationInterval seconds.
+
+   * If something goes wrong when talking to the server it will keep trying again.
    */
   start() {
     console.log("I will send any previously batched ticks now, and then send any additional ticks every " + this.notificationIntervalSeconds + " seconds.")

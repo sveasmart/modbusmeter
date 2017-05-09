@@ -13,9 +13,10 @@ class TickSender {
    * The params are explained in config/default.yml
    * All are required.
    */
-  constructor(tickUrl, meterName, retryConfig, tickStorage) {
+  constructor(tickUrl, meterName, eventInterval, retryConfig, tickStorage) {
     this.tickUrl = tickUrl
     this.meterName = meterName
+    this.eventInterval = eventInterval
     this.retryConfig = retryConfig
     this.storage = tickStorage
   }
@@ -36,7 +37,7 @@ class TickSender {
       return
     }
 
-    serverCommunicator.sendTicksAndRetryOnFailure(this.tickUrl, this.meterName, ticks, this.retryConfig, (err, response) => {
+    serverCommunicator.sendTicksAndRetryOnFailure(this.tickUrl, this.meterName, ticks, this.eventInterval, this.retryConfig, (err, response) => {
       if (err) {
         this.storage.moveSendingTicksBackToPending()
         callback(err)

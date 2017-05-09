@@ -13,6 +13,12 @@ var notificationInterval = parseInt(config.get('notificationInterval'))
 if (notificationInterval <= 0) {
   throw new Error("notificationInterval was " + notificationInterval + ", but it should be > 0. ")
 }
+
+var eventInterval = parseInt(config.get('eventInterval'))
+if (eventInterval <= 0) {
+  throw new Error("eventInterval was " + eventInterval + ", but it should be > 0. ")
+}
+
 var tickStoragePath = config.get('tickStoragePath')
 
 var counterDisplayInterval = parseInt(config.get('counterDisplayInterval'))
@@ -28,7 +34,7 @@ const tickStorage = new TickStorage(tickStoragePath)
 function watchForTicks(meterName) {
   console.log("I am meter " + meterName + ", and my tickUrl is " + tickUrl)
 
-  const tickSender = new TickSender(tickUrl, meterName, retryConfig, tickStorage)
+  const tickSender = new TickSender(tickUrl, meterName, eventInterval, retryConfig, tickStorage)
 
   const tickWatcher = new TickWatcher(tickSender, notificationInterval)
   tickWatcher.start()

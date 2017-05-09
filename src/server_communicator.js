@@ -1,10 +1,22 @@
 var request = require("request")
 var retry = require('retry')
 
-function sendTicksAndRetryOnFailure(tickUrl, meterName, ticks, retryConfig, callback) {
+
+/**
+ * Converts the given ticks to energyEvents and sends them to the server.
+ * @param tickUrl
+ * @param meterName
+ * @param ticks
+ * @param eventInterval how many seconds of ticks should be included in each EnergyEvent
+ * @param retryConfig
+ * @param callback
+ */
+function sendTicksAndRetryOnFailure(tickUrl, meterName, ticks, eventInterval, retryConfig, callback) {
   //Using 'retry', a nifty package that handles retry automatically.
   //See https://github.com/tim-kos/node-retry
   const operation = retry.operation(retryConfig)
+
+  //const events = getEnergyEventsFromPulses(ticks, eventInterval)
 
   operation.attempt(function(currentAttempt) {
     if (currentAttempt > 1) {
@@ -53,5 +65,6 @@ function sendTicks(tickUrl, meterName, ticks, callback) {
     callback(null, body)
   })
 }
+
 
 module.exports.sendTicksAndRetryOnFailure = sendTicksAndRetryOnFailure

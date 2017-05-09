@@ -25,7 +25,7 @@ describe('TickSender', function() {
       minTimeout: 100,
       retries: 0
     }
-    this.meter = new TickSender('http://fake.meterbackend.com', "111222", retryConfig, new TickStorage("ticks"))
+    this.meter = new TickSender('http://fake.meterbackend.com', "111222", 1, retryConfig, new TickStorage("ticks"))
     
 
   })
