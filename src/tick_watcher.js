@@ -3,17 +3,17 @@
  */
 class TickWatcher {
 
-  constructor(tickSender, minSendIntervalSeconds) {
+  constructor(tickSender, notificationIntervalSeconds) {
     this.tickSender = tickSender
-    this.minSendIntervalSeconds = minSendIntervalSeconds
+    this.notificationIntervalSeconds = notificationIntervalSeconds
   }
   /**
    * This starts the whole loop of "let's listen for incoming ticks,
-   * and let's send all ticks to the server every 24 hours" (or whatever the minSendInterval is).
+   * and let's send all ticks to the server every 24 hours" (or whatever the notificationInterval is).
    * It keeps doing that even if things go wrong.
    */
   start() {
-    console.log("I will send any previously batched ticks now, and then send any additional ticks every " + this.minSendIntervalSeconds + " seconds.")
+    console.log("I will send any previously batched ticks now, and then send any additional ticks every " + this.notificationIntervalSeconds + " seconds.")
     this._sendBatchedTicksAndScheduleItAgainAfterDone()
   }
 
@@ -21,10 +21,10 @@ class TickWatcher {
     this._sendAllBatchedTicksNowAndRetryIfFailed((err, tickCount) => {
       //No matter how it went, we'll go ahead and schedule it again.
       //And no need to log the result here, that happens inside sendAllBatchedTicksNowAndRetryIfFailed
-      //console.log("Will send batched ticks again in " + minSendInterval + " seconds...")
+      //console.log("Will send batched ticks again in " + notificationInterval + " seconds...")
       setTimeout(() => {
         this._sendBatchedTicksAndScheduleItAgainAfterDone()
-      }, this.minSendIntervalSeconds * 1000)
+      }, this.notificationIntervalSeconds * 1000)
     })
   }
 

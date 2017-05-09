@@ -9,9 +9,9 @@ var registrationBaseUrl = config.get("registrationBaseUrl")
 var tickUrl = config.get('tickUrl')
 var retryConfig = config.get('retry')
 var tickInputPin = config.get('tickInputPin')
-var minSendInterval = parseInt(config.get('minSendInterval'))
-if (minSendInterval <= 0) {
-  throw new Error("minSendInterval was " + minSendInterval + ", but it should be > 0. ")
+var notificationInterval = parseInt(config.get('notificationInterval'))
+if (notificationInterval <= 0) {
+  throw new Error("notificationInterval was " + notificationInterval + ", but it should be > 0. ")
 }
 var tickStoragePath = config.get('tickStoragePath')
 
@@ -30,7 +30,7 @@ function watchForTicks(meterName) {
 
   const tickSender = new TickSender(tickUrl, meterName, retryConfig, tickStorage)
 
-  const tickWatcher = new TickWatcher(tickSender, minSendInterval)
+  const tickWatcher = new TickWatcher(tickSender, notificationInterval)
   tickWatcher.start()
 
 }
