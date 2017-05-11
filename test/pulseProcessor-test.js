@@ -179,12 +179,13 @@ describe.only('PulseProcessor', function() {
     )
   })
 
-  it('doesnt send pulse until next bucket starts', function() {
+  it('readPulsesAndSendEnergyNotification', function() {
     //Add two pulses in different buckets
-    add("2016-05-03 10:15:01")
-    add("2016-05-03 10:15:11")
+    add("2016-05-03 10:15:01") //first bucket
+    add("2016-05-03 10:15:11") //second bucket
 
-    //Send a notification
+    //Trigger a notification
+    //The pulse from the first bucket should be sent.
     return this.processor.readPulsesAndSendEnergyNotification()
       .should.eventually.deep.equal([
       {
@@ -193,5 +194,43 @@ describe.only('PulseProcessor', function() {
         energy: 1
       }
       ])
+
+    //Add two more pulses to the second bucket, and one pulse to a third bucet.
+    add("2016-05-03 10:15:16") //second bucket
+    add("2016-05-03 10:15:17") //second bucket
+    add("2016-05-03 10:15:22") //third bucket
+
+    //Trigger a notification
+    //An event with the 3 pulses from the second bucket should be sent.
+    return this.processor.readPulsesAndSendEnergyNotification()
+      .should.eventually.deep.equal([
+        {
+          endTime: "2016-05-03 10:15:20",
+          seconds: 10,
+          energy: 3
+        }
+      ])
+
+    //Add another pulse to the third bucket, and pulse to a fourth and fifth bucket
+    add("2016-05-03 10:15:26") //third bucket
+    add("2016-05-03 10:15:31") //fourth bucket
+    add("2016-05-03 10:15:45") //fifth bucket
+
+    //Trigger a notification
+    //Two events should be sent - one for the third bucket and one for the fourth
+    return this.processor.readPulsesAndSendEnergyNotification()
+      .should.eventually.deep.equal([
+        {
+          endTime: "2016-05-03 10:15:30",
+          seconds: 10,
+          energy: 2
+        },
+        {
+          endTime: "2016-05-03 10:15:40",
+          seconds: 10,
+          energy: 1
+        }
+      ])
+
   })
 })
