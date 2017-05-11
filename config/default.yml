@@ -18,6 +18,7 @@ serverUrl: http://localhost:3000/energynotification
 # Example: http://my.server/register#abcdefgh
 registrationBaseUrl: http://localhost:3000/register
 
+# Which file contains the device ID
 deviceIdPath: ./test/device-id
 
 # If simulate is 0, thenfi no ticks are simulated.
@@ -30,12 +31,13 @@ simulate: 0
 # 1 second pretty much means it will send every tick immediately (= no batching of ticks).
 notificationInterval: 10
 
+# How many seconds of pulses each energy event should include
 eventInterval: 10
 
 # How much energy (in Wh) does one pulse represent?
 energyPerPulse: 1
 
-
+# If true, pulses are logged in console.log
 logPulseDetection: false
 
 # The folder that contains batched and sent ticks.
