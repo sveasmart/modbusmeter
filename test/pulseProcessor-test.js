@@ -20,7 +20,7 @@ function add(dateString) {
   fs.appendFileSync("data/inbox", new Date(dateString).toISOString() + "\n")
 }
 
-describe.only('PulseProcessor', function() {
+describe('PulseProcessor', function() {
 
   beforeEach(function() {
     fakeFilesystem.init()
