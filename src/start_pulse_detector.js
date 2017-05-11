@@ -2,13 +2,16 @@ const RpioClickDetector = require('./rpio_click_detector')
 const FakeClickDetector = require('./fake_click_detector')
 
 const config = require('config')
+const fs = require('fs')
+const path = require('path')
 const tickInputPin = config.get('tickInputPin')
-const storagePath = config.get('tickStoragePath')
+const dataDir = config.get('dataDir')
+const inboxFile = path.join(dataDir, "inbox")
+const counterFile = path.join(dataDir, "counter")
+
 const simulate = parseInt(config.get('simulate'))
 const logPulseDetection = config.get('logPulseDetection')
 
-const TickStorage = require("./tick_storage")
-const storage = new TickStorage(storagePath)
 
 console.log("I receive ticks on pin " + tickInputPin)
 
@@ -29,11 +32,36 @@ clickDetector.setClickListener(registerPulse)
  */
 function registerPulse() {
   let pulse = new Date().toISOString();
-  storage.addTickToPending(pulse)
+  addPulseToInbox(pulse)
   if (logPulseDetection) {
     console.log("Detected pulse and stored it: " + pulse)
   }
 }
+
+function incrementCounter() {
+  fs.readFile(counterFile, (err, counterString) => {
+    if (err) {
+      console.log("Something went wrong when reading the counter", err)
+      return
+    }
+    let counterInt = parseInt(counterString)
+    fs.writeFile(counterFile, counterInt + 1, function(err) {
+      if (err) {
+        console.log("Something went wrong when writing the counter", err)
+      }
+    })
+  })
+}
+
+function addPulseToInbox(pulse) {
+  fs.appendFile(inboxFile, pulse + "\n", function(err) {
+    if (err) {
+      console.log("Something went wrong when adding a pulse to inbox", pulse, err)
+    }
+  })
+  incrementCounter()
+}
+
 
 if (simulate > 0) {
   console.log("I will register a simulated tick every " + simulate + " seconds.")

@@ -11,7 +11,7 @@
 meterName: Unregistered
 
 # The URL of the backend to which ticks are posted
-tickUrl: http://localhost:3000/api/ticks
+serverUrl: http://localhost:3000/energynotification
 
 # The URL that will be used in the QR code that is displayed when no meterName is set.
 # The deviceId will be passed along using an # (anchor tag).
@@ -32,11 +32,14 @@ notificationInterval: 10
 
 eventInterval: 10
 
+# How much energy (in Wh) does one pulse represent?
+energyPerPulse: 1
+
 
 logPulseDetection: false
 
 # The folder that contains batched and sent ticks.
-tickStoragePath: ticks
+dataDir: data
 
 # Which pin the ticks are reported through (pin number, not GPIO number)
 tickInputPin: 12
@@ -45,7 +48,7 @@ tickInputPin: 12
 # (when displaying tick counter)
 counterDisplayInterval: 1
 
-# Retry settings for when the tickUrl isn't reachable.
+# Retry settings for when the serverUrl isn't reachable.
 retry:
   minTimeout: 1000 #First retry is after 1 second
   factor: 2 #and next retry will be after 2 seconds, then 4 seconds, 8 seconds, 16 seconds...

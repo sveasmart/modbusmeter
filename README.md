@@ -38,7 +38,7 @@ This will be improved in the future.
 
 ## Protocol
 
-The Meter sends HTTP POST messages to the configured tickUrl.
+The Meter sends HTTP POST messages to the configured serverUrl.
 The body is formatted like this:
 
 ```

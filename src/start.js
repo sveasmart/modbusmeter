@@ -1,14 +1,15 @@
-const TickSender = require('./tick_sender')
-const TickWatcher = require('./tick_watcher')
-const TickStorage = require('./tick_storage')
+const EnergyNotificationSender = require('./energy_notification_sender')
+const PulseProcessor = require('./pulse_processor')
 const fs = require('fs')
+const path = require('path')
 
 var config = require('config')
 var deviceIdPath = config.get("deviceIdPath")
 var registrationBaseUrl = config.get("registrationBaseUrl")
-var tickUrl = config.get('tickUrl')
+var serverUrl = config.get('serverUrl')
 var retryConfig = config.get('retry')
 var tickInputPin = config.get('tickInputPin')
+
 var notificationInterval = parseInt(config.get('notificationInterval'))
 if (notificationInterval <= 0) {
   throw new Error("notificationInterval was " + notificationInterval + ", but it should be > 0. ")
@@ -19,25 +20,50 @@ if (eventInterval <= 0) {
   throw new Error("eventInterval was " + eventInterval + ", but it should be > 0. ")
 }
 
-var tickStoragePath = config.get('tickStoragePath')
+var energyPerPulse = parseInt(config.get('energyPerPulse'))
+if (energyPerPulse <= 0) {
+  throw new Error("energyPerPulse was " + energyPerPulse + ", but it should be > 0. ")
+}
+
+var dataDir = config.get('dataDir')
+const counterFile = path.join(dataDir, "counter")
 
 var counterDisplayInterval = parseInt(config.get('counterDisplayInterval'))
 
 let showingTicks = false
 
-console.log("I will talk to " + tickUrl)
+console.log("I will talk to " + serverUrl)
 console.log("Here is my retry config: ")
 console.log(retryConfig)
 
-const tickStorage = new TickStorage(tickStoragePath)
+function watchForPulses(meterName) {
+  console.log("I am meter " + meterName + ", and my serverUrl is " + serverUrl)
 
-function watchForTicks(meterName) {
-  console.log("I am meter " + meterName + ", and my tickUrl is " + tickUrl)
+  const notificationSender = new EnergyNotificationSender(serverUrl, meterName, retryConfig)
+  const pulseProcessor = new PulseProcessor(dataDir, eventInterval, energyPerPulse, notificationSender)
+  processInboxAndRepeat(pulseProcessor)
+}
 
-  const tickSender = new TickSender(tickUrl, meterName, eventInterval, retryConfig, tickStorage)
-
-  const tickWatcher = new TickWatcher(tickSender, notificationInterval)
-  tickWatcher.start()
+function processInboxAndRepeat(pulseProcessor) {
+  console.log("processInboxAndRepeat")
+  pulseProcessor.readPulsesAndSendEnergyNotification()
+    .then(function(energyEventsSent) {
+      if (energyEventsSent.length == 0) {
+        console.log("There were no completed energy events to send")
+      } else {
+        console.log("Successfully sent " + energyEventsSent.length + " energy events to the server")
+      }
+      console.log("Waiting " + notificationInterval + " seconds...")
+      setTimeout(function() {
+        processInboxAndRepeat(pulseProcessor)
+      }, notificationInterval * 1000)
+    })
+    .catch(function(err) {
+      console.log("Got error from readPulsesAndSendEnergyNotification", err)
+      setTimeout(function() {
+        processInboxAndRepeat(pulseProcessor)
+      }, notificationInterval * 1000)
+    })
 
 }
 
@@ -91,7 +117,7 @@ function showMeterNameAndTicks() {
 function getMeterName() {
   delete require.cache[require.resolve('config')]
   config = require('config')
-  const meterName = config.get("meterName")
+  const meterName = "" + config.get("meterName")
   return meterName
 }
 
@@ -127,7 +153,7 @@ if (buttons) {
 
 const meterName = getMeterName()
 
-watchForTicks(meterName)
+watchForPulses(meterName)
 
 if (meterName == "Unregistered") {
   //Oh, meterName hasn't been set. Show QR code.
@@ -138,7 +164,11 @@ if (meterName == "Unregistered") {
 }
 
 function getTickCount() {
-  return tickStorage.readTickCountSync()
+  if (fs.existsSync(counterFile)) {
+    return parseInt(fs.readFileSync(counterFile))
+  } else {
+    return 0
+  }
 }
 
 //Update the display every second (if showing tick count)

@@ -63,7 +63,7 @@ describe('TickSender', function() {
       .reply(404)
 
 
-    this.meter.tickUrl = 'http://fakefail.meterbackend.com'
+    this.meter.serverUrl = 'http://fakefail.meterbackend.com'
     registerTick(this.meter)
     this.meter.sendAllBatchedTicksAndRetryIfFailed((err) => {
       if (err) {
