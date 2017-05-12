@@ -92,8 +92,8 @@ function showRegistrationUrl() {
     display.clear()
     //We write one line at a time in order to support line wrapping for the registrationBaseUrl
     display.writeText(registrationBaseUrl, 0, 0, true)
-    display.writeText("Device ID:", 0, 2)
-    display.writeText(getDeviceId().toUpperCase(), 0, 3)
+    display.writeText("Device ID:", 0, 3)
+    display.writeText(getDeviceId().toUpperCase(), 0, 5)
   } else {
     console.log("Pretending to show registration URL " + getRegistrationUrl())
   }
