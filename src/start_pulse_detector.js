@@ -41,7 +41,7 @@ function registerPulse() {
 function incrementCounter() {
   fs.readFile(counterFile, (err, counterString) => {
     if (err) {
-      console.log("Something went wrong when reading the counter", err)
+      //Ignore. If the file doesn't exist we'll simply create it next.
       return
     }
     let counterInt = parseInt(counterString)
