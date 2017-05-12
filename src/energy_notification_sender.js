@@ -40,9 +40,11 @@ class EnergyNotificationSender {
     }
 
     return promiseRetry((retry, number) => {
-      console.log('attempt number', number);
+      if (number > 1) {
+        console.log('...send attempt number', number);
+      }
       return this._sendEnergyNotification(notification).catch((error) => {
-        console.log("send failed! Will retry.", error)
+        console.log("send failed! Will retry. " +  error)
         retry()
       });
     }, this.retryConfig)

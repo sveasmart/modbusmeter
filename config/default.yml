@@ -39,6 +39,9 @@ energyPerPulse: 1
 # If true, pulses are logged in console.log
 logPulseDetection: false
 
+# If true, logs stuff that happens over and over again
+verboseLogging: true
+
 # The folder that contains batched and sent ticks.
 dataDir: data
 

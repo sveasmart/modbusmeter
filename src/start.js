@@ -29,6 +29,7 @@ var dataDir = config.get('dataDir')
 const counterFile = path.join(dataDir, "counter")
 
 var counterDisplayInterval = parseInt(config.get('counterDisplayInterval'))
+const verboseLogging = config.get('verboseLogging')
 
 let showingTicks = false
 
@@ -45,15 +46,14 @@ function watchForPulses(meterName) {
 }
 
 function processInboxAndRepeat(pulseProcessor) {
-  console.log("processInboxAndRepeat")
   pulseProcessor.readPulsesAndSendEnergyNotification()
     .then(function(energyEventsSent) {
       if (energyEventsSent.length == 0) {
-        console.log("There were no completed energy events to send")
+        if (verboseLogging) console.log("There were no completed energy events to send")
       } else {
-        console.log("Successfully sent " + energyEventsSent.length + " energy events to the server")
+        if (verboseLogging) console.log("Successfully sent " + energyEventsSent.length + " energy events to the server")
       }
-      console.log("Waiting " + notificationInterval + " seconds...")
+      if (verboseLogging) console.log("Waiting " + notificationInterval + " seconds...")
       setTimeout(function() {
         processInboxAndRepeat(pulseProcessor)
       }, notificationInterval * 1000)
@@ -110,7 +110,7 @@ function showMeterNameAndTicks() {
       "Ticks: " + getTickCount()
     ])
   } else {
-    console.log("Meter " + config.get("meterName") + "  Ticks: " + getTickCount())
+    if (verboseLogging) console.log("Meter " + config.get("meterName") + "  Ticks: " + getTickCount())
   }
 }
 
