@@ -80,7 +80,7 @@ function showQrCode() {
   showingTicks = false
 
   if (display) {
-    display.qrCode(getRegistrationUrl())
+    display.setQrCode(getRegistrationUrl())
   } else {
     console.log("Pretending to show QR code for " + getRegistrationUrl() + " " + getTickCount() + " pulses")
   }
@@ -89,13 +89,11 @@ function showQrCode() {
 function showRegistrationUrl() {
   showingTicks = false
   if (display) {
-    display.texts([
-      registrationBaseUrl,
-      "Device ID:",
-      getDeviceId().toUpperCase()
-    ])
-
-
+    display.clear()
+    //We write one line at a time in order to support line wrapping for the registrationBaseUrl
+    display.writeText(registrationBaseUrl, 0, 0, true)
+    display.writeText("Device ID:", 0, 2)
+    display.writeText(getDeviceId().toUpperCase(), 0, 3)
   } else {
     console.log("Pretending to show registration URL " + getRegistrationUrl())
   }
@@ -104,9 +102,10 @@ function showRegistrationUrl() {
 function showMeterNameAndTicks() {
   showingTicks = true
   if (display) {
-    display.texts([
+    display.setTexts([
       "Meter",
       config.get("meterName"),
+      "",
       "Ticks: " + getTickCount()
     ])
   } else {
