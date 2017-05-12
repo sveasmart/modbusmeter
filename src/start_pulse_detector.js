@@ -10,7 +10,7 @@ const inboxFile = path.join(dataDir, "inbox")
 const counterFile = path.join(dataDir, "counter")
 
 const simulate = parseInt(config.get('simulate'))
-const logPulseDetection = config.get('logPulseDetection')
+const logPulseDetection = config.get('logPulseDetection') == "true"
 
 
 console.log("I receive ticks on pin " + tickInputPin)
@@ -41,7 +41,7 @@ function registerPulse() {
 function incrementCounter() {
   fs.readFile(counterFile, (err, counterString) => {
     let counterInt
-    
+
     if (counterString) {
       counterInt = parseInt(counterString)
     } else {

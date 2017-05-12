@@ -29,7 +29,7 @@ var dataDir = config.get('dataDir')
 const counterFile = path.join(dataDir, "counter")
 
 var counterDisplayInterval = parseInt(config.get('counterDisplayInterval'))
-const verboseLogging = config.get('verboseLogging')
+const verboseLogging = config.get('verboseLogging') == "true"
 
 let showingTicks = false
 

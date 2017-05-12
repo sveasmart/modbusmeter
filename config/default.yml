@@ -8,49 +8,51 @@
 
 # The name used to identify this meter when talking to the backend
 # If not set, a QR code will be displayed pointing to registrationBaseUrl
-meterName: Unregistered
+meterName: "Unregistered"
 
 # The URL of the backend to which ticks are posted
-serverUrl: http://localhost:3000/energynotification
+serverUrl: "http://localhost:3000/energynotification"
 
 # The URL that will be used in the QR code that is displayed when no meterName is set.
 # The deviceId will be passed along using an # (anchor tag).
 # Example: http://my.server/register#abcdefgh
-registrationBaseUrl: http://localhost:3000/register
+registrationBaseUrl: "http://localhost:3000/register"
 
 # Which file contains the device ID
-deviceIdPath: ./test/device-id
+deviceIdPath: "./test/device-id"
 
 # If simulate is 0, then no ticks are simulated.
 # If > 0, then a fake tick is sent every X seconds
-simulate: 0
+simulate: "0"
 
 # Minimum number of seconds between each send.
 # Higher number means fewer http requests and more energy events per batch.
 # Must be at least 1 second.
-notificationInterval: 10
+notificationInterval: "10"
 
 # How many seconds of pulses each energy event should include
-eventInterval: 10
+eventInterval: "10"
 
 # How much energy (in Wh) does one pulse represent?
-energyPerPulse: 1
+energyPerPulse: "1"
 
 # If true, pulses are logged in console.log
-logPulseDetection: false
+# Should be a string, so don't skip the quotes.
+logPulseDetection: "true"
 
 # If true, logs stuff that happens over and over again
-verboseLogging: true
+# Should be a string, so don't skip the quotes.
+verboseLogging: "true"
 
 # The folder that contains batched and sent ticks.
-dataDir: data
+dataDir: "data"
 
 # Which pin the ticks are reported through (pin number, not GPIO number)
-tickInputPin: 12
+tickInputPin: "12"
 
 # How many seconds between each update of the display
 # (when displaying tick counter)
-counterDisplayInterval: 1
+counterDisplayInterval: "1"
 
 # Retry settings for when the serverUrl isn't reachable.
 retry:
