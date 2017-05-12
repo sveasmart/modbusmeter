@@ -103,10 +103,11 @@ function showMeterNameAndTicks() {
   showingTicks = true
   if (display) {
     display.setTexts([
-      "Meter",
+      "Meter:",
       config.get("meterName"),
       "",
-      "Ticks: " + getTickCount()
+      "Ticks:",
+      getTickCount()
     ])
   } else {
     if (verboseLogging) console.log("Meter " + config.get("meterName") + "  Ticks: " + getTickCount())
