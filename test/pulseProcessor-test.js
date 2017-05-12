@@ -179,6 +179,39 @@ describe('PulseProcessor', function() {
     )
   })
 
+  it('process pulses with big gap in time', function() {
+    add("2016-05-05 17:33:02") //first bucket
+    add("2016-05-05 17:33:05") //first bucket
+    add("2016-05-06 07:01:20") //second bucket, way after first
+    add("2016-05-06 07:01:21") //second bucket, way after first
+    add("2016-05-06 07:01:23") //second bucket, way after first
+    add("2016-05-06 07:01:31") //third bucket
+    this.processor._stealInbox()
+
+    expect(this.processor._createEnergyEventsFromPulses())
+      .to.deep.equal([
+      {
+        endTime: "2016-05-05 17:33:10",
+        seconds: 10,
+        energy: 2
+      },
+      {
+        endTime: "2016-05-06 07:01:30",
+        seconds: 10,
+        energy: 3
+      }
+    ])
+
+    expect(this.processor.lastIncompleteEvent)
+      .to.deep.equal(
+      {
+        endTime: "2016-05-06 07:01:40",
+        seconds: 10,
+        energy: 1
+      }
+    )
+  })
+
   it('readPulsesAndSendEnergyNotification', function() {
     //Add two pulses in different buckets
     add("2016-05-03 10:15:01") //first bucket
