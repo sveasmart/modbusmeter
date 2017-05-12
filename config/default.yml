@@ -21,14 +21,13 @@ registrationBaseUrl: http://localhost:3000/register
 # Which file contains the device ID
 deviceIdPath: ./test/device-id
 
-# If simulate is 0, thenfi no ticks are simulated.
+# If simulate is 0, then no ticks are simulated.
 # If > 0, then a fake tick is sent every X seconds
 simulate: 0
 
 # Minimum number of seconds between each send.
-# Higher number means fewer http requests and more ticks per batch.
+# Higher number means fewer http requests and more energy events per batch.
 # Must be at least 1 second.
-# 1 second pretty much means it will send every tick immediately (= no batching of ticks).
 notificationInterval: 10
 
 # How many seconds of pulses each energy event should include
