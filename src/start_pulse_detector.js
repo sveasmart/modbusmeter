@@ -26,6 +26,10 @@ if (RpioClickDetector.hasRpio()) {
 }
 
 clickDetector.setClickListener(registerPulse)
+console.log("Pulse detection is now running!")
+console.log(" - verboseLogging = " + verboseLogging)
+console.log(" - logPulseDetection = " + logPulseDetection)
+console.log(" - simulate = " + simulate)
 
 /**
  * Saves this tick in 'pending'.
