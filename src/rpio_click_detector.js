@@ -37,7 +37,7 @@ class RpioClickDetector {
     var rpio = require('rpio')
     rpio.open(rpioPin, rpio.INPUT, rpio.PULL_UP);
 
-    rpio.poll(rpioPin, function(pin) {
+    rpio.poll(rpioPin, (pin) => {
       /*
        * Interrupts aren't supported by the underlying hardware, so events
        * may be missed during the 1ms poll window.  The best we can do is to
