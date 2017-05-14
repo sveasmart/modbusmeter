@@ -6,8 +6,9 @@
  * That way it can be easily be replaced with a fake for local testing purposes.
  */
 class RpioClickDetector {
-  constructor(rpioPin) {
+  constructor(rpioPin, logClicks) {
     this.rpioPin = rpioPin
+    this.logClicks = logClicks
   }
 
   static hasRpio() {
@@ -44,10 +45,10 @@ class RpioClickDetector {
        */
       var pressed = !rpio.read(pin)
       if (pressed) {
-        console.log("click detected received on RPIO pin " + pin)
+        if (this.logClicks) console.log("click detected received on RPIO pin " + pin)
         onClickFunction()
       } else {
-        console.log(" (click ended)")
+        if (this.logClicks) console.log(" (click ended)")
       }
     });
 

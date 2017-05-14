@@ -11,6 +11,7 @@ const counterFile = path.join(dataDir, "counter")
 
 const simulate = parseInt(config.get('simulate'))
 const logPulseDetection = config.get('logPulseDetection') == "true"
+const verboseLogging = config.get('verboseLogging') == "true"
 
 
 console.log("I receive ticks on pin " + tickInputPin)
@@ -18,9 +19,9 @@ console.log("I receive ticks on pin " + tickInputPin)
 let clickDetector
 if (RpioClickDetector.hasRpio()) {
   console.log("RPIO detected. Will listen for clicks on pin " + tickInputPin)
-  clickDetector = new RpioClickDetector(tickInputPin)
+  clickDetector = new RpioClickDetector(tickInputPin, verboseLogging)
 } else {
-  console.log("No RPIO detected. Fake click detector is available, type 't' to manually simulate a tick.")
+  console.log("No RPIO detected. Can't detect clicks.")
   clickDetector = new FakeClickDetector()
 }
 
