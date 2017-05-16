@@ -138,17 +138,22 @@ try {
   console.log("Failed to load Adafruit, so we'll fake the display using the console" + err)
 }
 
-if (buttons) {
-  buttons.watchAllButtons(function(buttonId) {
-    console.log("button pressed " + buttonId)
-    if (buttonId == 0) {
-      showQrCode()
-    } else if (buttonId == 1) {
-      showRegistrationUrl()
-    } else {
-      showMeterNameAndTicks()
-    }
-  })
+try {
+
+  if (buttons) {
+    buttons.watchAllButtons(function(buttonId) {
+      console.log("button pressed " + buttonId)
+      if (buttonId == 0) {
+        showQrCode()
+      } else if (buttonId == 1) {
+        showRegistrationUrl()
+      } else {
+        showMeterNameAndTicks()
+      }
+    })
+  }
+} catch (err) {
+  console.log("Couldn't listen to the display buttons, so I'll skip those.", err)
 }
 
 const meterName = getMeterName()
