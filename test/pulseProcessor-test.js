@@ -14,10 +14,12 @@ const fakeFilesystem = require("./fake-filesystem")
 const fs = require('fs')
 
 /**
- * Adds the given pulse to the inbox
+ * Adds the given pulse to the inbox.
+ * The dateString is treated as UTC (i.e. a "Z" will be added at the end).
+ * https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators
  */
 function add(dateString) {
-  fs.appendFileSync("data/inbox", new Date(dateString).toISOString() + "\n")
+  fs.appendFileSync("data/inbox", new Date(dateString + "Z").toISOString() + "\n")
 }
 
 describe('PulseProcessor', function() {
@@ -59,15 +61,15 @@ describe('PulseProcessor', function() {
 
   it("_doesPulseBelongInLastIncompleteEvent", function() {
     this.processor.lastIncompleteEvent = {
-      endTime: new Date("2016-05-10 12:00:10"),
+      endTime: new Date("2016-05-10T12:00:10"),
       seconds: 10,
       energy: 1
     }
 
-    expect(this.processor._doesPulseBelongInLastIncompleteEvent(new Date("2016-05-10 12:00:05")))
+    expect(this.processor._doesPulseBelongInLastIncompleteEvent(new Date("2016-05-10T12:00:05Z")))
       .to.be.true
 
-    expect(this.processor._doesPulseBelongInLastIncompleteEvent(new Date("2016-05-10 12:00:12")))
+    expect(this.processor._doesPulseBelongInLastIncompleteEvent(new Date("2016-05-10T12:00:12Z")))
       .to.be.false
   })
 
@@ -77,7 +79,7 @@ describe('PulseProcessor', function() {
     const pulses = this.processor._getPulsesInProcessing()
 
     expect(pulses.length).to.equal(1)
-    expect(pulses[0]).to.equalTime(new Date("2016-02-01 12:30:44.343"))
+    expect(pulses[0]).to.equalTime(new Date("2016-02-01T12:30:44.343Z"))
   })
 
   it('no inbox', function() {
@@ -130,7 +132,7 @@ describe('PulseProcessor', function() {
     expect(this.processor.lastIncompleteEvent)
       .to.deep.equal(
       {
-        endTime: "2016-05-05 10:00:10",
+        endTime: "2016-05-05T10:00:10.000Z",
         seconds: 10,
         energy: 1
       }
@@ -148,7 +150,7 @@ describe('PulseProcessor', function() {
     expect(this.processor.lastIncompleteEvent)
       .to.deep.equal(
       {
-        endTime: "2016-05-05 10:00:10",
+        endTime: "2016-05-05T10:00:10.000Z",
         seconds: 10,
         energy: 2
       }
@@ -163,7 +165,7 @@ describe('PulseProcessor', function() {
     expect(this.processor._createEnergyEventsFromPulses())
       .to.deep.equal([
       {
-        endTime: "2016-05-05 10:00:10",
+        endTime: "2016-05-05T10:00:10.000Z",
         seconds: 10,
         energy: 1
       }
@@ -172,7 +174,7 @@ describe('PulseProcessor', function() {
     expect(this.processor.lastIncompleteEvent)
       .to.deep.equal(
       {
-        endTime: "2016-05-05 10:00:20",
+        endTime: "2016-05-05T10:00:20.000Z",
         seconds: 10,
         energy: 1
       }
@@ -191,12 +193,12 @@ describe('PulseProcessor', function() {
     expect(this.processor._createEnergyEventsFromPulses())
       .to.deep.equal([
       {
-        endTime: "2016-05-05 17:33:10",
+        endTime: "2016-05-05T17:33:10.000Z",
         seconds: 10,
         energy: 2
       },
       {
-        endTime: "2016-05-06 07:01:30",
+        endTime: "2016-05-06T07:01:30.000Z",
         seconds: 10,
         energy: 3
       }
@@ -205,7 +207,7 @@ describe('PulseProcessor', function() {
     expect(this.processor.lastIncompleteEvent)
       .to.deep.equal(
       {
-        endTime: "2016-05-06 07:01:40",
+        endTime: "2016-05-06T07:01:40.000Z",
         seconds: 10,
         energy: 1
       }
@@ -222,7 +224,7 @@ describe('PulseProcessor', function() {
     return this.processor.readPulsesAndSendEnergyNotification()
       .should.eventually.deep.equal([
       {
-        endTime: "2016-05-03 10:15:10",
+        endTime: "2016-05-03T10:15:10.000Z",
         seconds: 10,
         energy: 1
       }
@@ -238,7 +240,7 @@ describe('PulseProcessor', function() {
     return this.processor.readPulsesAndSendEnergyNotification()
       .should.eventually.deep.equal([
         {
-          endTime: "2016-05-03 10:15:20",
+          endTime: "2016-05-03T10:15:20.000Z",
           seconds: 10,
           energy: 3
         }
@@ -254,12 +256,12 @@ describe('PulseProcessor', function() {
     return this.processor.readPulsesAndSendEnergyNotification()
       .should.eventually.deep.equal([
         {
-          endTime: "2016-05-03 10:15:30",
+          endTime: "2016-05-03T10:15:30.000Z",
           seconds: 10,
           energy: 2
         },
         {
-          endTime: "2016-05-03 10:15:40",
+          endTime: "2016-05-03T10:15:40.000Z",
           seconds: 10,
           energy: 1
         }

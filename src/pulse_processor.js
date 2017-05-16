@@ -203,7 +203,7 @@ class PulseProcessor {
    */
   _createEvent(pulse) {
     return {
-      endTime: moment(this._getEndTime(pulse)).format("YYYY-MM-DD HH:mm:ss"),
+      endTime: moment(this._getEndTime(pulse)).toISOString(),
       seconds: this.eventInterval,
       energy: this.energyPerPulse
     }
