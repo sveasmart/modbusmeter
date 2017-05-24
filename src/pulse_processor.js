@@ -2,7 +2,6 @@ const fs = require('fs')
 const path = require('path')
 const moment = require('moment')
 
-
 class PulseProcessor {
   constructor(dataDir, eventInterval, energyPerPulse, energyNotificationSender) {
     console.assert(dataDir, "No dataDir!")
@@ -33,49 +32,49 @@ class PulseProcessor {
    * This method maintains a persistent state using files.
    * data/processing = pulses that have been read from inbox and not yet sent to server
    * data/last-incomplete-event.json = the current event that pulses are being added to (the "left-over" from the previous processing round)
-   * 
+   *
    * This method has two scenarios. Either it is continuing from a previously interrupted run,
    * or it is starting a new run.
-   * 
-   * If data/processing already exists, I will process those. This only happens if the 
+   *
+   * If data/processing already exists, I will process those. This only happens if the
    * whole meter process was shut down in the middle of processing.
-   * 
+   *
    * If data/processing does not already exist (the normal case),
    * I will rename data/inbox to data/processing, and process those.
-   * 
-   * So how does processing work? 
+   *
+   * So how does processing work?
    * Well, I go through all pulses in data/processing and put them into energy events
    * (think of each event as a 10 second time bucket, or whatever the eventInterval is).
-   * 
+   *
    * If I had a saved data/last-incomplete-event.json from before, I'll load that into memory and
-   * use that as a starting point. 
-   * 
+   * use that as a starting point.
+   *
    * An energy event is "complete" when the next energy event is started. That is, when a pulse shows up that
-   * is after the endTime of the current event. 
-   * 
+   * is after the endTime of the current event.
+   *
    * After going through all pulses in data/processing, all COMPLETE events are bundled into an energy notification
    * and sent to the server. If that call fails (usually due to a shaky network), then we'll just keep retrying.
-   * 
+   *
    * Usually the last few pulses in data/processing will form an INCOMPLETE energy event. That means, in the future
    * a pulse might show up that belongs in that same energy event. So we don't want to send it to the server yet.
    * Instead, we save it in data/last-incomplete-event.json. That way, next time someone calls readPulsesAndSendEnergyNotification(),
    * we'll be able to add more pulses to the same event.
-   * 
+   *
    * From a persistency perspective, there are only two possible outcomes from here - success, or interrupt.
-   * 
+   *
    * A) Success. We managed to process all pulses and send to the server.
    * In that case, data/processing will be gone, and data/last-incomplete-event.json will be updated.
-   * 
-   * B) Interrupt. The meter was shut down in the middle of processing, or while waiting for response from the server. 
+   *
+   * B) Interrupt. The meter was shut down in the middle of processing, or while waiting for response from the server.
    * In that case we'll the old data/last-incomplete-event.json from before, and data/processing will be unchanged.
-   * So next time readPulsesAndSendEnergyNotification() we'll just redo the whole thing. 
-   * 
+   * So next time readPulsesAndSendEnergyNotification() we'll just redo the whole thing.
+   *
    * What happens in the rare case that the energy events actually reached the server, but the meter crashes
-   * before getting the response? 
+   * before getting the response?
    * In that case, yes, readPulsesAndSendEnergyNotification() will resend those energy events next time and the server
    * will receive a duplicate. Hence, the server should be configured to replace existing energy events
    * (= same meterName and endTime) rather than duplicate.
-   * 
+   *
    */
   readPulsesAndSendEnergyNotification() {
     if (this._hasProcessing()) {
@@ -90,12 +89,12 @@ class PulseProcessor {
     //Send the notification (if there is anything to send)
     return this.energyNotificationSender.sendEnergyEvents(energyEvents)
       .then(() => {
-      //Notication successfully sent (or there weren't any)
-      //Update the file state
-      this._removeProcessing()
-      this._saveLastIncompleteEvent()
-      return energyEvents
-    })
+        //Notication successfully sent (or there weren't any)
+        //Update the file state
+        this._removeProcessing()
+        this._saveLastIncompleteEvent()
+        return energyEvents
+      })
   }
 
   /**
@@ -150,16 +149,17 @@ class PulseProcessor {
     })
     return pulses
   }
+
   /*
-  * Renames "data/inbox" file to "data/processing".
-  * Fails if "data/processing" already exists.
-  */
+   * Renames "data/inbox" file to "data/processing".
+   * Fails if "data/processing" already exists.
+   */
   _stealInbox() {
     if (fs.existsSync(this.inboxFile)) {
       if (fs.existsSync(this.processingFile)) {
         throw new Error(
           "I can't rename " + this.inboxFile + " to " + this.processingFile + " because that file already exists!" +
-            "Looks like PulseProcessor is being used multiple times concurrently! You bad boy!"
+          "Looks like PulseProcessor is being used multiple times concurrently! You bad boy!"
         )
       } else {
         fs.renameSync(this.inboxFile, this.processingFile)
@@ -170,19 +170,21 @@ class PulseProcessor {
 
   }
 
-
   /**
    * Sets this.lastIncompleteEvent to the contents of "data/last-incomplete-event.json",
    * or sets it to null if the file doesn't exist.
    */
   _loadLastIncompleteEvent() {
     if (fs.existsSync(this.lastIncompleteEventFile)) {
-      this.lastIncompleteEvent = JSON.parse(fs.readFileSync(this.lastIncompleteEventFile))
+      try {
+        this.lastIncompleteEvent = JSON.parse(fs.readFileSync(this.lastIncompleteEventFile))
+      } catch (err) {
+        console.log("ERROR - Something went wrong when trying to read the lastIncompleteEventFile file. Empty file?", err)
+      }
     } else {
       this.lastIncompleteEvent = null
     }
   }
-
 
   _saveLastIncompleteEvent() {
     if (this.lastIncompleteEvent) {
@@ -238,7 +240,6 @@ class PulseProcessor {
     const bucketOfLastIncompleteEvent = this._getBucket(new Date(this.lastIncompleteEvent.endTime)) - 1
     return bucketOfPulse == bucketOfLastIncompleteEvent
   }
-
 
   _removeProcessing() {
     if (fs.existsSync(this.processingFile)) {
