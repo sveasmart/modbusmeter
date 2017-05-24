@@ -180,6 +180,10 @@ class PulseProcessor {
         this.lastIncompleteEvent = JSON.parse(fs.readFileSync(this.lastIncompleteEventFile))
       } catch (err) {
         console.log("ERROR - Something went wrong when trying to read the lastIncompleteEventFile file. Empty file?", err)
+        this.lastIncompleteEvent = null
+        fs.unlink(this.lastIncompleteEventFile, function () {
+          console.log("Faild to unlink/delete the file: " + this.lastIncompleteEventFile)
+        })
       }
     } else {
       this.lastIncompleteEvent = null
