@@ -25,16 +25,9 @@ You can configure the meter to generate simulated ticks,
 in case you don't have anything physically connected.
 Use the "simulate" parameter in /config/default.yml
 
-## How to make it autorun on boot
-TODO not yet implemented
-
 ## Error handling
 If anything goes wrong while sending a tick, the meter will retry.
 See /config/default.yml for instructions on how to configure that.
-
-WARNING: while retrying, the ticks are only stored in memory.
-Those ticks will be lost if the application or device is restarted!
-This will be improved in the future.
 
 ## Protocol
 
@@ -43,9 +36,18 @@ The body is formatted like this:
 
 ```
 {
-    meterName: 12345,
-    ticks: [
-        "2017-01-19T17:04:32.960Z"
+    meterName: "12345",
+    events: [
+        {
+            endTime: "2017-05-21T15:00:10.000Z",
+            seconds: 10,
+            energy: 20
+        },
+        {
+            endTime: "2017-05-21T15:00:20.000Z",
+            seconds: 10,
+            energy: 30
+        }
     ]
 }
 ```
