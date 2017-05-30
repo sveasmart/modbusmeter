@@ -43,7 +43,7 @@ notificationInterval: "10"
 # they will be split into separate notifications.
 # Otherwise we risk server timeouts because of the large number of
 # database updates happening on the server side.
-maxEventsPerNotification: 1000
+maxEventsPerNotification: "1000"
 
 # How many seconds of pulses each energy event should include
 eventInterval: "10"
