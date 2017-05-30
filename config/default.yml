@@ -13,6 +13,14 @@ meterName: "Unregistered"
 # The URL of the backend to which ticks are posted
 serverUrl: "http://localhost:3000/energynotification"
 
+# How long we are willing to wait for a response from serverUrl,
+# before considering it a failure and starting the retry loop.
+# This needs to be pretty big, for those cases where a meter has been offline
+# for weeks and then suddenly goes online and wants to send a notification with thousands of events.
+# For example, in one case meter send a notification with 36,000 events, and it took 74 seconds to get a response
+# from the server.
+serverTimeoutSeconds: "300"
+
 # The URL that will be used in the QR code that is displayed when no meterName is set.
 # The deviceId will be passed along using an # (anchor tag).
 # Example: http://my.server/register#abcdefgh
@@ -29,6 +37,7 @@ simulate: "0"
 # Higher number means fewer http requests and more energy events per batch.
 # Must be at least 1 second.
 notificationInterval: "10"
+
 
 # How many seconds of pulses each energy event should include
 eventInterval: "10"

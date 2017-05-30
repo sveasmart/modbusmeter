@@ -9,6 +9,8 @@ var config = require('config')
 var deviceIdPath = config.get("deviceIdPath")
 var registrationBaseUrl = config.get("registrationBaseUrl")
 var serverUrl = config.get('serverUrl')
+var serverTimeoutSeconds = parseInt(config.get('serverTimeoutSeconds'))
+
 var retryConfig = config.get('retry')
 var tickInputPin = config.get('tickInputPin')
 
@@ -43,7 +45,7 @@ console.log(retryConfig)
 function watchForPulses(meterName) {
   console.log("I am meter " + meterName + ", and my serverUrl is " + serverUrl)
 
-  const notificationSender = new EnergyNotificationSender(serverUrl, meterName, retryConfig)
+  const notificationSender = new EnergyNotificationSender(serverUrl, meterName, serverTimeoutSeconds, retryConfig)
   const pulseProcessor = new PulseProcessor(dataDir, eventInterval, energyPerPulse, notificationSender)
   processInboxAndRepeat(pulseProcessor)
 }

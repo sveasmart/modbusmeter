@@ -7,12 +7,15 @@ const requestPromise = require('request-promise-native')
  * @param retryConfig see https://www.npmjs.com/package/promise-retry
  */
 class EnergyNotificationSender {
-  constructor(serverUrl, meterName, retryConfig) {
+  constructor(serverUrl, meterName, serverTimeoutSeconds, retryConfig) {
     console.assert(serverUrl, "missing serverUrl")
     this.serverUrl = serverUrl
 
     console.assert(meterName, "missing meterName")
     this.meterName = meterName
+
+    console.assert(serverTimeoutSeconds, "missing serverTimeoutSeconds")
+    this.serverTimeoutSeconds = serverTimeoutSeconds
 
     console.assert(retryConfig, "missing retryConfig")
     this.retryConfig = retryConfig
@@ -56,7 +59,8 @@ class EnergyNotificationSender {
       uri: this.serverUrl,
       method: 'POST',
       json: notification,
-      followAllRedirects: true
+      followAllRedirects: true,
+      timeout: this.serverTimeoutSeconds * 1000
     }
 
     return requestPromise(options)
