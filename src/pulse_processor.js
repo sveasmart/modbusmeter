@@ -1,9 +1,10 @@
 const fs = require('fs')
 const path = require('path')
 const moment = require('moment')
+const util = require('./util')
 
 class PulseProcessor {
-  constructor(dataDir, eventInterval, energyPerPulse, energyNotificationSender) {
+  constructor(dataDir, eventInterval, maxEventsPerNotification, energyPerPulse, energyNotificationSender) {
     console.assert(dataDir, "No dataDir!")
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir)
@@ -18,6 +19,9 @@ class PulseProcessor {
 
     console.assert(eventInterval, "No eventInterval! " + eventInterval)
     this.eventInterval = eventInterval
+
+    console.assert(maxEventsPerNotification, "No maxEventsPerNotification!")
+    this.maxEventsPerNotification = maxEventsPerNotification
 
     this.energyNotificationSender = energyNotificationSender
 
@@ -84,16 +88,26 @@ class PulseProcessor {
       this._stealInbox()
     }
 
-    const energyEvents = this._createEnergyEventsFromPulses()
+    //Get all the events in processing
+    const events = this._createEnergyEventsFromPulses()
 
-    //Send the notification (if there is anything to send)
-    return this.energyNotificationSender.sendEnergyEvents(energyEvents)
+    //Package them into batches (so we don't send to big notifications and run into timeout problems)
+    const batches = util.batchArrayItems(events, this.maxEventsPerNotification)
+
+    //Trigger one notification for each batch
+    const notificationSendPromises = []
+    batches.forEach((eventsInBatch) => {
+      notificationSendPromises.push(this.energyNotificationSender.sendEnergyEvents(eventsInBatch))
+    })
+
+    //Return a promise that waits for all notifications to complete
+    return Promise.all(notificationSendPromises)
       .then(() => {
-        //Notication successfully sent (or there weren't any)
+        //Notications successfully sent (or there weren't any)
         //Update the file state
         this._removeProcessing()
         this._saveLastIncompleteEvent()
-        return energyEvents
+        return events
       })
   }
 
@@ -252,6 +266,8 @@ class PulseProcessor {
   }
 
 }
+
+
 
 module.exports = PulseProcessor
 

@@ -28,7 +28,7 @@ describe('PulseProcessor', function() {
     mockfs()
 
     this.sender = new FakeEnergyNotificationSender()
-    this.processor = new PulseProcessor("data", 10, 1, this.sender)
+    this.processor = new PulseProcessor("data", 10, 5, 1, this.sender)
   })
 
   afterEach(function() {
@@ -218,6 +218,24 @@ describe('PulseProcessor', function() {
     )
   })
 
+  it('maxEventsPerNotification', function() {
+    //Add seven pulses in different buckets
+    add("2016-05-03 10:01:01") //first bucket
+    add("2016-05-03 10:02:01") //second bucket
+    add("2016-05-03 10:03:01") //third bucket
+    add("2016-05-03 10:04:01") //fourth bucket
+    add("2016-05-03 10:05:01") //fifth bucket
+    add("2016-05-03 10:06:01") //sixth bucket
+    add("2016-05-03 10:07:01") //seventh bucket
+
+    return this.processor.readPulsesAndSendEnergyNotification()
+      .should.eventually.have.lengthOf(6)
+      .then(() => {
+        return this.sender.getNotificationCount().should.equal(2)
+      })
+
+  })
+
   it('readPulsesAndSendEnergyNotification', function() {
     //Add two pulses in different buckets
     add("2016-05-03 10:15:01") //first bucket
@@ -233,43 +251,51 @@ describe('PulseProcessor', function() {
         energy: 1
       }
       ])
+      .then(() => {
 
-    //Add two more pulses to the second bucket, and one pulse to a third bucet.
-    add("2016-05-03 10:15:16") //second bucket
-    add("2016-05-03 10:15:17") //second bucket
-    add("2016-05-03 10:15:22") //third bucket
+        //Add two more pulses to the second bucket, and one pulse to a third bucet.
+        add("2016-05-03 10:15:16") //second bucket
+        add("2016-05-03 10:15:17") //second bucket
+        add("2016-05-03 10:15:22") //third bucket
 
-    //Trigger a notification
-    //An event with the 3 pulses from the second bucket should be sent.
-    return this.processor.readPulsesAndSendEnergyNotification()
-      .should.eventually.deep.equal([
-        {
-          endTime: "2016-05-03T10:15:20.000Z",
-          seconds: 10,
-          energy: 3
-        }
-      ])
+        //Trigger a notification
+        //An event with the 3 pulses from the second bucket should be sent.
+        return this.processor.readPulsesAndSendEnergyNotification()
+          .should.eventually.deep.equal([
+            {
+              endTime: "2016-05-03T10:15:20.000Z",
+              seconds: 10,
+              energy: 3
+            }
+          ])
 
-    //Add another pulse to the third bucket, and pulse to a fourth and fifth bucket
-    add("2016-05-03 10:15:26") //third bucket
-    add("2016-05-03 10:15:31") //fourth bucket
-    add("2016-05-03 10:15:45") //fifth bucket
+      })
+      .then(() => {
+        //Add another pulse to the third bucket, and pulse to a fourth and fifth bucket
+        add("2016-05-03 10:15:26") //third bucket
+        add("2016-05-03 10:15:31") //fourth bucket
+        add("2016-05-03 10:15:45") //fifth bucket
 
-    //Trigger a notification
-    //Two events should be sent - one for the third bucket and one for the fourth
-    return this.processor.readPulsesAndSendEnergyNotification()
-      .should.eventually.deep.equal([
-        {
-          endTime: "2016-05-03T10:15:30.000Z",
-          seconds: 10,
-          energy: 2
-        },
-        {
-          endTime: "2016-05-03T10:15:40.000Z",
-          seconds: 10,
-          energy: 1
-        }
-      ])
+        //Trigger a notification
+        //Two events should be sent - one for the third bucket and one for the fourth
+        return this.processor.readPulsesAndSendEnergyNotification()
+          .should.eventually.deep.equal([
+            {
+              endTime: "2016-05-03T10:15:30.000Z",
+              seconds: 10,
+              energy: 2
+            },
+            {
+              endTime: "2016-05-03T10:15:40.000Z",
+              seconds: 10,
+              energy: 1
+            }
+          ])
+      })
+
+
+
+
 
   })
 })

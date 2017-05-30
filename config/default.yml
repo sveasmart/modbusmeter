@@ -38,6 +38,12 @@ simulate: "0"
 # Must be at least 1 second.
 notificationInterval: "10"
 
+# Limit the number of events per notification.
+# If more events than this have been buffered up,
+# they will be split into separate notifications.
+# Otherwise we risk server timeouts because of the large number of
+# database updates happening on the server side.
+maxEventsPerNotification: 1000
 
 # How many seconds of pulses each energy event should include
 eventInterval: "10"
