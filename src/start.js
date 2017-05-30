@@ -1,5 +1,7 @@
 const EnergyNotificationSender = require('./energy_notification_sender')
 const PulseProcessor = require('./pulse_processor')
+const PersistentCounter = require('./persistent_counter')
+
 const fs = require('fs')
 const path = require('path')
 
@@ -27,6 +29,7 @@ if (energyPerPulse <= 0) {
 
 var dataDir = config.get('dataDir')
 const counterFile = path.join(dataDir, "counter")
+const pulseCounter = new PersistentCounter(counterFile)
 
 var counterDisplayInterval = parseInt(config.get('counterDisplayInterval'))
 const verboseLogging = config.get('verboseLogging') == "true"
@@ -82,7 +85,7 @@ function showQrCode() {
   if (display) {
     display.setQrCode(getRegistrationUrl())
   } else {
-    console.log("Pretending to show QR code for " + getRegistrationUrl() + " " + getTickCount() + " pulses")
+    console.log("Pretending to show QR code for " + getRegistrationUrl() + " " + pulseCounter.getCount() + " pulses")
   }
 }
 
@@ -107,10 +110,10 @@ function showMeterNameAndTicks() {
       config.get("meterName"),
       "",
       "Ticks:",
-      getTickCount()
+      pulseCounter.getCount()
     ])
   } else {
-    if (verboseLogging) console.log("Meter " + config.get("meterName") + "  Ticks: " + getTickCount())
+    if (verboseLogging) console.log("Meter " + config.get("meterName") + "  Ticks: " + pulseCounter.getCount())
   }
 }
 
@@ -168,13 +171,6 @@ if (meterName == "Unregistered") {
   showMeterNameAndTicks()
 }
 
-function getTickCount() {
-  if (fs.existsSync(counterFile)) {
-    return parseInt(fs.readFileSync(counterFile))
-  } else {
-    return 0
-  }
-}
 
 //Update the display every second (if showing tick count)
 setInterval(function() {

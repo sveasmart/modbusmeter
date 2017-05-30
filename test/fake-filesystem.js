@@ -5,11 +5,7 @@ function init() {
 
   const mockfs = require('mock-fs')
   mockfs.restore()
-  mockfs({'ticks': []})
-
-  remove("ticks/pending")
-  remove("ticks/sending")
-  remove("ticks/sent")
+  mockfs({'data': []})
 
 }
 

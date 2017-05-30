@@ -1,5 +1,6 @@
 const RpioClickDetector = require('./rpio_click_detector')
 const FakeClickDetector = require('./fake_click_detector')
+const PersistentCounter = require('./persistent_counter')
 
 const config = require('config')
 const fs = require('fs')
@@ -8,6 +9,7 @@ const tickInputPin = config.get('tickInputPin')
 const dataDir = config.get('dataDir')
 const inboxFile = path.join(dataDir, "inbox")
 const counterFile = path.join(dataDir, "counter")
+const pulseCounter = new PersistentCounter(counterFile)
 
 const simulate = parseInt(config.get('simulate'))
 const logPulseDetection = config.get('logPulseDetection') == "true"
@@ -43,31 +45,13 @@ function registerPulse() {
   }
 }
 
-function incrementCounter() {
-  fs.readFile(counterFile, (err, counterString) => {
-    let counterInt
-
-    if (counterString) {
-      counterInt = parseInt(counterString)
-    } else {
-      //Ignore any error. If the file didn't exist we'll simply create it next.
-      counterInt = 0
-    }
-    fs.writeFile(counterFile, counterInt + 1, function(err) {
-      if (err) {
-        console.log("Something went wrong when writing the counter", err)
-      }
-    })
-  })
-}
-
 function addPulseToInbox(pulse) {
   fs.appendFile(inboxFile, pulse + "\n", function(err) {
     if (err) {
       console.log("Something went wrong when adding a pulse to inbox", pulse, err)
     }
   })
-  incrementCounter()
+  pulseCounter.increment()
 }
 
 
