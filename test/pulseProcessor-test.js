@@ -10,8 +10,8 @@ const expect = chai.expect
 const FakeEnergyNotificationSender = require('./fake-energy-notification-sender')
 const PulseProcessor = require("../src/pulse_processor")
 
-const fakeFilesystem = require("./fake-filesystem")
 const fs = require('fs')
+const mockfs = require('mock-fs')
 
 /**
  * Adds the given pulse to the inbox.
@@ -25,10 +25,14 @@ function add(dateString) {
 describe('PulseProcessor', function() {
 
   beforeEach(function() {
-    fakeFilesystem.init()
+    mockfs()
 
     this.sender = new FakeEnergyNotificationSender()
     this.processor = new PulseProcessor("data", 10, 1, this.sender)
+  })
+
+  afterEach(function() {
+    mockfs.restore()
   })
 
   it("_getEndTime", function() {
