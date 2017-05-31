@@ -108,13 +108,9 @@ function showRegistrationUrl() {
 function showMeterNameAndTicks() {
   showingTicks = true
   if (display) {
-    display.setTexts([
-      "Meter:",
-      config.get("meterName"),
-      "",
-      "Ticks:",
-      pulseCounter.getCount()
-    ])
+    //Write in the middle rows so we don't overwrite any Updater message on the top row
+    display.writeText("Meter " + config.get("meterName"), 0, 2, false)
+    display.writeText("Ticks " + pulseCounter.getCount(), 0, 3, false)
   } else {
     if (verboseLogging) console.log("Meter " + config.get("meterName") + "  Ticks: " + pulseCounter.getCount())
   }
@@ -149,6 +145,9 @@ try {
   if (buttons) {
     buttons.watchAllButtons(function(buttonId) {
       console.log("button pressed " + buttonId)
+      if (display) {
+        display.clear()
+      }
       if (buttonId == 0) {
         showQrCode()
       } else if (buttonId == 1) {
