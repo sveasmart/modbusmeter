@@ -29,6 +29,7 @@
     "request": "2.79.0",
     "request-promise-native": "1.0.4",
     "retry": "0.10.1",
-    "rpio": "0.9.14"
+    "rpio": "0.9.14",
+    "json-rpc2": "1.0.2"
   }
 }
