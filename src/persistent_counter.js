@@ -9,6 +9,10 @@ class PersistentCounter {
     this.counterFile = counterFile
   }
 
+  clear() {
+    fs.writeFileSync(this.counterFile, 0)
+  }
+
   /**
    * Increments the counter by 1 and saves in counterFile.
    * If the counterFile doesn't exist, or doesn't contain a number,

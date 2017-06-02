@@ -1,11 +1,11 @@
 const EnergyNotificationSender = require('./energy_notification_sender')
 const PulseProcessor = require('./pulse_processor')
 const PersistentCounter = require('./persistent_counter')
-
+const DisplayClient = require("./display_client")
 const fs = require('fs')
 const path = require('path')
-
 var config = require('config')
+
 var deviceIdPath = config.get("deviceIdPath")
 var registrationBaseUrl = config.get("registrationBaseUrl")
 var serverUrl = config.get('serverUrl')
@@ -14,6 +14,10 @@ var maxEventsPerNotification = parseInt(config.get('maxEventsPerNotification'))
 
 var retryConfig = config.get('retry')
 var tickInputPin = config.get('tickInputPin')
+
+const displayRpcPort = config.get("displayRpcPort")
+const displayTab = config.get("displayTab")
+
 
 var notificationInterval = parseInt(config.get('notificationInterval'))
 if (notificationInterval <= 0) {
@@ -37,7 +41,8 @@ const pulseCounter = new PersistentCounter(counterFile)
 var counterDisplayInterval = parseInt(config.get('counterDisplayInterval'))
 const verboseLogging = config.get('verboseLogging') == "true"
 
-let showingTicks = false
+const displayClient = new DisplayClient(displayRpcPort, displayTab, retryConfig, verboseLogging)
+
 
 console.log("I will talk to " + serverUrl)
 console.log("Here is my retry config: ")
@@ -82,18 +87,26 @@ function getDeviceId() {
   return fs.readFileSync(deviceIdPath).toString()
 }
 
+/**
+ * Shows the QR code on the display.
+ * Retries on failure.
+ */
 function showQrCode() {
-  showingTicks = false
-
-  if (display) {
-    display.setQrCode(getRegistrationUrl())
-  } else {
-    console.log("Pretending to show QR code for " + getRegistrationUrl() + " " + pulseCounter.getCount() + " pulses")
-  }
+  const registrationUrl = getRegistrationUrl()
+  displayClient.callAndRetry('setQrCode', [registrationUrl, false, displayTab])
 }
 
-function showRegistrationUrl() {
-  showingTicks = false
+
+function showDeviceId() {
+  const deviceId = getDeviceId().toUpperCase()
+  const firstHalf = deviceId.substr(0,5)
+  const secondHalf = deviceId.substr(5)
+
+  displayClient.callAndRetry('writeText', ["Device:", 8, 5, false, displayTab])
+  displayClient.callAndRetry('writeText', [firstHalf, 8, 6, false, displayTab])
+  displayClient.callAndRetry('writeText', [secondHalf, 8, 7, false, displayTab])
+
+  /*
   if (display) {
     display.clear()
     //We write one line at a time in order to support line wrapping for the registrationBaseUrl
@@ -103,18 +116,15 @@ function showRegistrationUrl() {
   } else {
     console.log("Pretending to show registration URL " + getRegistrationUrl())
   }
+  */
 }
 
-function showMeterNameAndTicks() {
-  showingTicks = true
-  if (display) {
-    //Write in the middle rows so we don't overwrite any Updater message on the top row
-    display.writeText("Meter " + config.get("meterName"), 0, 2, false)
-    display.writeText("Ticks " + pulseCounter.getCount(), 0, 3, false)
-  } else {
-    if (verboseLogging) console.log("Meter " + config.get("meterName") + "  Ticks: " + pulseCounter.getCount())
-  }
+function showPulseCount() {
+  const pulseCount = pulseCounter.getCount()
+  displayClient.call('writeText', ["Pulses:", 8, 3, false, displayTab])
+  displayClient.call('writeText', [pulseCount, 8, 4, false, displayTab])
 }
+
 
 function getMeterName() {
   delete require.cache[require.resolve('config')]
@@ -123,60 +133,26 @@ function getMeterName() {
   return meterName
 }
 
-
-var display = null
-var buttons = null
-
-try {
-  const adafruit = require('adafruit-mcp23008-ssd1306-node-driver')
-  if (adafruit.hasDriver()) {
-    console.log("Adafruit is available, so this device appears to have a display :)")
-    display = new adafruit.DisplayDriver()
-    buttons = new adafruit.ButtonDriver()
-  } else {
-    console.log("Adafruit is not available, so we'll fake the display using the console")
-  }
-} catch (err) {
-  console.log("Failed to load Adafruit, so we'll fake the display using the console" + err)
-}
-
-try {
-
-  if (buttons) {
-    buttons.watchAllButtons(function(buttonId) {
-      console.log("button pressed " + buttonId)
-      if (display) {
-        display.clear()
-      }
-      if (buttonId == 0) {
-        showQrCode()
-      } else if (buttonId == 1) {
-        showRegistrationUrl()
-      } else {
-        showMeterNameAndTicks()
-      }
-    })
-  }
-} catch (err) {
-  console.log("Couldn't listen to the display buttons, so I'll skip those.", err)
-}
-
 const meterName = getMeterName()
+
+pulseCounter.clear()
 
 watchForPulses(meterName)
 
+showQrCode()
+showDeviceId()
+
+
+/*
 if (meterName == "Unregistered") {
   //Oh, meterName hasn't been set. Show QR code.
   console.log("meterName isn't set. Showing bar code and waiting for it to be set...")
-  showQrCode()
 } else {
-  showMeterNameAndTicks()
+  showPulseCount()
 }
-
+*/
 
 //Update the display every second (if showing tick count)
 setInterval(function() {
-  if (showingTicks == true) {
-    showMeterNameAndTicks()
-  }
+  showPulseCount()
 }, counterDisplayInterval * 1000)

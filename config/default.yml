@@ -65,11 +65,19 @@ dataDir: "data"
 # Which pin the ticks are reported through (pin number, not GPIO number)
 tickInputPin: "12"
 
+# Which port the display RPC server is listening on.
+# https://github.com/sveasmart/display
+displayRpcPort: 5000
+
+# Which tab on the display that we use to write stuff.
+displayTab: "default"
+
 # How many seconds between each update of the display
 # (when displaying tick counter)
 counterDisplayInterval: "1"
 
 # Retry settings for when the serverUrl isn't reachable.
+# or when the display isn't available
 retry:
   minTimeout: 1000 #First retry is after 1 second
   factor: 2 #and next retry will be after 2 seconds, then 4 seconds, 8 seconds, 16 seconds...
