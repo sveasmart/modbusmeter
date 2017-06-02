@@ -1,4 +1,4 @@
-# systemd service script for the updater
+# systemd service script for the meter
 # https://www.freedesktop.org/software/systemd/man/bootup.html
 [Unit]
 Description=Meter
