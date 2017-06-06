@@ -100,8 +100,8 @@ function showQrCode() {
 
 function showPulseCount() {
   const pulseCount = pulseCounter.getCount()
-  displayClient.call('writeText', ["Pulses:", 8, 3, false, displayTab])
-  displayClient.call('writeText', [pulseCount, 8, 4, false, displayTab])
+  displayClient.call('writeText', ["Pulses:", 9, 3, false, displayTab])
+  displayClient.call('writeText', [pulseCount, 9, 4, false, displayTab])
 }
 
 
