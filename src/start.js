@@ -97,27 +97,6 @@ function showQrCode() {
 }
 
 
-function showDeviceId() {
-  const deviceId = getDeviceId().toUpperCase()
-  const firstHalf = deviceId.substr(0,5)
-  const secondHalf = deviceId.substr(5)
-
-  displayClient.callAndRetry('writeText', ["Device:", 8, 5, false, displayTab])
-  displayClient.callAndRetry('writeText', [firstHalf, 8, 6, false, displayTab])
-  displayClient.callAndRetry('writeText', [secondHalf, 8, 7, false, displayTab])
-
-  /*
-  if (display) {
-    display.clear()
-    //We write one line at a time in order to support line wrapping for the registrationBaseUrl
-    display.writeText(registrationBaseUrl, 0, 0, true)
-    display.writeText("Device ID:", 0, 3)
-    display.writeText(getDeviceId().toUpperCase(), 0, 5)
-  } else {
-    console.log("Pretending to show registration URL " + getRegistrationUrl())
-  }
-  */
-}
 
 function showPulseCount() {
   const pulseCount = pulseCounter.getCount()
@@ -140,7 +119,6 @@ pulseCounter.clear()
 watchForPulses(meterName)
 
 showQrCode()
-showDeviceId()
 
 
 /*

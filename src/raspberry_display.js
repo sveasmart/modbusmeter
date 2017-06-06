@@ -1,7 +1,0 @@
-class RaspberryDisplay {
-  constructor(address) {
-
-  }
-
-  
-}
