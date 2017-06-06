@@ -106,6 +106,17 @@ function showPulseCount() {
   displayClient.call('writeText', [pulseCount, 9, 4, false, displayTab])
 }
 
+function showDeviceId() {
+  const deviceId = getDeviceId()
+  const deviceIdUpperCase = deviceId.toUpperCase()
+  const firstHalf = deviceIdUpperCase.substr(0, 5)
+  const secondHalf = deviceIdUpperCase.substr(5)
+
+  displayClient.callAndRetry('writeText', ["Device:", 9, 5, false, displayTab])
+  displayClient.callAndRetry('writeText', [firstHalf, 9, 6, false, displayTab])
+  displayClient.callAndRetry('writeText', [secondHalf, 9, 7, false, displayTab])
+}
+
 
 function getMeterName() {
   delete require.cache[require.resolve('config')]
@@ -121,6 +132,7 @@ pulseCounter.clear()
 watchForPulses(meterName)
 
 showQrCode()
+showDeviceId()
 
 
 /*
