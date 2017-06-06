@@ -1,3 +1,5 @@
+const fs = require("fs")
+
 /**
  * Takes an array like this:
  * ["blue", "green", "red", "yellow", "pink"]
@@ -34,6 +36,13 @@ exports.batchArrayItems = function(array, batchSize) {
     }
   })
   return batches
+}
+
+exports.makeDirIfMissing = function(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir)
+    console.log("Created dir: " + dir)
+  }
 }
 
 

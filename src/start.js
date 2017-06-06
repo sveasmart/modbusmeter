@@ -2,6 +2,7 @@ const EnergyNotificationSender = require('./energy_notification_sender')
 const PulseProcessor = require('./pulse_processor')
 const PersistentCounter = require('./persistent_counter')
 const DisplayClient = require("./display_client")
+const util = require("./util")
 const fs = require('fs')
 const path = require('path')
 var config = require('config')
@@ -35,6 +36,7 @@ if (energyPerPulse <= 0) {
 }
 
 var dataDir = config.get('dataDir')
+util.makeDirIfMissing(dataDir)
 const counterFile = path.join(dataDir, "counter")
 const pulseCounter = new PersistentCounter(counterFile)
 
