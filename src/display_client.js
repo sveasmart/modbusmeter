@@ -21,7 +21,7 @@ class DisplayClient {
     return new Promise((resolve, reject) => {
       this.rpcClient.call(method, args, (err, res) => {
         if (err) {
-          console.log("Failed to RPC-call display " + method + "!")
+          console.log("Failed to RPC-call display " + method + "! Could be temporary.")
           reject(err);
         }
         else resolve(res);
