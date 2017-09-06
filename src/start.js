@@ -112,7 +112,7 @@ function showCustomerInfoAndSupportPhone() {
 }
 
 function displayLine(row, text) {
-  if (row) {
+  if (text) {
     displayClient.callAndRetry('setRowText', [text, row, false, displayTab])
   } else [
     displayClient.callAndRetry('clearRow', [row, displayTab])
