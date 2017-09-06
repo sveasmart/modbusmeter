@@ -76,6 +76,11 @@ displayTab: "default"
 # (when displaying tick counter)
 counterDisplayInterval: "1"
 
+# This params are displayed on the screen
+supportPhoneNumber:
+customerName:
+customerAddress:
+
 # Retry settings for when the serverUrl isn't reachable.
 # or when the display isn't available
 retry:

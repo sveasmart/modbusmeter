@@ -12,6 +12,10 @@ var registrationBaseUrl = config.get("registrationBaseUrl")
 var serverUrl = config.get('serverUrl')
 var serverTimeoutSeconds = parseInt(config.get('serverTimeoutSeconds'))
 var maxEventsPerNotification = parseInt(config.get('maxEventsPerNotification'))
+const supportPhoneNumber = config.get('supportPhoneNumber')
+const customerName = config.get('customerName')
+const customerAddress = config.get('customerAddress')
+
 
 var retryConfig = config.get('retry')
 var tickInputPin = config.get('tickInputPin')
@@ -93,28 +97,38 @@ function getDeviceId() {
  * Shows the QR code on the display.
  * Retries on failure.
  */
-function showQrCode() {
-  const registrationUrl = getRegistrationUrl()
-  displayClient.callAndRetry('setQrCode', [registrationUrl, false, displayTab])
+function showCustomerInfoAndSupportPhone() {
+  if (!customerName && !customerAddress) {
+    displayLine(0, "Not registered!")
+    displayLine(1, "")
+    displayLine(2, "Call support!")
+    displayLine(3, supportPhoneNumber)
+  } else {
+    displayLine(0, customerName)
+    displayLine(1, customerAddress)
+    displayLine(2, "Support:")
+    displayLine(3, supportPhoneNumber)
+  }
 }
 
-
+function displayLine(row, text) {
+  if (row) {
+    displayClient.callAndRetry('setRowText', [text, row, false, displayTab])
+  } else [
+    displayClient.callAndRetry('clearRow', [row, displayTab])
+  ]
+}
 
 function showPulseCount() {
   const pulseCount = pulseCounter.getCount()
-  displayClient.call('writeText', ["Pulses:", 9, 3, false, displayTab])
-  displayClient.call('writeText', [pulseCount, 9, 4, false, displayTab])
+  displayLine(5, "Pulses: " + pulseCount)
 }
 
 function showDeviceId() {
   const deviceId = getDeviceId()
-  const deviceIdUpperCase = deviceId.toUpperCase()
-  const firstHalf = deviceIdUpperCase.substr(0, 5)
-  const secondHalf = deviceIdUpperCase.substr(5)
 
-  displayClient.callAndRetry('writeText', ["Device:", 9, 5, false, displayTab])
-  displayClient.callAndRetry('writeText', [firstHalf, 9, 6, false, displayTab])
-  displayClient.callAndRetry('writeText', [secondHalf, 9, 7, false, displayTab])
+  //TODO: why does meter AND updater do this?
+  displayLine(6, "ID: " + deviceId)
 }
 
 
@@ -131,7 +145,7 @@ pulseCounter.clear()
 
 watchForPulses(meterName)
 
-showQrCode()
+showCustomerInfoAndSupportPhone()
 showDeviceId()
 
 
