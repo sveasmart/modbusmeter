@@ -70,7 +70,7 @@ tickInputPin: "12"
 displayRpcPort: 5000
 
 # Which tab on the display that we use to write stuff.
-displayTab: "default"
+displayTab: "tab0"
 
 # How many seconds between each update of the display
 # (when displaying tick counter)
