@@ -3,10 +3,8 @@ const promiseRetry = require('promise-retry')
 const rpc = require('json-rpc2');
 
 class DisplayClient {
-  constructor(displayRpcPort, displayTab, retryConfig, logCalls) {
+  constructor(displayRpcPort, logCalls) {
     this.rpcClient = rpc.Client.$create(displayRpcPort, '127.0.0.1');
-    this.displayTab = displayTab
-    this.retryConfig = retryConfig
     this.logCalls = logCalls
   }
 

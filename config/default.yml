@@ -69,8 +69,9 @@ tickInputPin: "12"
 # https://github.com/sveasmart/display
 displayRpcPort: 5000
 
-# Which tab on the display that we use to write stuff.
-displayTab: "tab0"
+# Which tabs on the display that we use to write stuff.
+mainDisplayTab: "tab0"
+qrCodeDisplayTab: "tab2"
 
 # How many seconds between each update of the display
 # (when displaying tick counter)

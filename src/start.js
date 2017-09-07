@@ -22,7 +22,8 @@ var retryConfig = config.get('retry')
 var tickInputPin = config.get('tickInputPin')
 
 const displayRpcPort = config.get("displayRpcPort")
-const displayTab = config.get("displayTab")
+const mainDisplayTab = config.get("mainDisplayTab")
+const qrCodeDisplayTab = config.get("qrCodeDisplayTab")
 
 
 var notificationInterval = parseInt(config.get('notificationInterval'))
@@ -48,7 +49,7 @@ const pulseCounter = new PersistentCounter(counterFile)
 var counterDisplayInterval = parseInt(config.get('counterDisplayInterval'))
 const verboseLogging = config.get('verboseLogging') == "true"
 
-const displayClient = new DisplayClient(displayRpcPort, displayTab, retryConfig, verboseLogging)
+const displayClient = new DisplayClient(displayRpcPort, verboseLogging)
 
 
 console.log("I will talk to " + serverUrl)
@@ -95,7 +96,6 @@ function getDeviceId() {
 }
 
 /**
- * Shows the QR code on the display.
  * Retries on failure.
  */
 function showCustomerInfoAndSupportPhone() {
@@ -114,11 +114,19 @@ function showCustomerInfoAndSupportPhone() {
   }
 }
 
+/**
+ * Retries on failure.
+ */
+function showQrCode() {
+  const registrationUrl = getRegistrationUrl()
+  displayClient.callAndRetry('setQrCode', [registrationUrl, false, qrCodeDisplayTab])
+}
+
 function displayLine(row, text) {
   if (text) {
-    displayClient.callAndRetry('setRowText', [text, row, false, displayTab])
+    displayClient.callAndRetry('setRowText', [text, row, false, mainDisplayTab])
   } else [
-    displayClient.callAndRetry('clearRow', [row, displayTab])
+    displayClient.callAndRetry('clearRow', [row, mainDisplayTab])
   ]
 }
 
@@ -149,6 +157,7 @@ pulseCounter.clear()
 watchForPulses(meterName)
 
 showCustomerInfoAndSupportPhone()
+showQrCode()
 showDeviceId()
 
 
