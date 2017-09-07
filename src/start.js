@@ -13,6 +13,7 @@ var serverUrl = config.get('serverUrl')
 var serverTimeoutSeconds = parseInt(config.get('serverTimeoutSeconds'))
 var maxEventsPerNotification = parseInt(config.get('maxEventsPerNotification'))
 const supportPhoneNumber = config.get('supportPhoneNumber')
+const supportUrl = config.get('supportUrl')
 const customerName = config.get('customerName')
 const customerAddress = config.get('customerAddress')
 
@@ -102,12 +103,14 @@ function showCustomerInfoAndSupportPhone() {
     displayLine(0, "Not registered!")
     displayLine(1, "")
     displayLine(2, "Call support!")
-    displayLine(3, supportPhoneNumber)
+    displayLine(3, "  " + supportPhoneNumber)
+    displayLine(4, "  " + supportUrl)
   } else {
     displayLine(0, customerName)
     displayLine(1, customerAddress)
     displayLine(2, "Support:")
-    displayLine(3, supportPhoneNumber)
+    displayLine(3, "  " + supportPhoneNumber)
+    displayLine(4, "  " + supportUrl)
   }
 }
 

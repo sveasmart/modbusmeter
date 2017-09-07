@@ -78,6 +78,7 @@ counterDisplayInterval: "1"
 
 # This params are displayed on the screen
 supportPhoneNumber:
+supportUrl:
 customerName:
 customerAddress:
 
