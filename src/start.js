@@ -103,13 +103,15 @@ function showCustomerInfoAndSupportPhone() {
     displayLine(0, "Not registered!")
     displayLine(1, "")
     displayLine(2, "Call support!")
-    displayLine(3, "  " + supportPhoneNumber)
-    displayLine(4, "  " + supportUrl)
   } else {
     displayLine(0, customerName)
     displayLine(1, customerAddress)
     displayLine(2, "Support:")
+  }
+  if (supportPhoneNumber) {
     displayLine(3, "  " + supportPhoneNumber)
+  }
+  if (supportUrl) {
     displayLine(4, "  " + supportUrl)
   }
 }
