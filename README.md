@@ -55,5 +55,6 @@ The body is formatted like this:
 The Meter uses the HTTP response code to determine if things worked out.
 * 200-299 means OK
 * Any other response code means failure, and Meter will retry.
+* ...
 
 
