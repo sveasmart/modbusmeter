@@ -36,6 +36,10 @@ deviceIdPath: "./test/device-id"
 # If > 0, then a fake tick is sent every X seconds
 simulate: "0"
 
+# Same as simulate, but for the second meter (meterName2)
+# if have one.
+simulate2: "0"
+
 # Minimum number of seconds between each send.
 # Higher number means fewer http requests and more energy events per batch.
 # Must be at least 1 second.
@@ -69,7 +73,7 @@ dataDir: "data"
 tickInputPin: "12"
 
 # If meterName2 is configured, you also need a tickInputPin2
-tickInputPin2: "14"  #TODO What should the default pin be?
+tickInputPin2:
 
 # Which port the display RPC server is listening on.
 # https://github.com/sveasmart/display

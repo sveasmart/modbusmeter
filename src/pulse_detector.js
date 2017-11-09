@@ -16,6 +16,10 @@ class PulseDetector {
     this.meterName = meterName
     this.pulseInputPin = pulseInputPin
     this.dataDir = dataDir
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir)
+    }
+
     this.simulate = simulate
     this.logPulseDetection = logPulseDetection
     this.verboseLogging = verboseLogging

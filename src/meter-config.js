@@ -17,6 +17,7 @@ exports.loadConfig = function() {
     deviceIdPath: getString("deviceIdPath"),
 
     simulate: getInt('simulate', 0),
+    simulate2: getOptionalInt('simulate2', 0),
 
     notificationInterval: getInt('notificationInterval', 1),
     maxEventsPerNotification: getInt('maxEventsPerNotification', 1),
@@ -96,6 +97,17 @@ function getInt(name, min, max) {
   return intValue
 }
 
+/**
+ * If the param doesn't exist, returns null
+ */
+function getOptionalInt(name, min, max) {
+  if (hasParam(name)) {
+    return getInt(name, min, max)
+  } else {
+    return null
+  }
+}
+
 function getBool(name) {
   const value = getString(name).trim().toLowerCase()
   if (value == "true") {
@@ -109,4 +121,9 @@ function getBool(name) {
 
 function getObject(name) {
   return get(name)
+}
+
+function hasParam(name) {
+  const value = config.get(name)
+  return value != null && value != undefined
 }

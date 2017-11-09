@@ -31,7 +31,28 @@ function startPulseDetector() {
     config.verboseLogging
   )
 
+  let pulseDetector2
+
+  if (config.meterName2) {
+    console.log("Aha, we have a second meter " + config.meterName2 + "! Let's listen to that one too.")
+
+    console.assert(config.tickInputPin2, "Hey, if you have a meterName2 in the config you also need a tickInputPin2!")
+    const meter2DataDir = path.join(config.dataDir, config.meterName2)
+
+    pulseDetector2 = new PulseDetector(
+      config.meterName2,
+      config.tickInputPin2,
+      meter2DataDir,
+      config.simulate2,
+      config.logPulseDetection,
+      config.verboseLogging
+    )
+  }
+
   pulseDetector.start()
+  if (pulseDetector2) {
+    pulseDetector2.start()
+  }
 }
 
 moveDataToSubFolder()
