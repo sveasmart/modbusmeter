@@ -10,6 +10,9 @@
 # If not set, a QR code will be displayed pointing to registrationBaseUrl
 meterName: "Unregistered"
 
+# Optionally, a second meterName be set if this device has two meters.
+meterName2:
+
 # The URL of the backend to which ticks are posted
 serverUrl: "http://localhost:3000/energynotification"
 
@@ -64,6 +67,9 @@ dataDir: "data"
 
 # Which pin the ticks are reported through (pin number, not GPIO number)
 tickInputPin: "12"
+
+# If meterName2 is configured, you also need a tickInputPin2
+tickInputPin2: "14"  #TODO What should the default pin be?
 
 # Which port the display RPC server is listening on.
 # https://github.com/sveasmart/display

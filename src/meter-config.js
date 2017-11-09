@@ -7,6 +7,7 @@ const config = require('config')
 exports.loadConfig = function() {
   return {
     meterName: getString('meterName'),
+    meterName2: getOptionalString('meterName2'),
 
     serverUrl: getString('serverUrl'),
     serverTimeoutSeconds: getInt('serverTimeoutSeconds', 1),
@@ -30,6 +31,8 @@ exports.loadConfig = function() {
     dataDir: getString('dataDir'),
 
     tickInputPin: getString('tickInputPin'),
+    tickInputPin2: getOptionalString('tickInputPin2'),
+
     displayRpcPort: getString("displayRpcPort"),
 
     mainDisplayTab: getString("mainDisplayTab"),
