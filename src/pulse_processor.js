@@ -245,7 +245,6 @@ class PulseProcessor {
    * Fails if "data/xxx/processing" already exists.
    */
   _stealInbox(meterName) {
-    console.log("\n====== stealInbox " + meterName + " =================")
     console.assert(meterName, "meterName is missing")
 
     const inboxFile = this._getInboxFile(meterName)
@@ -253,20 +252,16 @@ class PulseProcessor {
 
     if (fs.existsSync(inboxFile)) {
       if (fs.existsSync(processingFile)) {
-        console.log("Error, inbox AND processing exists!")
         throw new Error(
           "I can't rename " + inboxFile + " to " + processingFile + " because that file already exists!" +
           "Looks like PulseProcessor is being used multiple times concurrently! You bad boy!"
         )
       } else {
-        console.log("Renaming " + inboxFile + " to " + processingFile)
         fs.renameSync(inboxFile, processingFile)
       }
     } else {
-      console.log("No inbox " + inboxFile)
       //No inbox. Nothing to do.
     }
-    console.log("--------------------------------------------\n")
 
   }
 
