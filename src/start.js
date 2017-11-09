@@ -31,7 +31,7 @@ var eventInterval = config.eventInterval
 
 var energyPerPulse = config.energyPerPulse
 
-var dataDir = config.dataDir
+var dataDir = path.join(config.dataDir, config.meterName)
 util.makeDirIfMissing(dataDir)
 const counterFile = path.join(dataDir, "counter")
 const pulseCounter = new PersistentCounter(counterFile)
