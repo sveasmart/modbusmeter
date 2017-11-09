@@ -77,7 +77,7 @@ qrCodeDisplayTab: "tab2"
 # (when displaying tick counter)
 counterDisplayInterval: "1"
 
-# This params are displayed on the screen
+# These params are displayed on the screen
 supportPhoneNumber:
 supportUrl:
 customerName:

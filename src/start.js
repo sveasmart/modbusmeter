@@ -5,49 +5,39 @@ const DisplayClient = require("./display_client")
 const util = require("./util")
 const fs = require('fs')
 const path = require('path')
-var config = require('config')
+let config = require('./meter-config').loadConfig()
 
-var deviceIdPath = config.get("deviceIdPath")
-var registrationBaseUrl = config.get("registrationBaseUrl")
-var serverUrl = config.get('serverUrl')
-var serverTimeoutSeconds = parseInt(config.get('serverTimeoutSeconds'))
-var maxEventsPerNotification = parseInt(config.get('maxEventsPerNotification'))
-const supportPhoneNumber = config.get('supportPhoneNumber')
-const supportUrl = config.get('supportUrl')
-const customerName = config.get('customerName')
-const customerAddress = config.get('customerAddress')
-
-
-var retryConfig = config.get('retry')
-var tickInputPin = config.get('tickInputPin')
-
-const displayRpcPort = config.get("displayRpcPort")
-const mainDisplayTab = config.get("mainDisplayTab")
-const qrCodeDisplayTab = config.get("qrCodeDisplayTab")
+var deviceIdPath = config.deviceIdPath
+var registrationBaseUrl = config.registrationBaseUrl
+var serverUrl = config.serverUrl
+var serverTimeoutSeconds = config.serverTimeoutSeconds
+var maxEventsPerNotification = config.maxEventsPerNotification
+const supportPhoneNumber = config.supportPhoneNumber
+const supportUrl = config.supportUrl
+const customerName = config.customerName
+const customerAddress = config.customerAddress
 
 
-var notificationInterval = parseInt(config.get('notificationInterval'))
-if (notificationInterval <= 0) {
-  throw new Error("notificationInterval was " + notificationInterval + ", but it should be > 0. ")
-}
+var retryConfig = config.retryConfig
 
-var eventInterval = parseInt(config.get('eventInterval'))
-if (eventInterval <= 0) {
-  throw new Error("eventInterval was " + eventInterval + ", but it should be > 0. ")
-}
+const displayRpcPort = config.displayRpcPort
+const mainDisplayTab = config.mainDisplayTab
+const qrCodeDisplayTab = config.qrCodeDisplayTab
 
-var energyPerPulse = parseInt(config.get('energyPerPulse'))
-if (energyPerPulse <= 0) {
-  throw new Error("energyPerPulse was " + energyPerPulse + ", but it should be > 0. ")
-}
 
-var dataDir = config.get('dataDir')
+var notificationInterval = config.notificationInterval
+
+var eventInterval = config.eventInterval
+
+var energyPerPulse = config.energyPerPulse
+
+var dataDir = config.dataDir
 util.makeDirIfMissing(dataDir)
 const counterFile = path.join(dataDir, "counter")
 const pulseCounter = new PersistentCounter(counterFile)
 
-var counterDisplayInterval = parseInt(config.get('counterDisplayInterval'))
-const verboseLogging = config.get('verboseLogging') == "true"
+var counterDisplayInterval = config.counterDisplayInterval
+const verboseLogging = config.verboseLogging
 
 const displayClient = new DisplayClient(displayRpcPort, verboseLogging)
 
@@ -147,9 +137,8 @@ function showDeviceId() {
 
 function getMeterName() {
   delete require.cache[require.resolve('config')]
-  config = require('config')
-  const meterName = "" + config.get("meterName")
-  return meterName
+  config = require('./meter-config').loadConfig()
+  return config.meterName
 }
 
 const meterName = getMeterName()

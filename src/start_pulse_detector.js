@@ -2,18 +2,18 @@ const RpioClickDetector = require('./rpio_click_detector')
 const FakeClickDetector = require('./fake_click_detector')
 const PersistentCounter = require('./persistent_counter')
 
-const config = require('config')
+let config = require('./meter-config').loadConfig()
 const fs = require('fs')
 const path = require('path')
-const tickInputPin = config.get('tickInputPin')
-const dataDir = config.get('dataDir')
+const tickInputPin = config.tickInputPin
+const dataDir = config.dataDir
 const inboxFile = path.join(dataDir, "inbox")
 const counterFile = path.join(dataDir, "counter")
 const pulseCounter = new PersistentCounter(counterFile)
 
-const simulate = parseInt(config.get('simulate'))
-const logPulseDetection = config.get('logPulseDetection') == "true"
-const verboseLogging = config.get('verboseLogging') == "true"
+const simulate = config.simulate
+const logPulseDetection = config.logPulseDetection
+const verboseLogging = config.verboseLogging
 
 
 console.log("I receive ticks on pin " + tickInputPin)
