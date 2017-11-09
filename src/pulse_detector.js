@@ -5,6 +5,7 @@ const PersistentCounter = require('./persistent_counter')
 let config = require('./meter-config').loadConfig()
 const fs = require('fs')
 const path = require('path')
+const util = require('./util')
 
 
 /**
@@ -12,21 +13,18 @@ const path = require('path')
  * write them to an inbox file, and increment a counter file.
  */
 class PulseDetector {
-  constructor(meterName, pulseInputPin, dataDir, simulate, logPulseDetection, verboseLogging) {
+  constructor(meterName, pulseInputPin, meterDataDir, simulate, logPulseDetection, verboseLogging) {
     this.meterName = meterName
     this.pulseInputPin = pulseInputPin
-    this.dataDir = dataDir
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir)
-    }
+
+    util.makeDirIfMissing(meterDataDir)
+    this.inboxFile = path.join(meterDataDir, "inbox")
+    this.counterFile = path.join(meterDataDir, "counter")
+    this.pulseCounter = new PersistentCounter(this.counterFile)
 
     this.simulate = simulate
     this.logPulseDetection = logPulseDetection
     this.verboseLogging = verboseLogging
-
-    this.inboxFile = path.join(dataDir, "inbox")
-    this.counterFile = path.join(dataDir, "counter")
-    this.pulseCounter = new PersistentCounter(this.counterFile)
 
     console.log("Meter #" + this.meterName + " will receive ticks on pin " + this.pulseInputPin + " and store in " + this.inboxFile)
 

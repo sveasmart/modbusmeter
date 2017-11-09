@@ -31,9 +31,11 @@ var eventInterval = config.eventInterval
 
 var energyPerPulse = config.energyPerPulse
 
-var dataDir = path.join(config.dataDir, config.meterName)
-util.makeDirIfMissing(dataDir)
-const counterFile = path.join(dataDir, "counter")
+var meterDataDir = path.join(config.dataDir, config.meterName)
+util.makeDirIfMissing(meterDataDir)
+console.log("meterDataDir", meterDataDir)
+
+const counterFile = path.join(meterDataDir, "counter")
 const pulseCounter = new PersistentCounter(counterFile)
 
 var counterDisplayInterval = config.counterDisplayInterval
@@ -50,7 +52,7 @@ function watchForPulses(meterName) {
   console.log("I am meter " + meterName + ", and my serverUrl is " + serverUrl)
 
   const notificationSender = new EnergyNotificationSender(serverUrl, meterName, serverTimeoutSeconds, retryConfig)
-  const pulseProcessor = new PulseProcessor(dataDir, eventInterval, maxEventsPerNotification, energyPerPulse, notificationSender)
+  const pulseProcessor = new PulseProcessor(meterDataDir, eventInterval, maxEventsPerNotification, energyPerPulse, notificationSender)
   processInboxAndRepeat(pulseProcessor)
 }
 

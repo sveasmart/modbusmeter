@@ -3,6 +3,7 @@
  * config params.
  */
 const config = require('config')
+const util = require('./util')
 
 exports.loadConfig = function() {
   return {
@@ -29,7 +30,7 @@ exports.loadConfig = function() {
     logPulseDetection: getBool('logPulseDetection'),
     verboseLogging: getBool('verboseLogging'),
 
-    dataDir: getString('dataDir'),
+    dataDir: getDir('dataDir'),
 
     tickInputPin: getString('tickInputPin'),
     tickInputPin2: getOptionalString('tickInputPin2'),
@@ -126,4 +127,10 @@ function getObject(name) {
 function hasParam(name) {
   const value = config.get(name)
   return value != null && value != undefined
+}
+
+function getDir(name) {
+  const dirName = getString(name)
+  util.makeDirIfMissing(dirName)
+  return dirName
 }

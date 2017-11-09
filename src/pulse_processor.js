@@ -4,15 +4,12 @@ const moment = require('moment')
 const util = require('./util')
 
 class PulseProcessor {
-  constructor(dataDir, eventInterval, maxEventsPerNotification, energyPerPulse, energyNotificationSender) {
-    console.assert(dataDir, "No dataDir!")
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir)
-    }
-    this.dataDir = dataDir
-    this.inboxFile = path.join(this.dataDir, "inbox")
-    this.processingFile = path.join(this.dataDir, "processing")
-    this.lastIncompleteEventFile = path.join(this.dataDir, "last-incomplete-event.json")
+  constructor(meterDataDir, eventInterval, maxEventsPerNotification, energyPerPulse, energyNotificationSender) {
+    console.assert(meterDataDir, "No meterDataDir!")
+    util.makeDirIfMissing(meterDataDir)
+    this.inboxFile = path.join(meterDataDir, "inbox")
+    this.processingFile = path.join(meterDataDir, "processing")
+    this.lastIncompleteEventFile = path.join(meterDataDir, "last-incomplete-event.json")
 
     console.assert(energyPerPulse, "No energyPerPulse! " + energyPerPulse)
     this.energyPerPulse = energyPerPulse
