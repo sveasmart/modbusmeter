@@ -12,6 +12,7 @@ const PulseProcessor = require("../src/pulse_processor")
 
 const fs = require('fs')
 const mockfs = require('mock-fs')
+const meterName = '11112222'
 
 /**
  * Adds the given pulse to the inbox.
@@ -19,16 +20,16 @@ const mockfs = require('mock-fs')
  * https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators
  */
 function add(dateString) {
-  fs.appendFileSync("data/inbox", new Date(dateString + "Z").toISOString() + "\n")
+  fs.appendFileSync("data/" + meterName + "/inbox", new Date(dateString + "Z").toISOString() + "\n")
 }
 
 describe('PulseProcessor', function() {
 
   beforeEach(function() {
     mockfs()
-
     this.sender = new FakeEnergyNotificationSender()
-    this.processor = new PulseProcessor("data", 10, 5, 1, this.sender)
+    this.processor = new PulseProcessor("data", [meterName], 10, 5, 1, this.sender)
+    fs.mkdirSync("data/" + meterName)
   })
 
   afterEach(function() {
@@ -64,23 +65,23 @@ describe('PulseProcessor', function() {
 
 
   it("_doesPulseBelongInLastIncompleteEvent", function() {
-    this.processor.lastIncompleteEvent = {
+    this.processor.lastIncompleteEvent[meterName] = {
       endTime: new Date("2016-05-10T12:00:10"),
       seconds: 10,
       energy: 1
     }
 
-    expect(this.processor._doesPulseBelongInLastIncompleteEvent(new Date("2016-05-10T12:00:05Z")))
+    expect(this.processor._doesPulseBelongInLastIncompleteEvent(meterName, new Date("2016-05-10T12:00:05Z")))
       .to.be.true
 
-    expect(this.processor._doesPulseBelongInLastIncompleteEvent(new Date("2016-05-10T12:00:12Z")))
+    expect(this.processor._doesPulseBelongInLastIncompleteEvent(meterName, new Date("2016-05-10T12:00:12Z")))
       .to.be.false
   })
 
   it("_getPulsesInProcessing", function() {
     add("2016-02-01 12:30:44.343")
-    this.processor._stealInbox()
-    const pulses = this.processor._getPulsesInProcessing()
+    this.processor._stealInbox(meterName)
+    const pulses = this.processor._getPulsesInProcessing(meterName)
 
     expect(pulses.length).to.equal(1)
     expect(pulses[0]).to.equalTime(new Date("2016-02-01T12:30:44.343Z"))
@@ -88,19 +89,21 @@ describe('PulseProcessor', function() {
 
   it('no inbox', function() {
     expect(
-      this.processor._createEnergyEventsFromPulses()).to
+      this.processor._createEnergyEventsFromPulses(meterName)).to
       .deep.equal([])
   })
 
   it('load/save lastIncompleteEvent', function() {
+    const lastIncompleteEventFile = 'data/' + meterName + '/last-incomplete-event.json'
+
     //When we start there should be no file
-    expect(this.processor.lastIncompleteEvent).to.be.null
-    expect(fs.existsSync('data/last-incomplete-event.json')).to.be.false
+    expect(this.processor.lastIncompleteEvent[meterName]).to.be.null
+    expect(fs.existsSync(lastIncompleteEventFile)).to.be.false
 
     //Loading should do nothing, since the file doesn't exist.
-    this.processor._loadLastIncompleteEvent()
-    expect(this.processor.lastIncompleteEvent).to.be.null
-    expect(fs.existsSync('data/last-incomplete-event.json')).to.be.false
+    this.processor._loadLastIncompleteEvent(meterName)
+    expect(this.processor.lastIncompleteEvent[meterName]).to.be.null
+    expect(fs.existsSync(lastIncompleteEventFile)).to.be.false
 
     //Now let's create a file
     const event = {
@@ -108,19 +111,19 @@ describe('PulseProcessor', function() {
       seconds: 10,
       energy: 1
     }
-    this.processor.lastIncompleteEvent = event
-    this.processor._saveLastIncompleteEvent()
+    this.processor.lastIncompleteEvent[meterName] = event
+    this.processor._saveLastIncompleteEventForAllMeters()
 
     //Check that the file exists
-    expect(this.processor.lastIncompleteEvent).to.not.be.null
-    expect(fs.existsSync('data/last-incomplete-event.json')).to.be.true
+    expect(this.processor.lastIncompleteEvent[meterName]).to.not.be.null
+    expect(fs.existsSync(lastIncompleteEventFile)).to.be.true
 
-    //Reset this.processor.lastIncompleteEvent and reload the file
-    this.processor.lastIncompleteEvent = null
-    this.processor._loadLastIncompleteEvent()
+    //Reset this.processor.lastIncompleteEvent[meterName] and reload the file
+    this.processor.lastIncompleteEvent[meterName] = null
+    this.processor._loadLastIncompleteEvent(meterName)
 
     //Check that it was loaded.
-    expect(this.processor.lastIncompleteEvent).to.not.be.null
+    expect(this.processor.lastIncompleteEvent[meterName]).to.not.be.null
 
 
   })
@@ -128,12 +131,12 @@ describe('PulseProcessor', function() {
 
   it('process 1 pulse', function() {
     add("2016-05-05 10:00:02.030")
-    this.processor._stealInbox()
+    this.processor._stealInbox(meterName)
 
-    expect(this.processor._createEnergyEventsFromPulses())
+    expect(this.processor._createEnergyEventsFromPulses(meterName))
       .to.deep.equal([])
 
-    expect(this.processor.lastIncompleteEvent)
+    expect(this.processor.lastIncompleteEvent[meterName])
       .to.deep.equal(
       {
         endTime: "2016-05-05T10:00:10.000Z",
@@ -146,12 +149,12 @@ describe('PulseProcessor', function() {
   it('process 2 pulses in same bucket', function() {
     add("2016-05-05 10:00:02.030")
     add("2016-05-05 10:00:05.066")
-    this.processor._stealInbox()
+    this.processor._stealInbox(meterName)
 
-    expect(this.processor._createEnergyEventsFromPulses())
+    expect(this.processor._createEnergyEventsFromPulses(meterName))
       .to.deep.equal([])
 
-    expect(this.processor.lastIncompleteEvent)
+    expect(this.processor.lastIncompleteEvent[meterName])
       .to.deep.equal(
       {
         endTime: "2016-05-05T10:00:10.000Z",
@@ -164,9 +167,9 @@ describe('PulseProcessor', function() {
   it('process 2 pulses in different buckets', function() {
     add("2016-05-05 10:00:02")
     add("2016-05-05 10:00:11")
-    this.processor._stealInbox()
+    this.processor._stealInbox(meterName)
 
-    expect(this.processor._createEnergyEventsFromPulses())
+    expect(this.processor._createEnergyEventsFromPulses(meterName))
       .to.deep.equal([
       {
         endTime: "2016-05-05T10:00:10.000Z",
@@ -175,7 +178,7 @@ describe('PulseProcessor', function() {
       }
     ])
 
-    expect(this.processor.lastIncompleteEvent)
+    expect(this.processor.lastIncompleteEvent[meterName])
       .to.deep.equal(
       {
         endTime: "2016-05-05T10:00:20.000Z",
@@ -192,9 +195,9 @@ describe('PulseProcessor', function() {
     add("2016-05-06 07:01:21") //second bucket, way after first
     add("2016-05-06 07:01:23") //second bucket, way after first
     add("2016-05-06 07:01:31") //third bucket
-    this.processor._stealInbox()
+    this.processor._stealInbox(meterName)
 
-    expect(this.processor._createEnergyEventsFromPulses())
+    expect(this.processor._createEnergyEventsFromPulses(meterName))
       .to.deep.equal([
       {
         endTime: "2016-05-05T17:33:10.000Z",
@@ -208,7 +211,7 @@ describe('PulseProcessor', function() {
       }
     ])
 
-    expect(this.processor.lastIncompleteEvent)
+    expect(this.processor.lastIncompleteEvent[meterName])
       .to.deep.equal(
       {
         endTime: "2016-05-06T07:01:40.000Z",
@@ -229,7 +232,7 @@ describe('PulseProcessor', function() {
     add("2016-05-03 10:07:01") //seventh bucket
 
     return this.processor.readPulsesAndSendEnergyNotification()
-      .should.eventually.have.lengthOf(6)
+      .should.eventually.equal(6)
       .then(() => {
         return this.sender.getNotificationCount().should.equal(2)
       })
@@ -241,17 +244,24 @@ describe('PulseProcessor', function() {
     add("2016-05-03 10:15:01") //first bucket
     add("2016-05-03 10:15:11") //second bucket
 
+
     //Trigger a notification
     //The pulse from the first bucket should be sent.
     return this.processor.readPulsesAndSendEnergyNotification()
-      .should.eventually.deep.equal([
-      {
-        endTime: "2016-05-03T10:15:10.000Z",
-        seconds: 10,
-        energy: 1
-      }
-      ])
+      .should.eventually.equal(1)
       .then(() => {
+        expect(this.sender.getLastNotification()).to.deep.equal(
+          {
+            meterName: meterName,
+            events: [
+              {
+                endTime: "2016-05-03T10:15:10.000Z",
+                seconds: 10,
+                energy: 1
+              }
+            ]
+          }
+        )
 
         //Add two more pulses to the second bucket, and one pulse to a third bucet.
         add("2016-05-03 10:15:16") //second bucket
@@ -261,16 +271,23 @@ describe('PulseProcessor', function() {
         //Trigger a notification
         //An event with the 3 pulses from the second bucket should be sent.
         return this.processor.readPulsesAndSendEnergyNotification()
-          .should.eventually.deep.equal([
-            {
-              endTime: "2016-05-03T10:15:20.000Z",
-              seconds: 10,
-              energy: 3
-            }
-          ])
+          .should.eventually.equal(1)
 
       })
       .then(() => {
+        expect(this.sender.getLastNotification()).to.deep.equal(
+          {
+            meterName: meterName,
+            events: [
+              {
+                endTime: "2016-05-03T10:15:20.000Z",
+                seconds: 10,
+                energy: 3
+              }
+            ]
+          }
+        )
+
         //Add another pulse to the third bucket, and pulse to a fourth and fifth bucket
         add("2016-05-03 10:15:26") //third bucket
         add("2016-05-03 10:15:31") //fourth bucket
@@ -279,18 +296,26 @@ describe('PulseProcessor', function() {
         //Trigger a notification
         //Two events should be sent - one for the third bucket and one for the fourth
         return this.processor.readPulsesAndSendEnergyNotification()
-          .should.eventually.deep.equal([
-            {
-              endTime: "2016-05-03T10:15:30.000Z",
-              seconds: 10,
-              energy: 2
-            },
-            {
-              endTime: "2016-05-03T10:15:40.000Z",
-              seconds: 10,
-              energy: 1
-            }
-          ])
+          .should.eventually.equal(2)
+      }).then(() => {
+        expect(this.sender.getLastNotification()).to.deep.equal(
+          {
+            meterName: meterName,
+            events: [
+              {
+                endTime: "2016-05-03T10:15:30.000Z",
+                seconds: 10,
+                energy: 2
+              },
+              {
+                endTime: "2016-05-03T10:15:40.000Z",
+                seconds: 10,
+                energy: 1
+              }
+            ]
+          }
+        )
+
       })
 
 

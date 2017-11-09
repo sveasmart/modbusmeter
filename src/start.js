@@ -33,10 +33,17 @@ var energyPerPulse = config.energyPerPulse
 
 var meterDataDir = path.join(config.dataDir, config.meterName)
 util.makeDirIfMissing(meterDataDir)
-console.log("meterDataDir", meterDataDir)
 
 const counterFile = path.join(meterDataDir, "counter")
 const pulseCounter = new PersistentCounter(counterFile)
+
+let pulseCounter2
+if (config.meterName2) {
+  var meterDataDir2 = path.join(config.dataDir, config.meterName2)
+  util.makeDirIfMissing(meterDataDir2)
+  const counterFile2 = path.join(meterDataDir2, "counter")
+  pulseCounter2 = new PersistentCounter(counterFile2)
+}
 
 var counterDisplayInterval = config.counterDisplayInterval
 const verboseLogging = config.verboseLogging
@@ -48,21 +55,28 @@ console.log("I will talk to " + serverUrl)
 console.log("Here is my retry config: ")
 console.log(retryConfig)
 
-function watchForPulses(meterName) {
-  console.log("I am meter " + meterName + ", and my serverUrl is " + serverUrl)
-
-  const notificationSender = new EnergyNotificationSender(serverUrl, meterName, serverTimeoutSeconds, retryConfig)
-  const pulseProcessor = new PulseProcessor(meterDataDir, eventInterval, maxEventsPerNotification, energyPerPulse, notificationSender)
+function watchForPulses() {
+  let meterNames
+  if (config.meterName2) {
+    console.log("I am meter " + config.meterName + " & " + config.meterName2 + ", and my serverUrl is " + serverUrl)
+    meterNames = [config.meterName, config.meterName2]
+  } else {
+    console.log("I am meter " + config.meterName + ", and my serverUrl is " + serverUrl)
+    meterNames = [config.meterName]
+  }
+  
+  const notificationSender = new EnergyNotificationSender(serverUrl, serverTimeoutSeconds, retryConfig)
+  const pulseProcessor = new PulseProcessor(config.dataDir, meterNames, eventInterval, maxEventsPerNotification, energyPerPulse, notificationSender)
   processInboxAndRepeat(pulseProcessor)
 }
 
 function processInboxAndRepeat(pulseProcessor) {
   pulseProcessor.readPulsesAndSendEnergyNotification()
-    .then(function(energyEventsSent) {
-      if (energyEventsSent.length == 0) {
+    .then(function(energyEventCountSent) {
+      if (energyEventCountSent == 0) {
         if (verboseLogging) console.log("There were no completed energy events to send")
       } else {
-        if (verboseLogging) console.log("Successfully sent " + energyEventsSent.length + " energy events to the server")
+        if (verboseLogging) console.log("Successfully sent " + energyEventCountSent + " energy events to the server")
       }
       if (verboseLogging) console.log("Waiting " + notificationInterval + " seconds...")
       setTimeout(function() {
@@ -125,7 +139,10 @@ function displayLine(row, text) {
 }
 
 function showPulseCount() {
-  const pulseCount = pulseCounter.getCount()
+  let pulseCount = pulseCounter.getCount()
+  if (pulseCounter2) {
+    pulseCount = pulseCount + pulseCounter2.getCount()
+  }
   displayLine(5, "Pulses: " + pulseCount)
 }
 
@@ -147,21 +164,11 @@ const meterName = getMeterName()
 
 pulseCounter.clear()
 
-watchForPulses(meterName)
+watchForPulses()
 
 showCustomerInfoAndSupportPhone()
 showQrCode()
 showDeviceId()
-
-
-/*
-if (meterName == "Unregistered") {
-  //Oh, meterName hasn't been set. Show QR code.
-  console.log("meterName isn't set. Showing bar code and waiting for it to be set...")
-} else {
-  showPulseCount()
-}
-*/
 
 //Update the display every second (if showing tick count)
 setInterval(function() {

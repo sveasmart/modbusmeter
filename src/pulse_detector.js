@@ -60,14 +60,14 @@ class PulseDetector {
     let pulse = new Date().toISOString();
     this._addPulseToInbox(pulse)
     if (this.logPulseDetection) {
-      console.log("Detected pulse and stored it: " + pulse)
+      console.log("Detected pulse from meter " + this.meterName + " and stored it: " + pulse)
     }
   }
 
   _addPulseToInbox(pulse) {
     fs.appendFile(this.inboxFile, pulse + "\n", function(err) {
       if (err) {
-        console.log("Something went wrong when adding a pulse to inbox", pulse, err)
+        console.log("Something went wrong when adding a pulse for " + this.meterName + " to inbox", pulse, err)
       }
     })
     this.pulseCounter.increment()
