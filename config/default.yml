@@ -73,7 +73,7 @@ dataDir: "data"
 tickInputPin: "12"
 
 # If meterName2 is configured, you also need a tickInputPin2
-tickInputPin2: "23"
+tickInputPin2: "16"
 
 # Which port the display RPC server is listening on.
 # https://github.com/sveasmart/display
