@@ -6,6 +6,11 @@ const path = require('path')
 const meterDataDir = path.join(config.dataDir, config.meterName)
 
 function moveDataToSubFolder() {
+  if (!fs.existsSync(meterDataDir)) {
+    console.log("Creating " + meterDataDir)
+    fs.mkdirSync(meterDataDir)
+  }
+
   const fileNames = ["counter", "inbox", "last-incomplete-event.json"]
   fileNames.forEach((fileName) => {
     const file = path.join(config.dataDir, fileName)
