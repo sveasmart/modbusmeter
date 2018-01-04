@@ -160,8 +160,6 @@ function getMeterName() {
   return config.meterName
 }
 
-const meterName = getMeterName()
-
 pulseCounter.clear()
 
 watchForPulses()
