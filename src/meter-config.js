@@ -35,7 +35,7 @@ exports.loadConfig = function() {
     tickInputPin: getString('tickInputPin'),
     tickInputPin2: getOptionalString('tickInputPin2'),
 
-    displayRpcPort: getString("displayRpcPort"),
+    displayRpcPort: getOptionalString("displayRpcPort"),
 
     mainDisplayTab: getString("mainDisplayTab"),
     qrCodeDisplayTab: getString("qrCodeDisplayTab"),

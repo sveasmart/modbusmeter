@@ -2,6 +2,11 @@ const Promise = require('promise')
 const promiseRetry = require('promise-retry')
 const rpc = require('json-rpc2');
 
+/**
+ * I know how to talk to the display service via RPC,
+ * using this protocol: https://github.com/sveasmart/display
+ */
+
 class DisplayClient {
   constructor(displayRpcPort, logCalls) {
     this.rpcClient = rpc.Client.$create(displayRpcPort, '127.0.0.1');

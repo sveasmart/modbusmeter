@@ -77,9 +77,11 @@ tickInputPin2: "16"
 
 # Which port the display RPC server is listening on.
 # https://github.com/sveasmart/display
+# ... or leave it blank if we should just use console.log instead of trying to talk to a display
 displayRpcPort: 5000
 
 # Which tabs on the display that we use to write stuff.
+# (only relevant if displayRpcPort is given)
 mainDisplayTab: "tab0"
 qrCodeDisplayTab: "tab2"
 
