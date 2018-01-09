@@ -1,6 +1,8 @@
 const nock = require('nock')
 const mocha = require("mocha")
 const chai = require("chai");
+const moment = require('moment')
+
 chai.use(require('chai-datetime'));
 chai.use(require("chai-as-promised"));
 chai.should()
@@ -28,7 +30,10 @@ describe('PulseProcessor', function() {
   beforeEach(function() {
     mockfs()
     this.sender = new FakeEnergyNotificationSender()
-    this.processor = new PulseProcessor("data", [meterName], 10, 5, 1, this.sender)
+    const eventInterval = 10
+    const maxEventsPerNotification = 5
+    const energyPerPulse = 1
+    this.processor = new PulseProcessor("data", [meterName], eventInterval, maxEventsPerNotification, energyPerPulse, this.sender)
     fs.mkdirSync("data/" + meterName)
   })
 
@@ -235,6 +240,24 @@ describe('PulseProcessor', function() {
       .should.eventually.equal(6)
       .then(() => {
         return this.sender.getNotificationCount().should.equal(2)
+      })
+
+  })
+
+  it.only("shouldn't crash if there lots of stuff in processing", function() {
+    //Add LOTS of pulses to inbox, different buckets
+    const pulseCount = 1000
+    let date = moment()
+    for (let i = 0; i < pulseCount; ++i) {
+      let dateString = date.format('YYYY-MM-DD HH:mm:ss')
+      add(dateString) //first bucket
+      date = date.add(1, 'm')
+    }
+
+    return this.processor.readPulsesAndSendEnergyNotification()
+      .should.eventually.equal(pulseCount - 1)
+      .then(() => {
+        return this.sender.getNotificationCount().should.equal(200)
       })
 
   })
