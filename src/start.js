@@ -49,11 +49,11 @@ var counterDisplayInterval = config.counterDisplayInterval
 const verboseLogging = config.verboseLogging
 
 let displayClient
-if (displayRpcPort) {
+if (displayRpcPort && displayRpcPort != 0 && displayRpcPort != "0") {
   console.log("I will talk to a display via RPC on port " + displayRpcPort)
   displayClient = new DisplayClient(displayRpcPort, verboseLogging)
 } else {
-  console.log("No displayRpcPort set, so I'll use console.log")
+  console.log("No valid displayRpcPort set, so I'll use console.log")
   displayClient = null
 }
 
