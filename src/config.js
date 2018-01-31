@@ -16,8 +16,6 @@ exports.loadConfig = function() {
 
     deviceIdPath: getString("deviceIdPath"),
 
-    simulate: getInt('simulate', 0),
-
     notificationInterval: getInt('notificationInterval', 1),
     maxMeasurementsPerNotification: getInt('maxMeasurementsPerNotification', 1),
 
@@ -33,6 +31,7 @@ exports.loadConfig = function() {
     modbusServerHost: getString("modbusServerHost"),
     modbusServerPort: getString("modbusServerPort"),
     modbusRegister: getString("modbusRegister"),
+    simulateModbus: getBool("simulateModbus"),
 
     supportPhoneNumber: getOptionalString('supportPhoneNumber'),
     supportUrl: getOptionalString('supportUrl'),

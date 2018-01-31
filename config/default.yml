@@ -67,6 +67,10 @@ modbusServerPort: 502
 # Which register should we be reading
 modbusRegister: 263
 
+# If true, it won't talk to modbus for real, it will just use fake data
+simulateModbus: false
+
+
 # These params are displayed on the screen
 supportPhoneNumber:
 supportUrl:

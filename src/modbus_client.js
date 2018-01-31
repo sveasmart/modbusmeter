@@ -22,14 +22,7 @@ class ModbusClient {
      time is in GMT
    */
   readEnergy() {
-    //TODO
 
-    const fakeResult = [
-      {slavelId: 1, energy: 3544, time: new Date()},
-      {slavelId: 2, energy: 3544, time: new Date()}
-    ]
-
-    return Promise.resolve(fakeResult)
   }
 }
 

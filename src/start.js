@@ -1,6 +1,7 @@
 const EnergyNotificationSender = require('./energy_notification_sender')
 const DisplayClient = require("./display_client")
 const ModbusClient = require("./modbus_client")
+const FakeModbusClient = require("./fake_modbus_client")
 
 const config = require('./config').loadConfig()
 const moment = require('moment')
@@ -21,7 +22,14 @@ console.log("I will send energy notifications to " + config.serverUrl)
 console.log("Here is my retry config: ")
 console.log(config.retryConfig)
 
-const modbus = new ModbusClient(config.modbusServerHost, config.modbusServerPort, config.modbusRegister)
+let modbus
+if (config.simulateModbus) {
+  modbus = new FakeModbusClient()
+} else {
+  modbus = new ModbusClient(config.modbusServerHost, config.modbusServerPort, config.modbusRegister)
+}
+
+
 const notificationSender = new EnergyNotificationSender(config.serverUrl, config.serverTimeoutSeconds, config.retryConfig)
 
 //Temporary buffer for measures that haven't yet been sent to the server
