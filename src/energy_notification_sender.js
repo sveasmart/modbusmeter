@@ -16,6 +16,7 @@ class EnergyNotificationSender {
 
     console.assert(retryConfig, "missing retryConfig")
     this.retryConfig = retryConfig
+
   }
 
   /**
@@ -26,9 +27,12 @@ class EnergyNotificationSender {
    * You can configure that with the retryConfig in the constructor.
    *
    * If the notification doesn't have any events, no notification is sent and the promise resolves immediately.
+   *
+   * @param sendId used for logging only
+   * @param notification the actual notitication to send. Should contain at least one measurement.
    */
-  sendEnergyNotification(notification) {
-    if (!notification.events || notification.events.length == 0) {
+  sendEnergyNotification(sendId, notification) {
+    if (!notification.measurements || notification.measurements.length == 0) {
       return new Promise(function(resolve, reject) {
         resolve()
       })
@@ -36,10 +40,10 @@ class EnergyNotificationSender {
 
     return promiseRetry((retry, number) => {
       if (number > 1) {
-        console.log('...send attempt number', number);
+        console.log("...send " + sendId + ", #attempt number", number);
       }
       return this._sendEnergyNotification(notification).catch((error) => {
-        console.log("send failed! Will retry. " +  error)
+        console.log("send " + sendId + " failed! Will retry. " +  error)
         retry()
       });
     }, this.retryConfig)

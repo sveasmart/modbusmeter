@@ -2,9 +2,10 @@ const EnergyNotificationSender = require('./energy_notification_sender')
 const DisplayClient = require("./display_client")
 const ModbusClient = require("./modbus_client")
 
+const config = require('./config').loadConfig()
+const moment = require('moment')
 const fs = require('fs')
-const path = require('path')
-const config = require('./meter-config').loadConfig()
+
 const verboseLogging = config.verboseLogging
 
 let displayClient
@@ -58,15 +59,16 @@ function sendEnergyNotification() {
     console.log("Sending a notification with " + measurementCount + " measurements to the server...")
   }
 
-  notificationSender.sendEnergyNotification(notification)
+  const sendId = moment().format("YYYY-MM-DD HH:mm:ss")
+  notificationSender.sendEnergyNotification(sendId, notification)
     .then(function(result) {
       console.log("result", result)
       if (verboseLogging) {
-        console.log("Successfully sent a notification with " + measurementCount + " measurements to the server.")
+        console.log("Successfully sent a notification " + sendId + " with " + measurementCount + " measurements to the server.")
       }
     })
     .catch(function(err) {
-      console.log("Failed to send energy notification to the server. Will put those " + measurementCount + " measurements back into my buffer.", err)
+      console.log("send " + sendId + " failed! I won't retry that send any more. Will put those " + measurementCount + " measurements back into my buffer.", err)
       bufferedMeasurements = bufferedMeasurements.concat(notification.measurements)
     })
 
