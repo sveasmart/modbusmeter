@@ -15,6 +15,7 @@ exports.loadConfig = function() {
     registrationBaseUrl: getString("registrationBaseUrl"),
 
     deviceIdPath: getString("deviceIdPath"),
+    deviceId: getOptionalString("deviceId"),
 
     notificationInterval: getInt('notificationInterval', 1),
     maxMeasurementsPerNotification: getInt('maxMeasurementsPerNotification', 1),

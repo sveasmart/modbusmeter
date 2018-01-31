@@ -25,17 +25,17 @@ This app sends HTTP POST messages to the configured serverUrl.
 The body is formatted like this.
 
 ```
-[
-    {
-        deviceId: "12345",
-        measurements: [
-            {slaveId: 1, energy: 250, time: 2017-05-21T15:00:00.000Z},
-            {slaveId: 1, energy: 280, time: 2017-05-21T15:01:00.000Z},
-            {slaveId: 2, energy: 5555, time: 2017-05-21T15:00:00.000Z},
-            {slaveId: 2, energy: 5590, time: 2017-05-21T15:01:00.000Z},
-        ]
-    }
-]
+
+{
+    deviceId: "12345",
+    measurements: [
+        {slaveId: 1, energy: 250, time: 2017-05-21T15:00:00.000Z},
+        {slaveId: 1, energy: 280, time: 2017-05-21T15:01:00.000Z},
+        {slaveId: 2, energy: 5555, time: 2017-05-21T15:00:00.000Z},
+        {slaveId: 2, energy: 5590, time: 2017-05-21T15:01:00.000Z},
+    ]
+}
+
 ```
 
 * energy is in wattHours

@@ -94,7 +94,12 @@ function getRegistrationUrl() {
 }
 
 function getDeviceId() {
-  return fs.readFileSync(config.deviceIdPath).toString()
+  if (config.deviceId) {
+    return config.deviceId
+  } else {
+    return fs.readFileSync(config.deviceIdPath).toString()
+  }
+
 }
 
 /**

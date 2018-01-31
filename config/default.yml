@@ -11,7 +11,7 @@
 meterName: "Unregistered"
 
 # The URL of the backend to which ticks are posted
-serverUrl: "http://localhost:3000/energynotification"
+serverUrl: "http://localhost:3000/modbusnotification"
 
 # How long we are willing to wait for a response from serverUrl,
 # before considering it a failure and starting the retry loop.
@@ -28,6 +28,9 @@ registrationBaseUrl: "http://localhost:3000/register"
 
 # Which file contains the device ID
 deviceIdPath: "./test/device-id"
+
+# Use this to override deviceIdPath with a specific device Id instead.
+deviceId:
 
 # Minimum number of seconds between each send.
 # Higher number means fewer http requests and more energy events per batch.
