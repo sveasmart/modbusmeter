@@ -3,12 +3,11 @@
  * config params.
  */
 const config = require('config')
-const util = require('./util')
+
 
 exports.loadConfig = function() {
   return {
     meterName: getString('meterName'),
-    meterName2: getOptionalString('meterName2'),
 
     serverUrl: getString('serverUrl'),
     serverTimeoutSeconds: getInt('serverTimeoutSeconds', 1),
@@ -18,29 +17,22 @@ exports.loadConfig = function() {
     deviceIdPath: getString("deviceIdPath"),
 
     simulate: getInt('simulate', 0),
-    simulate2: getOptionalInt('simulate2', 0),
 
     notificationInterval: getInt('notificationInterval', 1),
-    maxEventsPerNotification: getInt('maxEventsPerNotification', 1),
+    maxMeasurementsPerNotification: getInt('maxMeasurementsPerNotification', 1),
 
-    eventInterval: getInt('eventInterval', 1),
+    pollInterval: getInt('pollInterval', 1),
 
-    energyPerPulse: getInt('energyPerPulse', 1),
-
-    logPulseDetection: getBool('logPulseDetection'),
     verboseLogging: getBool('verboseLogging'),
-
-    dataDir: getDir('dataDir'),
-
-    tickInputPin: getString('tickInputPin'),
-    tickInputPin2: getOptionalString('tickInputPin2'),
 
     displayRpcPort: getOptionalString("displayRpcPort"),
 
     mainDisplayTab: getString("mainDisplayTab"),
     qrCodeDisplayTab: getString("qrCodeDisplayTab"),
 
-    counterDisplayInterval: getInt('counterDisplayInterval', 1),
+    modbusServerHost: getString("modbusServerHost"),
+    modbusServerPort: getString("modbusServerPort"),
+    modbusRegister: getString("modbusRegister"),
 
     supportPhoneNumber: getOptionalString('supportPhoneNumber'),
     supportUrl: getOptionalString('supportUrl'),
@@ -127,10 +119,4 @@ function getObject(name) {
 function hasParam(name) {
   const value = config.get(name)
   return value != null && value != undefined
-}
-
-function getDir(name) {
-  const dirName = getString(name)
-  util.makeDirIfMissing(dirName)
-  return dirName
 }

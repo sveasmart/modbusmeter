@@ -1,12 +1,12 @@
-# systemd service script for the meter
+# systemd service script for the modbusmeter
 # https://www.freedesktop.org/software/systemd/man/bootup.html
 [Unit]
-Description=Meter
+Description=ModbusMeter
 After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/home/pi/apps/meter/start.sh
+ExecStart=/home/pi/apps/modbusmeter/start.sh
 Restart=always
 
 [Install]

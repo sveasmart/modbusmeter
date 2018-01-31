@@ -10,9 +10,6 @@
 # If not set, a QR code will be displayed pointing to registrationBaseUrl
 meterName: "Unregistered"
 
-# Optionally, a second meterName be set if this device has two meters.
-meterName2:
-
 # The URL of the backend to which ticks are posted
 serverUrl: "http://localhost:3000/energynotification"
 
@@ -32,14 +29,6 @@ registrationBaseUrl: "http://localhost:3000/register"
 # Which file contains the device ID
 deviceIdPath: "./test/device-id"
 
-# If simulate is 0, then no ticks are simulated.
-# If > 0, then a fake tick is sent every X seconds
-simulate: "0"
-
-# Same as simulate, but for the second meter (meterName2)
-# if have one.
-simulate2: "0"
-
 # Minimum number of seconds between each send.
 # Higher number means fewer http requests and more energy events per batch.
 # Must be at least 1 second.
@@ -50,30 +39,14 @@ notificationInterval: "10"
 # they will be split into separate notifications.
 # Otherwise we risk server timeouts because of the large number of
 # database updates happening on the server side.
-maxEventsPerNotification: "1000"
+maxMeasurementsPerNotification: "1000"
 
-# How many seconds of pulses each energy event should include
-eventInterval: "10"
-
-# How much energy (in Wh) does one pulse represent?
-energyPerPulse: "1"
-
-# If true, pulses are logged in console.log
-# Should be a string, so don't skip the quotes.
-logPulseDetection: "true"
+# How often (in seconds) should we poll the modbus server?
+pollInterval: "10"
 
 # If true, logs stuff that happens over and over again
 # Should be a string, so don't skip the quotes.
 verboseLogging: "true"
-
-# The folder that contains batched and sent ticks.
-dataDir: "data"
-
-# Which pin the ticks are reported through (pin number, not GPIO number)
-tickInputPin: "12"
-
-# If meterName2 is configured, you also need a tickInputPin2
-tickInputPin2: "16"
 
 # Which port the display RPC server is listening on.
 # https://github.com/sveasmart/display
@@ -85,9 +58,14 @@ displayRpcPort: 5000
 mainDisplayTab: "tab0"
 qrCodeDisplayTab: "tab2"
 
-# How many seconds between each update of the display
-# (when displaying tick counter)
-counterDisplayInterval: "1"
+# Which host/IP is the modbus server listening on
+modbusServerHost: "192.168.1.101"
+
+# Which port is the modbus server listening on
+modbusServerPort: 502
+
+# Which register should we be reading
+modbusRegister: 263
 
 # These params are displayed on the screen
 supportPhoneNumber:

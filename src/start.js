@@ -1,131 +1,105 @@
 const EnergyNotificationSender = require('./energy_notification_sender')
-const PulseProcessor = require('./pulse_processor')
-const PersistentCounter = require('./persistent_counter')
 const DisplayClient = require("./display_client")
-const util = require("./util")
+const ModbusClient = require("./modbus_client")
+
 const fs = require('fs')
 const path = require('path')
-let config = require('./meter-config').loadConfig()
-
-var deviceIdPath = config.deviceIdPath
-var registrationBaseUrl = config.registrationBaseUrl
-var serverUrl = config.serverUrl
-var serverTimeoutSeconds = config.serverTimeoutSeconds
-var maxEventsPerNotification = config.maxEventsPerNotification
-const supportPhoneNumber = config.supportPhoneNumber
-const supportUrl = config.supportUrl
-const customerName = config.customerName
-const customerAddress = config.customerAddress
-
-
-var retryConfig = config.retryConfig
-
-const displayRpcPort = config.displayRpcPort
-const mainDisplayTab = config.mainDisplayTab
-const qrCodeDisplayTab = config.qrCodeDisplayTab
-
-
-var notificationInterval = config.notificationInterval
-
-var eventInterval = config.eventInterval
-
-var energyPerPulse = config.energyPerPulse
-
-var meterDataDir = path.join(config.dataDir, config.meterName)
-util.makeDirIfMissing(meterDataDir)
-
-const counterFile = path.join(meterDataDir, "counter")
-const pulseCounter = new PersistentCounter(counterFile)
-
-let pulseCounter2
-if (config.meterName2) {
-  var meterDataDir2 = path.join(config.dataDir, config.meterName2)
-  util.makeDirIfMissing(meterDataDir2)
-  const counterFile2 = path.join(meterDataDir2, "counter")
-  pulseCounter2 = new PersistentCounter(counterFile2)
-}
-
-var counterDisplayInterval = config.counterDisplayInterval
+const config = require('./meter-config').loadConfig()
 const verboseLogging = config.verboseLogging
 
 let displayClient
-if (displayRpcPort && displayRpcPort != 0 && displayRpcPort != "0") {
-  console.log("I will talk to a display via RPC on port " + displayRpcPort)
-  displayClient = new DisplayClient(displayRpcPort, verboseLogging)
+if (config.displayRpcPort && config.displayRpcPort != 0 && config.displayRpcPort != "0") {
+  console.log("I will talk to a display via RPC on port " + config.displayRpcPort)
+  displayClient = new DisplayClient(config.displayRpcPort, verboseLogging)
 } else {
   console.log("No valid displayRpcPort set, so I'll use console.log")
   displayClient = null
 }
 
-
-console.log("I will talk to " + serverUrl)
+console.log("I will send energy notifications to " + config.serverUrl)
 console.log("Here is my retry config: ")
-console.log(retryConfig)
+console.log(config.retryConfig)
 
-function watchForPulses() {
-  let meterNames
-  if (config.meterName2) {
-    console.log("I am meter " + config.meterName + " & " + config.meterName2 + ", and my serverUrl is " + serverUrl)
-    meterNames = [config.meterName, config.meterName2]
-  } else {
-    console.log("I am meter " + config.meterName + ", and my serverUrl is " + serverUrl)
-    meterNames = [config.meterName]
-  }
-  
-  const notificationSender = new EnergyNotificationSender(serverUrl, serverTimeoutSeconds, retryConfig)
-  const pulseProcessor = new PulseProcessor(config.dataDir, meterNames, eventInterval, maxEventsPerNotification, energyPerPulse, notificationSender)
-  processInboxAndRepeat(pulseProcessor)
-}
+const modbus = new ModbusClient(config.modbusServerHost, config.modbusServerPort, config.modbusRegister)
+const notificationSender = new EnergyNotificationSender(config.serverUrl, config.serverTimeoutSeconds, config.retryConfig)
 
-function processInboxAndRepeat(pulseProcessor) {
-  pulseProcessor.readPulsesAndSendEnergyNotification()
-    .then(function(energyEventCountSent) {
-      if (energyEventCountSent == 0) {
-        if (verboseLogging) console.log("There were no completed energy events to send")
-      } else {
-        if (verboseLogging) console.log("Successfully sent " + energyEventCountSent + " energy events to the server")
+//Temporary buffer for measures that haven't yet been sent to the server
+let bufferedMeasurements = []
+
+function readEnergy() {
+  console.log("Reading energy...")
+  modbus.readEnergy()
+    .then(function(measurements) {
+      bufferedMeasurements = bufferedMeasurements.concat(measurements)
+      if (verboseLogging) {
+        console.log("Got " + measurements.length + " measurements. We now have " + bufferedMeasurements.length + " measurements in the buffer.")
       }
-      if (verboseLogging) console.log("Waiting " + notificationInterval + " seconds...")
-      setTimeout(function() {
-        processInboxAndRepeat(pulseProcessor)
-      }, notificationInterval * 1000)
     })
     .catch(function(err) {
-      console.log("Got error from readPulsesAndSendEnergyNotification", err)
-      setTimeout(function() {
-        processInboxAndRepeat(pulseProcessor)
-      }, notificationInterval * 1000)
+      console.log("Something went wrong when reading from modbus. Ignoring it.", err)
     })
-
 }
 
+function sendEnergyNotification() {
+  if (bufferedMeasurements.length == 0) {
+    console.log("Strange. I was going to send a notification to the server, but there are no measurements in my buffer!")
+    return
+  }
+
+  //Create an energy notification with all measurements in the buffer
+  const notification = {
+    deviceId: getDeviceId(),
+    measurements: bufferedMeasurements
+  }
+  const measurementCount = notification.measurements.length
+
+  //Trigger a send to the server
+  if (verboseLogging) {
+    console.log("Sending a notification with " + measurementCount + " measurements to the server...")
+  }
+
+  notificationSender.sendEnergyNotification(notification)
+    .then(function(result) {
+      console.log("result", result)
+      if (verboseLogging) {
+        console.log("Successfully sent a notification with " + measurementCount + " measurements to the server.")
+      }
+    })
+    .catch(function(err) {
+      console.log("Failed to send energy notification to the server. Will put those " + measurementCount + " measurements back into my buffer.", err)
+      bufferedMeasurements = bufferedMeasurements.concat(notification.measurements)
+    })
+
+  //Reset the buffer
+  bufferedMeasurements = []
+}
 
 function getRegistrationUrl() {
-  return registrationBaseUrl + "#" + getDeviceId()
+  return config.registrationBaseUrl + "#" + getDeviceId()
 }
 
 function getDeviceId() {
-  return fs.readFileSync(deviceIdPath).toString()
+  return fs.readFileSync(config.deviceIdPath).toString()
 }
 
 /**
  * Retries on failure.
  */
 function showCustomerInfoAndSupportPhone() {
-  if (!customerName && !customerAddress) {
+  if (!config.customerName && !config.customerAddress) {
     displayLine(0, "Not registered!")
     displayLine(1, "")
     displayLine(2, "Call support!")
   } else {
-    displayLine(0, customerName)
-    displayLine(1, customerAddress)
+    displayLine(0, config.customerName)
+    displayLine(1, config.customerAddress)
     displayLine(2, "Support:")
   }
-  if (supportPhoneNumber) {
-    displayLine(3, "  " + supportPhoneNumber)
+  if (config.supportPhoneNumber) {
+    displayLine(3, "  " + config.supportPhoneNumber)
   }
-  if (supportUrl) {
-    displayLine(4, "  " + supportUrl)
+  if (config.supportUrl) {
+    displayLine(4, "  " + config.supportUrl)
   }
 }
 
@@ -135,7 +109,7 @@ function showCustomerInfoAndSupportPhone() {
 function showQrCode() {
   const registrationUrl = getRegistrationUrl()
   if (displayClient) {
-    displayClient.callAndRetry('setQrCode', [registrationUrl, false, qrCodeDisplayTab])
+    displayClient.callAndRetry('setQrCode', [registrationUrl, false, config.qrCodeDisplayTab])
   } else {
     console.log("If I had a display, I would show a QR code for this registration URL: " + registrationUrl)
   }
@@ -144,23 +118,20 @@ function showQrCode() {
 function displayLine(row, text) {
   if (text) {
     if (displayClient) {
-      displayClient.callAndRetry('setRowText', [text, row, false, mainDisplayTab])
+      displayClient.callAndRetry('setRowText', [text, row, false, config.mainDisplayTab])
     } else {
       console.log(text)
     }
   } else {
     if (displayClient) {
-      displayClient.callAndRetry('clearRow', [row, mainDisplayTab])
+      displayClient.callAndRetry('clearRow', [row, config.mainDisplayTab])
     }
   }
 }
 
-function showPulseCount() {
-  let pulseCount = pulseCounter.getCount()
-  if (pulseCounter2) {
-    pulseCount = pulseCount + pulseCounter2.getCount()
-  }
-  displayLine(5, "Pulses: " + pulseCount)
+function showEnergy() {
+  //TODO figure out what to show on the display. Total energy perhaps?
+  //displayLine(5, "Energy: " + energy)
 }
 
 function showDeviceId() {
@@ -170,22 +141,18 @@ function showDeviceId() {
   displayLine(6, "ID: " + deviceId)
 }
 
-
-function getMeterName() {
-  delete require.cache[require.resolve('config')]
-  config = require('./meter-config').loadConfig()
-  return config.meterName
-}
-
-pulseCounter.clear()
-
-watchForPulses()
-
 showCustomerInfoAndSupportPhone()
 showQrCode()
 showDeviceId()
 
-//Update the display every second (if showing tick count)
+//Start the polling loop
 setInterval(function() {
-  showPulseCount()
-}, counterDisplayInterval * 1000)
+  readEnergy()
+  showEnergy()
+}, config.pollInterval * 1000)
+
+//Start the notification loop
+setInterval(function() {
+  sendEnergyNotification()
+}, config.notificationInterval * 1000)
+

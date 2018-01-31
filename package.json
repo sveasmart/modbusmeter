@@ -1,14 +1,13 @@
 {
-  "name": "meter",
-  "version": "1.0.0",
-  "description": "Listens for ticks and sends to a server",
+  "name": "modbusmeter",
+  "description": "Polls modbus and sends measurements to a server",
   "scripts": {
-    "start": "parallelshell 'node src/start.js' 'node src/start_pulse_detector.js' ",
+    "start": "node src/start.js",
     "test": "mocha  --timeout 10000"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sveasmart/meter.git"
+    "url": "git+https://github.com/sveasmart/modbusmeter.git"
   },
   "license": "MIT",
   "devDependencies": {
@@ -24,12 +23,10 @@
     "js-yaml": "3.7.0",
     "json-rpc2": "1.0.2",
     "moment": "2.18.1",
-    "parallelshell": "2.0.0",
     "promise": "7.1.1",
     "promise-retry": "1.1.1",
     "request": "2.79.0",
     "request-promise-native": "1.0.4",
-    "retry": "0.10.1",
-    "rpio": "0.9.14"
+    "retry": "0.10.1"
   }
 }
