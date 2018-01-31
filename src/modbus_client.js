@@ -30,8 +30,40 @@ class ModbusClient {
    time is in GMT
    */
   readEnergy() {
-    //TODO does the modbus client poll automatically or not?
-    throw new Error("ModbusClient.readEnergy not implemented yet")
+    const slaveId = 1 //TODO figure out how to actually read slave.
+
+    return new Promise((resolve, reject) => {
+      this.client = modbus.client.tcp.complete(this.clientParams)
+
+      this.client.on('connect', () => {
+        console.log("Calling modbus client.readHoldingRegisters with register " + this.register)
+        client.readHoldingRegisters(this.register, 1).then(function (response) {
+          console.log("Modbus response", response)
+          const energy = response.register[0]
+          const measurement = {
+            slaveId: slaveId,
+            time: new Date(),
+            energy: energy
+          }
+          resolve([measurement])
+
+        }).catch(function (err) {
+          console.log("Modbus, caught an error from the promise", err)
+          reject(err)
+
+        }).done(function () {
+          console.log("Modbus done")
+          client.close()
+        })
+      })
+
+      client.on('error', function (err) {
+        console.log("Modbus error", err)
+        reject(err)
+      })
+
+      client.connect()
+    })
   }
 
 
