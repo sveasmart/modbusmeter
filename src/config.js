@@ -7,8 +7,6 @@ const config = require('config')
 
 exports.loadConfig = function() {
   return {
-    meterName: getString('meterName'),
-
     serverUrl: getString('serverUrl'),
     serverTimeoutSeconds: getInt('serverTimeoutSeconds', 1),
 

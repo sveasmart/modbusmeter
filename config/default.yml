@@ -5,11 +5,6 @@
 # the meter if you change anything.
 #------------------------------------------------
 
-
-# The name used to identify this meter when talking to the backend
-# If not set, a QR code will be displayed pointing to registrationBaseUrl
-meterName: "Unregistered"
-
 # The URL of the backend to which ticks are posted
 serverUrl: "http://localhost:3000/modbusnotification"
 
@@ -21,7 +16,7 @@ serverUrl: "http://localhost:3000/modbusnotification"
 # from the server.
 serverTimeoutSeconds: "300"
 
-# The URL that will be used in the QR code that is displayed when no meterName is set.
+# The URL that will be used for the QR code that is displayed
 # The deviceId will be passed along using an # (anchor tag).
 # Example: http://my.server/register#abcdefgh
 registrationBaseUrl: "http://localhost:3000/register"
