@@ -26,7 +26,12 @@ let modbus
 if (config.simulateModbus) {
   modbus = new FakeModbusClient()
 } else {
-  modbus = new ModbusClient(config.modbusServerHost, config.modbusServerPort, config.modbusRegister)
+  modbus = new ModbusClient(
+    {host: config.modbusServerHost,
+      port: config.modbusServerPort,
+      register: config.modbusRegister
+    }
+  )
 }
 
 
