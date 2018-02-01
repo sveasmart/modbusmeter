@@ -33,9 +33,9 @@ class ModbusClient {
     const slaveId = 1 //TODO figure out how to actually read slave.
 
     return new Promise((resolve, reject) => {
-      this.client = modbus.client.tcp.complete(this.clientParams)
+      const client = modbus.client.tcp.complete(this.clientParams)
 
-      this.client.on('connect', () => {
+      client.on('connect', () => {
         console.log("Calling modbus client.readHoldingRegisters with register " + this.register)
         client.readHoldingRegisters(this.register, 1).then(function (response) {
           console.log("Modbus response", response)
