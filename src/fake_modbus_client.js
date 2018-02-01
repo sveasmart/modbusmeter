@@ -6,8 +6,8 @@ class FakeModbusClient {
 
   readEnergy() {
     const fakeResult = [
-      {slaveId: 1, energy: counter1, time: new Date()},
-      {slaveId: 2, energy: counter2, time: new Date()}
+      {meterLocalId: 1, energy: counter1, time: new Date()},
+      {meterLocalId: 2, energy: counter2, time: new Date()}
     ]
     counter1 += 1
     counter2 += 2
