@@ -50,9 +50,11 @@ class ModbusClient {
    time is in GMT
    */
   readEnergy() {
+    const date = new Date()
+
 
     //First let's look up all the serial numbers.
-    this._readAllSerialNumbers()
+    return this._readAllSerialNumbers()
       .then((serialNumbers) => {
         console.log("Got serial numbers", serialNumbers)
 
@@ -65,28 +67,28 @@ class ModbusClient {
         }
 
         //And now let's execute all those promises in parallell.
-        q.all(meterValuePromises).then((meterValues) => {
-          console.log("Got meter values", meterValues)
+        q.all(meterValuePromises)
+          .then((meterValues) => {
+            console.log("Got meter values", meterValues)
+
+            //Good, we got all the serial numbers and meter values! Let's bake it into a response object
+            const response = []
+            for (let i = 0; i < serialNumbers.length; ++i) {
+              const serialNumber = serialNumbers[i]
+              const meterValue = meterValues[i]
+              response.push({
+                meterLocalId: serialNumber,
+                energy: meterValue,
+                date: date
+              })
+            }
+            console.log("Returning ", response)
+            return response
         })
-
-
       })
       .catch((err) => {
         console.log("Caught an error", err)
       })
-
-    /*
-    const meterLocalId = 1 //TODO figure out how to actually read slave.
-    this._readSerialNumber(0).then((serialNumber) => {
-      console.log("serialNumber", serialNumber)
-    })
-    this._readMeterValue(0).then((meterValue) => {
-      console.log("meterValue", meterValue)
-    })
-    return Promise.resolve([])
-    */
-    return Promise.resolve([])
-
   }
 
   /**
