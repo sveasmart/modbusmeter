@@ -18,9 +18,8 @@ class ModbusClient {
     host,
     port,
     unitId = 1,
-    logEnabled = true,
-    logLevel = 'debug',
-    register = 263
+    logEnabled = false,
+    logLevel = 'debug'
   }) {
     console.assert(host, "missing host")
     console.assert(port, "missing port")
@@ -33,7 +32,6 @@ class ModbusClient {
       logEnabled,
       logLevel
     }
-    this.register = register
   }
 
 
@@ -73,8 +71,8 @@ class ModbusClient {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        console.log("Calling modbus client.readHoldingRegisters with register " + this.register)
-        client.readHoldingRegisters(this.register, 2).then(function (response) {
+        console.log("Calling modbus client.readHoldingRegisters with register " + register)
+        client.readHoldingRegisters(register, 2).then(function (response) {
           console.log("Modbus response", response)
           const serialNumber = response.payload.readUIntBE(0, 4)
           resolve(serialNumber)
@@ -112,8 +110,8 @@ class ModbusClient {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        console.log("Calling modbus client.readHoldingRegisters with register " + this.register)
-        client.readHoldingRegisters(this.register, 1).then(function (response) {
+        console.log("Calling modbus client.readHoldingRegisters with register " + register)
+        client.readHoldingRegisters(register, 1).then(function (response) {
           console.log("Modbus response", response)
           const energy = response.register[0]
           resolve(energy)
