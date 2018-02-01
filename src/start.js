@@ -27,9 +27,9 @@ if (config.simulateModbus) {
   modbus = new FakeModbusClient()
 } else {
   modbus = new ModbusClient(
-    {host: config.modbusServerHost,
-      port: config.modbusServerPort,
-      register: config.modbusRegister
+    {
+      host: config.modbusServerHost,
+      port: config.modbusServerPort
     }
   )
 }

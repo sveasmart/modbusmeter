@@ -15,7 +15,6 @@ class ModbusClient {
    * @param unitId
    * @param logEnabled true if modbus should spew out tons of detailed logging
    * @param logLevel the level of detail to log (default is 'debug'). Not sure about the allowed values.
-   * @param register
    */
   constructor({
     host,
@@ -75,7 +74,7 @@ class ModbusClient {
               const serialNumber = serialNumbers[i]
               const meterValue = meterValues[i]
               response.push({
-                serialNumber: serialNumber,
+                serialNumber: "" + serialNumber,
                 energy: meterValue,
                 date: date
               })
@@ -141,7 +140,7 @@ class ModbusClient {
         client.readHoldingRegisters(register, 2).then(function (response) {
           console.log("Modbus response", response)
           const serialNumber = response.payload.readUIntBE(0, 4)
-          resolve("" + serialNumber)
+          resolve(serialNumber)
 
         }).catch(function (err) {
           console.log("Modbus, caught an error from the promise", err)
