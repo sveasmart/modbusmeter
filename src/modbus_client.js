@@ -55,7 +55,21 @@ class ModbusClient {
     this._readAllSerialNumbers()
       .then((serialNumbers) => {
         console.log("Got serial numbers", serialNumbers)
-        //Now that we got the serial numbers, let's create a promise
+
+        //Now that we got the serial numbers,
+        //we want the meterValues for each meter.
+        //This can be done in parallell, so let's create an array of promises
+        const meterValuePromises = []
+        for (let meterSequenceId = 0; meterSequenceId < serialNumbers.length; ++meterSequenceId) {
+          meterValuePromises.push(this._readMeterValue(meterSequenceId))
+        }
+
+        //And now let's execute all those promises in parallell.
+        Q.all(meterValuePromises).then((meterValues) => {
+          console.log("Got meter values", meterValues)
+        })
+
+
       })
       .catch((err) => {
         console.log("Caught an error", err)
