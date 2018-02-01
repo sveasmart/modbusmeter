@@ -42,8 +42,8 @@ class ModbusClient {
    Polls the modbus server and returns a promise that
    resolves to the energy value for all modbus units, like this:
    [
-   {meterLocalId: 1, energy: 3544, time: 2018-01-15T15:00:00},
-   {meterLocalId: 2, energy: 3544, time: 2018-01-15T15:00:00}
+   {serialNumber: 1, energy: 3544, time: 2018-01-15T15:00:00},
+   {serialNumber: 2, energy: 3544, time: 2018-01-15T15:00:00}
    ]
 
    energy is in wattHours
@@ -77,7 +77,7 @@ class ModbusClient {
               const serialNumber = serialNumbers[i]
               const meterValue = meterValues[i]
               response.push({
-                meterLocalId: serialNumber,
+                serialNumber: serialNumber,
                 energy: meterValue,
                 date: date
               })
@@ -91,16 +91,6 @@ class ModbusClient {
       })
   }
 
-  /**
-    Returns a promise that resolves to an array like:
-   [
-   {meterLocalId: 1, energy: 3544, time: 2018-01-15T15:00:00},
-   {meterLocalId: 2, energy: 3544, time: 2018-01-15T15:00:00}
-   ]
-   */
-  _readAllMeterValues(serialNumbers) {
-
-  }
 
   /**
    * Returns a promise that resolves to an array of all serial numbers
@@ -158,7 +148,7 @@ class ModbusClient {
         client.readHoldingRegisters(register, 2).then(function (response) {
           console.log("Modbus response", response)
           const serialNumber = response.payload.readUIntBE(0, 4)
-          resolve(serialNumber)
+          resolve("" + serialNumber)
 
         }).catch(function (err) {
           console.log("Modbus, caught an error from the promise", err)
@@ -218,40 +208,6 @@ class ModbusClient {
     })
   }
 
-
-
-
-  /*
-  Starts polling modbus. Excepts an object with callbacks:
-
-  onMeasurement is called when new measurements come in. They look like: {meterLocalId: 1, energy: 3544, time: 2018-01-15T15:00:00}
-
-  onError is called when something goes wrong TODO: figure out if this means it stops polling
-
-  onDone is called when ... uh... I have no idea TODO: figure out when done is triggered. Perhaps on server restart?
-
-   */
-  startPolling({onMeasurement, onError, onDone}) {
-    this.client = modbus.client.tcp.complete(this.clientParams)
-
-    //TODO use the callbacks
-    this.client.on('connect', () => {
-      client.readHoldingRegisters(this.register, 1).then(function (response) {
-        console.log(response)
-      }).catch(function (err) {
-        console.log(err)
-      }).done(function () {
-        console.log("Done")
-        client.close()
-      })
-    })
-
-    client.on('error', function (err) {
-      console.log(err)
-    })
-
-    client.connect()
-  }
 }
 
 module.exports = ModbusClient
