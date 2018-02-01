@@ -53,9 +53,13 @@ class ModbusClient {
 
     //First let's look up all the serial numbers.
     this._readAllSerialNumbers()
-      //.then((serialNumbers) => {
+      .then((serialNumbers) => {
+        console.log("Got serial numbers", serialNumbers)
         //Now that we got the serial numbers, let's create a promise
-      //})
+      })
+      .catch((err) => {
+        console.log("Caught an error", err)
+      })
 
     /*
     const meterLocalId = 1 //TODO figure out how to actually read slave.
@@ -112,7 +116,8 @@ class ModbusClient {
       })
     }).then((each) => {
       console.log("each", each)
-      console.log("serialNumbers", serialNumber)
+      console.log("serialNumbers", serialNumbers)
+      return serialNumbers
     })
 
   }
