@@ -56,7 +56,6 @@ class ModbusClient {
     //First let's look up all the serial numbers.
     return this._readAllSerialNumbers()
       .then((serialNumbers) => {
-        console.log("Got serial numbers", serialNumbers)
 
         //Now that we got the serial numbers,
         //we want the meterValues for each meter.
@@ -69,7 +68,6 @@ class ModbusClient {
         //And now let's execute all those promises in parallell.
         return q.all(meterValuePromises)
           .then((meterValues) => {
-            console.log("Got meter values", meterValues)
 
             //Good, we got all the serial numbers and meter values! Let's bake it into a response object
             const response = []
@@ -82,7 +80,6 @@ class ModbusClient {
                 date: date
               })
             }
-            console.log("Returning ", response)
             return response
         })
       })
@@ -97,7 +94,6 @@ class ModbusClient {
    * for modbus devices.
    */
   _readAllSerialNumbers() {
-    console.log("=============== _readAllSerialNumbers ========================================")
     let serialNumbers = []
 
     return q.until(() => {
@@ -121,8 +117,6 @@ class ModbusClient {
           })
       })
     }).then((each) => {
-      console.log("each", each)
-      console.log("serialNumbers", serialNumbers)
       return serialNumbers
     })
 
@@ -136,7 +130,6 @@ class ModbusClient {
     @param meterSequenceId 0 for the first meter, 1 for the next, etc.
    */
   _readSerialNumber(meterSequenceId) {
-    console.log("_readSerialNumber", meterSequenceId)
     const register = (meterSequenceId * registerOffsetPerMeter) + serialNumberRegister
 
 

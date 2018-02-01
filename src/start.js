@@ -45,10 +45,8 @@ function readEnergy() {
   modbus.readEnergy()
     .then(function(measurements) {
       console.log("got measurements", measurements)
-      console.log("bufferedMeasurements before", bufferedMeasurements)
       bufferedMeasurements = bufferedMeasurements.concat(measurements)
       if (verboseLogging) {
-        console.log("bufferedMeasurements after", bufferedMeasurements)
         console.log("Got " + measurements.length + " measurements. We now have " + bufferedMeasurements.length + " measurements in the buffer.")
       }
     })
