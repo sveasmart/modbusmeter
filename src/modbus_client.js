@@ -67,7 +67,7 @@ class ModbusClient {
         }
 
         //And now let's execute all those promises in parallell.
-        q.all(meterValuePromises)
+        return q.all(meterValuePromises)
           .then((meterValues) => {
             console.log("Got meter values", meterValues)
 
