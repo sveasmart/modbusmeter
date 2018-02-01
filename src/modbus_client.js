@@ -49,7 +49,7 @@ class ModbusClient {
    time is in GMT
    */
   readEnergy() {
-    const date = new Date()
+    const time = new Date()
 
 
     //First let's look up all the serial numbers.
@@ -76,7 +76,7 @@ class ModbusClient {
               response.push({
                 serialNumber: "" + serialNumber,
                 energy: meterValue,
-                date: date
+                time: time
               })
             }
             return response
