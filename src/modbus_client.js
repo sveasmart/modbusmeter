@@ -87,18 +87,32 @@ class ModbusClient {
    * for modbus devices.
    */
   _readAllSerialNumbers() {
+    console.log("=============== _readAllSerialNumbers ========================================")
     let serialNumbers = []
 
-    q.until(() => {
+    return q.until(() => {
       return q.fcall(() => {
+        let meterSequenceId = serialNumbers.length
+        return this._readSerialNumber(meterSequenceId)
+          .then((serialNumber) => {
+            if (serialNumber) {
+              serialNumbers.push(serialNumber)
+              //We found a serial number here.
+              //So we return false, which means "please don't stop looping yet"
+              return false
+            } else {
+              //We didn't find a serial number here.
+              //So we return true, which means "please stop looping"
+              return true
+            }
 
-        return this._readSerialNumber(0)
-          .then(() => {
+
             return true
           })
       })
     }).then((each) => {
       console.log("each", each)
+      console.log("serialNumbers", serialNumber)
     })
 
   }
@@ -111,6 +125,7 @@ class ModbusClient {
     @param meterSequenceId 0 for the first meter, 1 for the next, etc.
    */
   _readSerialNumber(meterSequenceId) {
+    console.log("_readSerialNumber", meterSequenceId)
     const register = (meterSequenceId * registerOffsetPerMeter) + serialNumberRegister
 
 
