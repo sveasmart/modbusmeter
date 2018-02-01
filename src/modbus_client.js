@@ -91,7 +91,11 @@ class ModbusClient {
 
     q.until(() => {
       return q.fcall(() => {
-        return Promise.resolve(true)
+
+        return this._readSerialNumber(0)
+          .then(() => {
+            return true
+          })
       })
     }).then((each) => {
       console.log("each", each)
