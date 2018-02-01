@@ -1,3 +1,6 @@
+var q = require('q');
+require('q-flow')
+
 const modbus = require('node-modbus')
 
 const serialNumberRegister = 10 //Where is the serienumber stored for the first meter
@@ -47,6 +50,14 @@ class ModbusClient {
    time is in GMT
    */
   readEnergy() {
+
+    //First let's look up all the serial numbers.
+    this._readAllSerialNumbers()
+      //.then((serialNumbers) => {
+        //Now that we got the serial numbers, let's create a promise
+      //})
+
+    /*
     const meterLocalId = 1 //TODO figure out how to actually read slave.
     this._readSerialNumber(0).then((serialNumber) => {
       console.log("serialNumber", serialNumber)
@@ -55,7 +66,39 @@ class ModbusClient {
       console.log("meterValue", meterValue)
     })
     return Promise.resolve([])
+    */
+    return Promise.resolve([])
+
   }
+
+  /**
+    Returns a promise that resolves to an array like:
+   [
+   {meterLocalId: 1, energy: 3544, time: 2018-01-15T15:00:00},
+   {meterLocalId: 2, energy: 3544, time: 2018-01-15T15:00:00}
+   ]
+   */
+  _readAllMeterValues(serialNumbers) {
+
+  }
+
+  /**
+   * Returns a promise that resolves to an array of all serial numbers
+   * for modbus devices.
+   */
+  _readAllSerialNumbers() {
+    let serialNumbers = []
+
+    q.until(() => {
+      return q.fcall(() => {
+        return Promise.resolve(true)
+      })
+    }).then((each) => {
+      console.log("each", each)
+    })
+
+  }
+
 
   /**
     Connects to modbus and reads the serial number of the given meter.

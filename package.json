@@ -26,6 +26,7 @@
     "node-modbus": "^4.0.1",
     "promise": "7.1.1",
     "promise-retry": "1.1.1",
+    "q-flow": "^0.2.0",
     "request": "2.79.0",
     "request-promise-native": "1.0.4",
     "retry": "0.10.1"
