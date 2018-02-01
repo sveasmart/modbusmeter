@@ -56,6 +56,7 @@ class ModbusClient {
     this._readMeterValue(0).then((meterValue) => {
       console.log("meterValue", meterValue)
     })
+    return Promise.resolve([])
   }
 
   /**
