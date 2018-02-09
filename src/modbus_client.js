@@ -203,7 +203,7 @@ class ModbusClient {
         client.readHoldingRegisters(register, 1).then(function (response) {
           console.log("Modbus response", response)
           const energyInLocalUnit = response.register[0]
-          const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
+          const energyInWattHours = energyInLocalUnit * this.multiplyEnergyBy
           resolve(energyInWattHours)
 
         }).catch(function (err) {
