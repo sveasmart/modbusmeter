@@ -11,7 +11,7 @@ It uses the app config, so the only thing you need to send in is
 
 const modbus = require('node-modbus')
 
-const config = require('../config').loadConfig()
+const config = require('../src/config').loadConfig()
 
 const registerNumber = process.argv[2]
 let howManyToCheck = process.argv[3]
