@@ -4,12 +4,16 @@ require('q-flow')
 const modbus = require('node-modbus')
 
 //This is our little hardcoded database of manufacturer-specific settings
+//Some of this info can be automatically checked later
 const manufacturers = {
   SEC: {
-    meterValueRegister: 263 //Where is the meter value stored for the first meter
+    meterValueRegister: 263, //Where is the meter value stored for the first meter
+    multiplyEnergyBy: 1, //what to multiply the energy by to get the right number in Wh
+
   },
   GAV: {
-    meterValueRegister: 23
+    meterValueRegister: 23,
+    multiplyEnergyBy: 0.1
   }
 }
 
@@ -41,6 +45,7 @@ class ModbusClient {
 
     const manufacturerConfig = this.getManufacturerConfig(manufacturer)
     this.meterValueRegister = manufacturerConfig.meterValueRegister
+    this.multiplyEnergyBy = manufacturerConfig.multiplyEnergyBy
 
     if (logEnabled) {
       console.log("Initializing modbus client with config: ", arguments[0])
@@ -197,8 +202,9 @@ class ModbusClient {
         console.log("Calling modbus client.readHoldingRegisters with register " + register)
         client.readHoldingRegisters(register, 1).then(function (response) {
           console.log("Modbus response", response)
-          const energy = response.register[0]
-          resolve(energy)
+          const energyInLocalUnit = response.register[0]
+          const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
+          resolve(energyInWattHours)
 
         }).catch(function (err) {
           console.log("Modbus, caught an error from the promise", err)
