@@ -194,6 +194,7 @@ class ModbusClient {
    */
   _readMeterValue(meterSequenceId) {
     const register = (meterSequenceId * registerOffsetPerMeter) + this.meterValueRegister
+    const multiplyEnergyBy = this.multiplyEnergyBy
 
     return new Promise((resolve, reject) => {
       const client = modbus.client.tcp.complete(this.clientParams)
@@ -203,7 +204,7 @@ class ModbusClient {
         client.readHoldingRegisters(register, 1).then( (response) => {
           console.log("Modbus response", response)
           const energyInLocalUnit = response.register[0]
-          const energyInWattHours = energyInLocalUnit * this.multiplyEnergyBy
+          const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
           resolve(energyInWattHours)
 
         }).catch(function (err) {
