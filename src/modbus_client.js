@@ -207,15 +207,7 @@ class ModbusClient {
           console.log("Modbus response", response)
 
           const payload = response.payload
-          console.log("readInt8", payload.readInt8(0))
-          console.log("readInt16BE", payload.readInt16BE(0))
-          console.log("readInt16LE", payload.readInt16LE(0))
-          console.log("readInt32BE", payload.readInt32BE(0))
-          console.log("readInt32LE", payload.readInt32LE(0))
-          console.log("readIntBE 8", payload.readIntBE(0, 8))
-          console.log("readIntLE 8", payload.readIntLE(0, 8))
-
-          const energyInLocalUnit = response.register[0]
+          const energyInLocalUnit = payload.readIntBE(0, 8)
           const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
           resolve(energyInWattHours)
 
