@@ -200,7 +200,7 @@ class ModbusClient {
 
       client.on('connect', () => {
         console.log("Calling modbus client.readHoldingRegisters with register " + register)
-        client.readHoldingRegisters(register, 1).then(function (response) {
+        client.readHoldingRegisters(register, 1).then( (response) => {
           console.log("Modbus response", response)
           const energyInLocalUnit = response.register[0]
           const energyInWattHours = energyInLocalUnit * this.multiplyEnergyBy
