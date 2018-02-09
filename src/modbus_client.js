@@ -7,15 +7,17 @@ const modbus = require('node-modbus')
 //Some of this info can be automatically checked later
 const manufacturers = {
   SEC: {
-    meterValueRegister: 263, //Where is the meter value stored for the first meter
+    meterValueRegister: 260, //Where is the meter value stored for the first meter
     multiplyEnergyBy: 1, //what to multiply the energy by to get the right number in Wh
 
   },
   GAV: {
-    meterValueRegister: 23,
+    meterValueRegister: 20,
     multiplyEnergyBy: 0.1
   }
 }
+
+const numberOfRegistersForMeterValue = 4
 
 
 const serialNumberRegister = 10 //Where is the serienumber stored for the first meter
@@ -201,8 +203,18 @@ class ModbusClient {
 
       client.on('connect', () => {
         console.log("Calling modbus client.readHoldingRegisters with register " + register)
-        client.readHoldingRegisters(register, 1).then( (response) => {
+        client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then( (response) => {
           console.log("Modbus response", response)
+
+          const payload = response.payload
+          console.log("readInt8", payload.readInt8(0))
+          console.log("readInt16BE", payload.readInt16BE(0))
+          console.log("readInt16LE", payload.readInt16LE(0))
+          console.log("readInt32BE", payload.readInt32BE(0))
+          console.log("readInt32LE", payload.readInt32LE(0))
+          console.log("readIntBE 4", payload.readIntBE(0, 4))
+          console.log("readIntLE 4", payload.readIntLE(0, 4))
+
           const energyInLocalUnit = response.register[0]
           const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
           resolve(energyInWattHours)
