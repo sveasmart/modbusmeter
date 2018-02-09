@@ -3,8 +3,18 @@ require('q-flow')
 
 const modbus = require('node-modbus')
 
+//This is our little hardcoded database of manufacturer-specific settings
+const manufacturers = {
+  SEC: {
+    meterValueRegister: 263 //Where is the meter value stored for the first meter
+  },
+  GAV: {
+    meterValueRegister: 263
+  }
+}
+
+
 const serialNumberRegister = 10 //Where is the serienumber stored for the first meter
-const meterValueRegister = 263 //Where is the meter value stored for the first meter
 const registerOffsetPerMeter = 260 //How much do we add to the above to get to the next meter
 
 class ModbusClient {
@@ -20,12 +30,21 @@ class ModbusClient {
     host,
     port,
     unitId = 1,
+    manufacturer,
     logEnabled = false,
     logLevel = 'debug'
   }) {
     console.assert(host, "missing host")
     console.assert(port, "missing port")
-    console.assert(unitId, "unitId modbusRegister")
+    console.assert(unitId, "missing unitId")
+    console.assert(manufacturer, "missing manufacturer")
+
+    const manufacturerConfig = getManufacturerConfig(manufacturer)
+    this.meterValueRegister = manufacturerConfig.meterValueRegister
+
+    if (logEnabled) {
+      console.log("Initializing modbus client with config: ", arguments[0])
+    }
 
     this.clientParams = {
       host,
@@ -169,7 +188,7 @@ class ModbusClient {
    @param meterSequenceId 0 for the first meter, 1 for the next, etc.
    */
   _readMeterValue(meterSequenceId) {
-    const register = (meterSequenceId * registerOffsetPerMeter) + meterValueRegister
+    const register = (meterSequenceId * registerOffsetPerMeter) + this.meterValueRegister
 
     return new Promise((resolve, reject) => {
       const client = modbus.client.tcp.complete(this.clientParams)
@@ -198,6 +217,12 @@ class ModbusClient {
 
       client.connect()
     })
+  }
+
+  getManufacturerConfig(manufacturer) {
+    const manufacturerConfig = manufacturers[manufacturer]
+    console.assert(manufacturerConfig, "I don't recognize manufacturer '" + manufacturer + "', it is not listed in modbus_client.js")
+    return manufacturerConfig
   }
 
 }

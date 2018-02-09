@@ -29,7 +29,7 @@ exports.loadConfig = function() {
 
     modbusServerHost: getString("modbusServerHost"),
     modbusServerPort: getString("modbusServerPort"),
-    modbusRegister: getString("modbusRegister"),
+    modbusManufacturer: getString("modbusManufacturer"),
     simulateModbus: getBool("simulateModbus"),
 
     supportPhoneNumber: getOptionalString('supportPhoneNumber'),

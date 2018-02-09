@@ -62,8 +62,10 @@ modbusServerHost: "192.168.1.101"
 # Which port is the modbus server listening on
 modbusServerPort: 502
 
-# Which register should we be reading
-modbusRegister: 263
+# 3-letter code for the manufacturer, ex: SEC or GAV.
+# This is used to decide which modbus register to read meter values from.
+# See modbus_client.js
+modbusManufacturer: "SEC"
 
 # If true, it won't talk to modbus for real, it will just use fake data
 simulateModbus: false

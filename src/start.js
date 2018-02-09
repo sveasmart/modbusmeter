@@ -29,7 +29,9 @@ if (config.simulateModbus) {
   modbus = new ModbusClient(
     {
       host: config.modbusServerHost,
-      port: config.modbusServerPort
+      port: config.modbusServerPort,
+      manufacturer: config.modbusManufacturer,
+      logEnabled: config.verboseLogging
     }
   )
 }
