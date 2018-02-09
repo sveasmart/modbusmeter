@@ -9,7 +9,7 @@ It uses the app config, so the only thing you need to send in is
  */
 
 
-const modbus = require('../..')
+const modbus = require('node-modbus')
 
 const config = require('../config').loadConfig()
 
