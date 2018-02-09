@@ -9,7 +9,7 @@ const manufacturers = {
     meterValueRegister: 263 //Where is the meter value stored for the first meter
   },
   GAV: {
-    meterValueRegister: 263
+    meterValueRegister: 23
   }
 }
 
@@ -39,7 +39,7 @@ class ModbusClient {
     console.assert(unitId, "missing unitId")
     console.assert(manufacturer, "missing manufacturer")
 
-    const manufacturerConfig = getManufacturerConfig(manufacturer)
+    const manufacturerConfig = this.getManufacturerConfig(manufacturer)
     this.meterValueRegister = manufacturerConfig.meterValueRegister
 
     if (logEnabled) {
