@@ -157,17 +157,17 @@ class ModbusClient {
    */
   _readSerialNumber(meterSequenceId) {
     const register = (meterSequenceId * registerOffsetPerMeter) + serialNumberRegister
-
+    const logEnabled = this.logEnabled
 
     return new Promise((resolve, reject) => {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        if (this.logEnabled) {
+        if (logEnabled) {
           console.log("Calling modbus client.readHoldingRegisters with register " + register)
         }
         client.readHoldingRegisters(register, 2).then(function (response) {
-          if (this.logEnabled) {
+          if (logEnabled) {
             console.log("Modbus response", response)
           }
           const serialNumber = response.payload.readUIntBE(0, 4)
@@ -178,7 +178,7 @@ class ModbusClient {
           reject(err)
 
         }).done(function () {
-          if (this.logEnabled) {
+          if (logEnabled) {
             console.log("Modbus done")
           }
           client.close()
@@ -202,6 +202,7 @@ class ModbusClient {
    @param meterSequenceId 0 for the first meter, 1 for the next, etc.
    */
   _readMeterValue(meterSequenceId) {
+    const logEnabled = this.logEnabled
     const register = (meterSequenceId * registerOffsetPerMeter) + this.meterValueRegister
     const multiplyEnergyBy = this.multiplyEnergyBy
 
@@ -209,11 +210,11 @@ class ModbusClient {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        if (this.logEnabled) {
+        if (logEnabled) {
           console.log("Calling modbus client.readHoldingRegisters with register " + register)
         }
         client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then( (response) => {
-          if (this.logEnabled) {
+          if (logEnabled) {
             console.log("Modbus response", response)
           }
 
@@ -227,7 +228,7 @@ class ModbusClient {
           reject(err)
 
         }).done(function () {
-          if (this.logEnabled) {
+          if (logEnabled) {
             console.log("Modbus done")
           }
           client.close()
