@@ -32,7 +32,7 @@ deviceId:
 # Use the cron syntax
 # https://www.npmjs.com/package/node-cron
 # For example, every 10 seconds: ("*/10 * * * * *")
-# Or first minute of every hour: ("* 0 * * * *")
+# Or first minute of every hour: ("0 * * * *")
 notificationSchedule: "*/10 * * * * *"
 
 # Limit the number of events per notification.
@@ -46,7 +46,7 @@ maxMeasurementsPerNotification: "1000"
 # Use the cron syntax
 # https://www.npmjs.com/package/node-cron
 # For example, every 5 seconds: ("*/5 * * * * *")
-# Or first minute of every hour: ("* 0 * * * *")
+# Or first minute of every hour: ("0 * * * *")
 pollSchedule: "*/5 * * * * *"
 
 # If true, logs stuff that happens over and over again
