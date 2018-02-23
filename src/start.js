@@ -46,7 +46,7 @@ const notificationSender = new EnergyNotificationSender(config.serverUrl, config
 let bufferedMeasurements = []
 
 function readEnergy() {
-  console.log("Reading energy...")
+  console.log("readEnergy...")
   modbus.readEnergy()
     .then(function(measurements) {
       console.log("got measurements", measurements)
@@ -61,6 +61,7 @@ function readEnergy() {
 }
 
 function sendEnergyNotification() {
+  console.log("sendEnergyNotification...")
   if (bufferedMeasurements.length == 0) {
     console.log("Strange. I was going to send a notification to the server, but there are no measurements in my buffer!")
     return
