@@ -27,10 +27,13 @@ deviceIdPath: "./test/device-id"
 # Use this to override deviceIdPath with a specific device Id instead.
 deviceId:
 
-# Minimum number of seconds between each send.
-# Higher number means fewer http requests and more energy events per batch.
-# Must be at least 1 second.
-notificationInterval: "10"
+# When should we send notifications?
+# Lower frequency means fewer http requests and more measurements per batch.
+# Use the cron syntax
+# https://www.npmjs.com/package/node-cron
+# For example, every 10 seconds: ("*/10 * * * * *")
+# Or first minute of every hour: ("* 0 * * * *")
+notificationSchedule: "*/10 * * * * *"
 
 # Limit the number of events per notification.
 # If more events than this have been buffered up,
@@ -39,8 +42,12 @@ notificationInterval: "10"
 # database updates happening on the server side.
 maxMeasurementsPerNotification: "1000"
 
-# How often (in seconds) should we poll the modbus server?
-pollInterval: "10"
+# When should we poll the modbus server?
+# Use the cron syntax
+# https://www.npmjs.com/package/node-cron
+# For example, every 5 seconds: ("*/5 * * * * *")
+# Or first minute of every hour: ("* 0 * * * *")
+pollSchedule: "*/5 * * * * *"
 
 # If true, logs stuff that happens over and over again
 # Should be a string, so don't skip the quotes.
