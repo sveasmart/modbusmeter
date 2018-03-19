@@ -47,7 +47,7 @@ class ModbusClient {
 
     const manufacturerConfig = this.getManufacturerConfig(manufacturer)
     this.meterValueRegister = manufacturerConfig.meterValueRegister
-    this.multiplyEnergyBymultiplyEnergyBy = manufacturerConfig.multiplyEnergyBy
+    this.multiplyEnergyBy = manufacturerConfig.multiplyEnergyBy
     this.logEnabled = logEnabled
 
     if (this.logEnabled) {
