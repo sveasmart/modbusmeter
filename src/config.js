@@ -15,10 +15,10 @@ exports.loadConfig = function() {
     deviceIdPath: getString("deviceIdPath"),
     deviceId: getOptionalString("deviceId"),
 
-    notificationInterval: getInt('notificationInterval', 1),
+    notificationSchedule: getString('notificationSchedule'),
     maxMeasurementsPerNotification: getInt('maxMeasurementsPerNotification', 1),
 
-    pollInterval: getInt('pollInterval', 1),
+    pollSchedule: getString('pollSchedule'),
 
     verboseLogging: getBool('verboseLogging'),
 

@@ -48,8 +48,9 @@ class ModbusClient {
     const manufacturerConfig = this.getManufacturerConfig(manufacturer)
     this.meterValueRegister = manufacturerConfig.meterValueRegister
     this.multiplyEnergyBy = manufacturerConfig.multiplyEnergyBy
+    this.logEnabled = logEnabled
 
-    if (logEnabled) {
+    if (this.logEnabled) {
       console.log("Initializing modbus client with config: ", arguments[0])
     }
 
@@ -156,15 +157,19 @@ class ModbusClient {
    */
   _readSerialNumber(meterSequenceId) {
     const register = (meterSequenceId * registerOffsetPerMeter) + serialNumberRegister
-
+    const logEnabled = this.logEnabled
 
     return new Promise((resolve, reject) => {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        console.log("Calling modbus client.readHoldingRegisters with register " + register)
+        if (logEnabled) {
+          console.log("Calling modbus client.readHoldingRegisters with register " + register)
+        }
         client.readHoldingRegisters(register, 2).then(function (response) {
-          console.log("Modbus response", response)
+          if (logEnabled) {
+            console.log("Modbus response", response)
+          }
           const serialNumber = response.payload.readUIntBE(0, 4)
           resolve(serialNumber)
 
@@ -173,7 +178,9 @@ class ModbusClient {
           reject(err)
 
         }).done(function () {
-          console.log("Modbus done")
+          if (logEnabled) {
+            console.log("Modbus done")
+          }
           client.close()
         })
       })
@@ -195,6 +202,7 @@ class ModbusClient {
    @param meterSequenceId 0 for the first meter, 1 for the next, etc.
    */
   _readMeterValue(meterSequenceId) {
+    const logEnabled = this.logEnabled
     const register = (meterSequenceId * registerOffsetPerMeter) + this.meterValueRegister
     const multiplyEnergyBy = this.multiplyEnergyBy
 
@@ -202,9 +210,13 @@ class ModbusClient {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        console.log("Calling modbus client.readHoldingRegisters with register " + register)
+        if (logEnabled) {
+          console.log("Calling modbus client.readHoldingRegisters with register " + register)
+        }
         client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then( (response) => {
-          console.log("Modbus response", response)
+          if (logEnabled) {
+            console.log("Modbus response", response)
+          }
 
           const payload = response.payload
           const energyInLocalUnit = payload.readIntBE(0, 8)
@@ -216,7 +228,9 @@ class ModbusClient {
           reject(err)
 
         }).done(function () {
-          console.log("Modbus done")
+          if (logEnabled) {
+            console.log("Modbus done")
+          }
           client.close()
         })
       })

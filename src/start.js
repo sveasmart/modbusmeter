@@ -6,6 +6,7 @@ const FakeModbusClient = require("./fake_modbus_client")
 const config = require('./config').loadConfig()
 const moment = require('moment')
 const fs = require('fs')
+const cron = require('node-cron')
 
 const verboseLogging = config.verboseLogging
 
@@ -24,8 +25,10 @@ console.log(config.retryConfig)
 
 let modbus
 if (config.simulateModbus) {
+  console.log("I will fake the modbus connection")
   modbus = new FakeModbusClient()
 } else {
+  console.log("I will connect to modbus on " + config.modbusServerHost + ":" + config.modbusServerPort)
   modbus = new ModbusClient(
     {
       host: config.modbusServerHost,
@@ -43,7 +46,7 @@ const notificationSender = new EnergyNotificationSender(config.serverUrl, config
 let bufferedMeasurements = []
 
 function readEnergy() {
-  console.log("Reading energy...")
+  console.log("-----------------------------------------\nreadEnergy...")
   return modbus.readEnergy()
     .then(function(measurements) {
       console.log("got measurements", measurements)
@@ -58,6 +61,7 @@ function readEnergy() {
 }
 
 function sendEnergyNotification() {
+  console.log("===============================================\nsendEnergyNotification...")
   if (bufferedMeasurements.length == 0) {
     console.log("Strange. I was going to send a notification to the server, but there are no measurements in my buffer!")
     return
@@ -164,24 +168,37 @@ function showDeviceId() {
   displayLine(6, "ID: " + deviceId)
 }
 
+
+function startPollingLoop() {
+  var schedule = config.pollSchedule;
+  console.assert(cron.validate(schedule), "Hey, the pollSchedule is invalid: " + schedule + ". See https://www.npmjs.com/package/node-cron")
+  console.log("I'll poll modbus on cron schedule: " + schedule)
+
+  cron.schedule(schedule, function() {
+    readEnergy()
+    showEnergy()
+  })
+}
+
+function startNotificationLoop() {
+  var schedule = config.notificationSchedule;
+  console.assert(cron.validate(schedule), "Hey, the notificationSchedule is invalid: " + schedule + ". See https://www.npmjs.com/package/node-cron")
+  console.log("I'll send notifications to the server on cron schedule: " + schedule)
+
+  cron.schedule(schedule, function() {
+    sendEnergyNotification()
+  })
+}
+
 showCustomerInfoAndSupportPhone()
 showQrCode()
 showDeviceId()
+
+startPollingLoop()
+startNotificationLoop()
 
 //Do an initial read & send
 readEnergy()
   .then(function() {
     sendEnergyNotification()
   })
-
-//Start the polling loop
-setInterval(function() {
-  readEnergy()
-  showEnergy()
-}, config.pollInterval * 1000)
-
-//Start the notification loop
-setInterval(function() {
-  sendEnergyNotification()
-}, config.notificationInterval * 1000)
-
