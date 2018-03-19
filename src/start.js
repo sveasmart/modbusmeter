@@ -44,7 +44,7 @@ let bufferedMeasurements = []
 
 function readEnergy() {
   console.log("Reading energy...")
-  modbus.readEnergy()
+  return modbus.readEnergy()
     .then(function(measurements) {
       console.log("got measurements", measurements)
       bufferedMeasurements = bufferedMeasurements.concat(measurements)
@@ -167,6 +167,12 @@ function showDeviceId() {
 showCustomerInfoAndSupportPhone()
 showQrCode()
 showDeviceId()
+
+//Do an initial read & send
+readEnergy()
+  .then(function() {
+    sendEnergyNotification()
+  })
 
 //Start the polling loop
 setInterval(function() {
