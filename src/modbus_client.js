@@ -13,7 +13,7 @@ const manufacturers = {
   },
   GAV: {
     meterValueRegister: 20,
-    multiplyEnergyBy: 0.1
+    multiplyEnergyBy: 100 //TODO don't hardcode this, read it from register 26.
   }
 }
 
@@ -47,7 +47,7 @@ class ModbusClient {
 
     const manufacturerConfig = this.getManufacturerConfig(manufacturer)
     this.meterValueRegister = manufacturerConfig.meterValueRegister
-    this.multiplyEnergyBy = manufacturerConfig.multiplyEnergyBy
+    this.multiplyEnergyBymultiplyEnergyBy = manufacturerConfig.multiplyEnergyBy
     this.logEnabled = logEnabled
 
     if (this.logEnabled) {
