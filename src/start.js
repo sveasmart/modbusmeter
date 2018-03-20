@@ -196,6 +196,10 @@ showCustomerInfoAndSupportPhone()
 showQrCode()
 showDeviceId()
 
+console.log("=======================================")
+console.log(" STARTING MODBUS CLIENT")
+console.log("=======================================")
+
 startPollingLoop()
 startNotificationLoop()
 
