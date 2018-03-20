@@ -86,7 +86,7 @@ class ModbusClient {
     return this._readAllSerialNumbersInSequence()
       .then((serialNumbers) => {
         if (logEnabled) {
-          console.log("Serial numbers: ", serialNumbers)
+          console.log("Serial numbers (" + serialNumbers.length + "): ", serialNumbers)
         }
 
         //Now that we got the serial numbers,
