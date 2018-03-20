@@ -253,9 +253,9 @@ class ModbusClient {
     }).then((each) => {
       return serialNumbers
     })
-    */
 
   }
+   */
 
   /**
    Connects to modbus and reads the meter value of the given meter.
