@@ -209,19 +209,26 @@ class ModbusClient {
       console.log("[#" + meterSequenceId + "] readMeterValue...")
     }
 
+    console.log("AAA1")
+
     const register = (meterSequenceId * registerOffsetPerMeter) + this.meterValueRegister
     const multiplyEnergyBy = this.multiplyEnergyBy
 
     const startTime = new Date().getTime()
 
     return new Promise((resolve, reject) => {
+      console.log("AAA2")
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
+        console.log("AAA3")
+
         if (logEnabled) {
           console.log("[#" + meterSequenceId + "] Calling modbus client.readHoldingRegisters with register " + register)
         }
         client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then( (response) => {
+          console.log("AAA4")
+
           if (logEnabled) {
             const duration = new Date().getTime() - startTime
             console.log("[#" + meterSequenceId + "] Modbus response took " + duration + "ms", response)
@@ -233,11 +240,15 @@ class ModbusClient {
           resolve(energyInWattHours)
 
         }).catch(function (err) {
+          console.log("AAA5")
+
           const duration = new Date().getTime() - startTime
           console.log("[#" + meterSequenceId + "] Modbus caught an error from the promise after " + duration + " ms", err)
           reject(err)
 
         }).done(function () {
+          console.log("AAA6")
+
           if (logEnabled) {
             const duration = new Date().getTime() - startTime
             console.log("[#" + meterSequenceId + "] Modbus done! Took " + duration + "ms")
@@ -247,6 +258,7 @@ class ModbusClient {
       })
 
       client.on('error', function (err) {
+        console.log("AAA7")
         const duration = new Date().getTime() - startTime
         console.log("[#" + meterSequenceId + "] Modbus error! Took " + duration + "ms", err)
         reject(err)
