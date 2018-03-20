@@ -79,20 +79,45 @@ class ModbusClient {
    */
   readEnergy() {
     const time = new Date()
+    const logEnabled = this.logEnabled
 
 
     //First let's look up all the serial numbers.
-    return this._readAllSerialNumbers()
+    return this._readAllSerialNumbersInSequence()
       .then((serialNumbers) => {
+        if (logEnabled) {
+          console.log("Serial numbers: ", serialNumbers)
+        }
 
         //Now that we got the serial numbers,
         //we want the meterValues for each meter.
+
+        //Let's do it in sequence
+        /*
+        return this.readAllMeterValuesInSequence(serialNumbers)
+          .then((meterValues) => {
+            //Good, we got all the serial numbers and meter values! Let's bake it into a response object
+            const response = []
+            for (let i = 0; i < serialNumbers.length; ++i) {
+              const serialNumber = serialNumbers[i]
+              const meterValue = meterValues[i]
+              response.push({
+                serialNumber: "" + serialNumber,
+                energy: meterValue,
+                time: time
+              })
+            }
+            return response
+
+          })
+        */
+
+
         //This can be done in parallell, so let's create an array of promises
         const meterValuePromises = []
         for (let meterSequenceId = 0; meterSequenceId < serialNumbers.length; ++meterSequenceId) {
           meterValuePromises.push(this._readMeterValue(meterSequenceId))
         }
-
         //And now let's execute all those promises in parallell.
         return q.all(meterValuePromises)
           .then((meterValues) => {
@@ -110,6 +135,7 @@ class ModbusClient {
             }
             return response
         })
+
       })
       .catch((err) => {
         console.log("Caught an error", err)
@@ -121,7 +147,7 @@ class ModbusClient {
    * Returns a promise that resolves to an array of all serial numbers
    * for modbus devices.
    */
-  _readAllSerialNumbers() {
+  _readAllSerialNumbersInSequence() {
     let serialNumbers = []
 
     return q.until(() => {
@@ -196,6 +222,40 @@ class ModbusClient {
     })
   }
 
+  /**
+   * Returns a promise that resolves to an array of all serial numbers
+   * for modbus devices.
+   */
+  /*
+  _readAllMeterValuesInSequence(serialNumbers) {
+    let serialNumbers = []
+
+    return q.until(() => {
+      return q.fcall(() => {
+        let meterSequenceId = serialNumbers.length
+        return this._readSerialNumber(meterSequenceId)
+          .then((serialNumber) => {
+            if (serialNumber) {
+              serialNumbers.push(serialNumber)
+              //We found a serial number here.
+              //So we return false, which means "please don't stop looping yet"
+              return false
+            } else {
+              //We didn't find a serial number here.
+              //So we return true, which means "please stop looping"
+              return true
+            }
+
+
+            return true
+          })
+      })
+    }).then((each) => {
+      return serialNumbers
+    })
+    */
+
+  }
 
   /**
    Connects to modbus and reads the meter value of the given meter.
