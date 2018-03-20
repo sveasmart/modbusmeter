@@ -38,6 +38,7 @@ class ModbusClient {
     unitId = 1,
     manufacturer,
     logEnabled = false,
+    timeout = 10000,
     logLevel = 'debug'
   }) {
     console.assert(host, "missing host")
@@ -59,6 +60,7 @@ class ModbusClient {
       port,
       unitId,
       logEnabled,
+      timeout,
       logLevel
     }
   }
@@ -203,6 +205,10 @@ class ModbusClient {
    */
   _readMeterValue(meterSequenceId) {
     const logEnabled = this.logEnabled
+    if (logEnabled) {
+      console.log("[#" + meterSequenceId + "] readMeterValue...")
+    }
+
     const register = (meterSequenceId * registerOffsetPerMeter) + this.meterValueRegister
     const multiplyEnergyBy = this.multiplyEnergyBy
 
@@ -211,11 +217,11 @@ class ModbusClient {
 
       client.on('connect', () => {
         if (logEnabled) {
-          console.log("Calling modbus client.readHoldingRegisters with register " + register)
+          console.log("[#" + meterSequenceId + "] Calling modbus client.readHoldingRegisters with register " + register)
         }
         client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then( (response) => {
           if (logEnabled) {
-            console.log("Modbus response", response)
+            console.log("[#" + meterSequenceId + "] Modbus response", response)
           }
 
           const payload = response.payload
@@ -224,19 +230,19 @@ class ModbusClient {
           resolve(energyInWattHours)
 
         }).catch(function (err) {
-          console.log("Modbus, caught an error from the promise", err)
+          console.log("[#" + meterSequenceId + "] Modbus caught an error from the promise!", err)
           reject(err)
 
         }).done(function () {
           if (logEnabled) {
-            console.log("Modbus done")
+            console.log("[#" + meterSequenceId + "] Modbus done!")
           }
           client.close()
         })
       })
 
       client.on('error', function (err) {
-        console.log("Modbus error", err)
+        console.log("[#" + meterSequenceId + "] Modbus error", err)
         reject(err)
       })
 

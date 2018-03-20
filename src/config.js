@@ -9,6 +9,7 @@ exports.loadConfig = function() {
   return {
     serverUrl: getString('serverUrl'),
     serverTimeoutSeconds: getInt('serverTimeoutSeconds', 1),
+    modbusTimeoutSeconds: getInt('modbusTimeoutSeconds', 10),
 
     registrationBaseUrl: getString("registrationBaseUrl"),
 

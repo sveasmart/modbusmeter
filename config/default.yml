@@ -16,6 +16,8 @@ serverUrl: "http://localhost:3000/modbusnotification"
 # from the server.
 serverTimeoutSeconds: "300"
 
+modbusTimeoutSeconds: "10"
+
 # The URL that will be used for the QR code that is displayed
 # The deviceId will be passed along using an # (anchor tag).
 # Example: http://my.server/register#abcdefgh

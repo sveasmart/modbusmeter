@@ -34,6 +34,7 @@ if (config.simulateModbus) {
       host: config.modbusServerHost,
       port: config.modbusServerPort,
       manufacturer: config.modbusManufacturer,
+      timeout: config.modbusTimeoutSeconds * 1000,
       logEnabled: config.verboseLogging
     }
   )
