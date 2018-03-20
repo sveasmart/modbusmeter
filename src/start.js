@@ -76,7 +76,9 @@ function sendEnergyNotification() {
 
   //Trigger a send to the server
   if (verboseLogging) {
-    console.log("Sending a notification with " + measurementCount + " measurements to the server...", notification)
+    console.log("Sending a Notification with " + measurementCount + " measurements to the server...")
+    console.log("Here is the notification:")
+    console.log(notification)
   }
 
   const sendId = moment().format("YYYY-MM-DD HH:mm:ss")
