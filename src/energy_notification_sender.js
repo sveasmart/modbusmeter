@@ -44,9 +44,9 @@ class EnergyNotificationSender {
 
     return promiseRetry((retry, number) => {
       if (number == 0) {
-        log.debug("...send " + sendId + ", #attempt number " + number);
+        log.debug("...send " + sendId + ", attempt #" + number);
       } else {
-        log.info("...send " + sendId + ", #attempt number " + number);
+        log.info("...send " + sendId + ", attempt #" + number);
       }
       return this._sendEnergyNotification(notification).catch((error) => {
         log.warn("send " + sendId + " failed! Will retry. " +  error)
