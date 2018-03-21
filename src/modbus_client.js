@@ -281,7 +281,7 @@ class ModbusClient {
 
         }).done(function () {
           const duration = new Date().getTime() - startTime
-          log.error("[#" + meterSequenceId + "] Modbus done! Took " + duration + "ms")
+          log.debug("[#" + meterSequenceId + "] Modbus done! Took " + duration + "ms")
           client.close()
         })
       })
