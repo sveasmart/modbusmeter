@@ -1,5 +1,7 @@
 const promiseRetry = require('promise-retry')
 const requestPromise = require('request-promise-native')
+const log = require('simple-node-logger').createSimpleLogger()
+
 /**
  * I know how to send energy notifications to the server,
  * and how to handle icky network stuff like retries.
@@ -7,7 +9,7 @@ const requestPromise = require('request-promise-native')
  * @param retryConfig see https://www.npmjs.com/package/promise-retry
  */
 class EnergyNotificationSender {
-  constructor(serverUrl, serverTimeoutSeconds, retryConfig) {
+  constructor(serverUrl, serverTimeoutSeconds, retryConfig, logLevel = 'info') {
     console.assert(serverUrl, "missing serverUrl")
     this.serverUrl = serverUrl
 
@@ -16,6 +18,8 @@ class EnergyNotificationSender {
 
     console.assert(retryConfig, "missing retryConfig")
     this.retryConfig = retryConfig
+    
+    log.setLevel(logLevel)
 
   }
 
@@ -39,11 +43,13 @@ class EnergyNotificationSender {
     }
 
     return promiseRetry((retry, number) => {
-      if (number > 1) {
-        console.log("...send " + sendId + ", #attempt number", number);
+      if (number == 0) {
+        log.debug("...send " + sendId + ", #attempt number " + number);
+      } else {
+        log.info("...send " + sendId + ", #attempt number " + number);
       }
       return this._sendEnergyNotification(notification).catch((error) => {
-        console.log("send " + sendId + " failed! Will retry. " +  error)
+        log.warn("send " + sendId + " failed! Will retry. " +  error)
         retry()
       });
     }, this.retryConfig)

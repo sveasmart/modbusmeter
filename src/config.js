@@ -21,7 +21,9 @@ exports.loadConfig = function() {
 
     pollSchedule: getString('pollSchedule'),
 
-    verboseLogging: getBool('verboseLogging'),
+    logLevel: getString('logLevel'),
+
+    logDisplay: getBool('logDisplay'),
 
     displayRpcPort: getOptionalString("displayRpcPort"),
 

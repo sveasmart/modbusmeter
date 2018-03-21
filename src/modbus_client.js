@@ -2,6 +2,8 @@ var q = require('q');
 require('q-flow')
 
 const modbus = require('node-modbus')
+const log = require('simple-node-logger').createSimpleLogger()
+
 
 //This is our little hardcoded database of manufacturer-specific settings
 //Some of this info can be automatically checked later
@@ -29,39 +31,36 @@ class ModbusClient {
    * @param host the modbus gateway host (or IP)
    * @param port the modbus gateway port
    * @param unitId
-   * @param logEnabled true if modbus should spew out tons of detailed logging
-   * @param logLevel the level of detail to log (default is 'debug'). Not sure about the allowed values.
+   * @param logLevel the level of detail to log (trace/debug/info/error)
    */
   constructor({
     host,
     port,
     unitId = 1,
     manufacturer,
-    logEnabled = false,
     timeout = 10000,
-    logLevel = 'debug'
+    logLevel = 'info'
   }) {
     console.assert(host, "missing host")
     console.assert(port, "missing port")
     console.assert(unitId, "missing unitId")
     console.assert(manufacturer, "missing manufacturer")
 
+    log.setLevel(logLevel)
+
     const manufacturerConfig = this.getManufacturerConfig(manufacturer)
     this.meterValueRegister = manufacturerConfig.meterValueRegister
     this.multiplyEnergyBy = manufacturerConfig.multiplyEnergyBy
-    this.logEnabled = logEnabled
 
-    if (this.logEnabled) {
-      console.log("Initializing modbus client with config: ", arguments[0])
-    }
+    log.info("Initializing modbus client with config: ", arguments[0])
 
     this.clientParams = {
       host,
       port,
       unitId,
-      logEnabled,
       timeout,
-      logLevel
+      logEnabled: true,
+      logLevel: 'info'  //We don't need to log the internals of node-modbus
     }
   }
 
@@ -79,15 +78,11 @@ class ModbusClient {
    */
   readEnergy() {
     const time = new Date()
-    const logEnabled = this.logEnabled
-
 
     //First let's look up all the serial numbers.
     return this._readAllSerialNumbersInSequence()
       .then((serialNumbers) => {
-        if (logEnabled) {
-          console.log("Serial numbers (" + serialNumbers.length + "): ", serialNumbers)
-        }
+        log.info("Serial numbers (" + serialNumbers.length + "): ", serialNumbers)
 
         //Now that we got the serial numbers,
         //we want the meterValues for each meter.
@@ -138,7 +133,7 @@ class ModbusClient {
 
       })
       .catch((err) => {
-        console.log("Caught an error", err)
+        log.error("Caught an error", err)
       })
   }
 
@@ -185,36 +180,30 @@ class ModbusClient {
    */
   _readSerialNumber(meterSequenceId) {
     const register = (meterSequenceId * registerOffsetPerMeter) + serialNumberRegister
-    const logEnabled = this.logEnabled
 
     return new Promise((resolve, reject) => {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        if (logEnabled) {
-          console.log("Calling modbus client.readHoldingRegisters with register " + register)
-        }
+        log.debug("Calling modbus client.readHoldingRegisters with register " + register)
         client.readHoldingRegisters(register, 2).then(function (response) {
-          if (logEnabled) {
-            console.log("Modbus response", response)
-          }
+          log.trace("Modbus response payload: ", response.payload)
           const serialNumber = response.payload.readUIntBE(0, 4)
+          log.debug("Found serial number: " + serialNumber)
           resolve(serialNumber)
 
         }).catch(function (err) {
-          console.log("Modbus, caught an error from the promise", err)
+          log.error("Modbus, caught an error from the promise", err)
           reject(err)
 
         }).done(function () {
-          if (logEnabled) {
-            console.log("Modbus done")
-          }
+          log.trace("Modbus done")
           client.close()
         })
       })
 
       client.on('error', function (err) {
-        console.log("Modbus error", err)
+        log.error("Modbus error", err)
         reject(err)
       })
 
@@ -264,12 +253,7 @@ class ModbusClient {
    @param meterSequenceId 0 for the first meter, 1 for the next, etc.
    */
   _readMeterValue(meterSequenceId) {
-    const logEnabled = this.logEnabled
-    if (logEnabled) {
-      console.log("[#" + meterSequenceId + "] readMeterValue...")
-    }
-
-    console.log("AAA1")
+    log.trace("[#" + meterSequenceId + "] readMeterValue...")
 
     const register = (meterSequenceId * registerOffsetPerMeter) + this.meterValueRegister
     const multiplyEnergyBy = this.multiplyEnergyBy
@@ -277,50 +261,34 @@ class ModbusClient {
     const startTime = new Date().getTime()
 
     return new Promise((resolve, reject) => {
-      console.log("AAA2")
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        console.log("AAA3")
-
-        if (logEnabled) {
-          console.log("[#" + meterSequenceId + "] Calling modbus client.readHoldingRegisters with register " + register)
-        }
+        log.debug("[#" + meterSequenceId + "] Calling modbus client.readHoldingRegisters with register " + register)
         client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then( (response) => {
-          console.log("AAA4")
-
-          if (logEnabled) {
-            const duration = new Date().getTime() - startTime
-            console.log("[#" + meterSequenceId + "] Modbus response took " + duration + "ms", response)
-          }
-
+          const duration = new Date().getTime() - startTime
+          log.trace("[#" + meterSequenceId + "] Modbus response took " + duration + "ms: ", response)
           const payload = response.payload
           const energyInLocalUnit = payload.readIntBE(0, 8)
           const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
+          log.debug("Found energy value " + energyInLocalUnit + ", which means " + energyInWattHours + " Wh")
           resolve(energyInWattHours)
 
         }).catch(function (err) {
-          console.log("AAA5")
-
           const duration = new Date().getTime() - startTime
-          console.log("[#" + meterSequenceId + "] Modbus caught an error from the promise after " + duration + " ms", err)
+          log.error("[#" + meterSequenceId + "] Modbus caught an error from the promise after " + duration + " ms", err)
           reject(err)
 
         }).done(function () {
-          console.log("AAA6")
-
-          if (logEnabled) {
-            const duration = new Date().getTime() - startTime
-            console.log("[#" + meterSequenceId + "] Modbus done! Took " + duration + "ms")
-          }
+          const duration = new Date().getTime() - startTime
+          log.error("[#" + meterSequenceId + "] Modbus done! Took " + duration + "ms")
           client.close()
         })
       })
 
       client.on('error', function (err) {
-        console.log("AAA7")
         const duration = new Date().getTime() - startTime
-        console.log("[#" + meterSequenceId + "] Modbus error! Took " + duration + "ms", err)
+        log.error("[#" + meterSequenceId + "] Modbus error! Took " + duration + "ms", err)
         reject(err)
       })
 

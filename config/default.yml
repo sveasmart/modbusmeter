@@ -51,9 +51,14 @@ maxMeasurementsPerNotification: "1000"
 # Or first minute of every hour: ("0 * * * *")
 pollSchedule: "*/5 * * * * *"
 
-# If true, logs stuff that happens over and over again
-# Should be a string, so don't skip the quotes.
-verboseLogging: "true"
+# trace = lots of gory details
+# debug = some gory details
+# info = logs every time we talk to modbus or send notifications, but without a bunch of detail
+# warn = doesn't log every time we talk to modbus or send notifications. Only logs when something is weird.
+logLevel: "info"
+
+# If true, I log everything that I write to the display
+logDisplay: "false"
 
 # Which port the display RPC server is listening on.
 # https://github.com/sveasmart/display
