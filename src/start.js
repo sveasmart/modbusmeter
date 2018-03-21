@@ -9,6 +9,8 @@ const fs = require('fs')
 const cron = require('node-cron')
 
 const log = require('simple-node-logger').createSimpleLogger()
+const util = require('./util')
+
 log.setLevel(config.logLevel)
 
 let displayClient
@@ -63,7 +65,7 @@ function readEnergy() {
     .then(function(measurements) {
       
       
-      log.info("got measurements", measurements)
+      log.info("got measurements:\n", util.displayMeasurements(measurements))
       bufferedMeasurements = bufferedMeasurements.concat(measurements)
       log.info("Got " + measurements.length + " measurements. We now have " + bufferedMeasurements.length + " measurements in the buffer.")
     })
@@ -90,7 +92,7 @@ function sendEnergyNotification() {
   log.info("Sending a Notification with " + measurementCount + " measurements to the server...")
 
   const sendId = moment().format("YYYY-MM-DD HH:mm:ss")
-  notificationSender.sendEnergyNotification(sendId, notification)
+  return notificationSender.sendEnergyNotification(sendId, notification)
     .then(function(result) {
       log.debug("notification send result", result)
       log.info("Successfully sent a notification " + sendId + " with " + measurementCount + " measurements to the server.")
@@ -222,7 +224,7 @@ log.info("Doing an initial modbus poll & server notification, before starting th
 readEnergy()
   .then(function() {
     showEnergy()
-    sendEnergyNotification()
+    return sendEnergyNotification()
   })
   .then(function() {
     startPollingAndNotificationLoop()
