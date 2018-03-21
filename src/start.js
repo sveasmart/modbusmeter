@@ -20,9 +20,14 @@ if (config.displayRpcPort && config.displayRpcPort != 0 && config.displayRpcPort
   displayClient = null
 }
 
-log.info("I will send energy notifications to " + config.serverUrl)
-log.info("Here is my retry config: ")
-log.info(config.retryConfig)
+log.info("I will poll modbus based on this schedule: " + config.pollSchedule)
+if (config.notificationSchedule == "always") {
+  log.info("I will send energy notifications to " + config.serverUrl + ", after each modbus pull.")
+} else {
+  log.info("I will send energy notifications to " + config.serverUrl + ", based on this schedule: " + config.notificationSchedule)
+}
+
+log.info("Here is my retry config, when talking to the notification server\n", config.retryConfig)
 
 let modbus
 if (config.simulateModbus) {
@@ -178,8 +183,12 @@ function startPollingLoop() {
   log.info("I'll poll modbus on cron schedule: " + schedule)
 
   cron.schedule(schedule, function() {
-    readEnergy()
-    showEnergy()
+    readEnergy().then(() => {
+        showEnergy()
+        if (config.notificationSchedule == "always") {
+          sendEnergyNotification()
+        }
+    })
   })
 }
 
@@ -193,6 +202,13 @@ function startNotificationLoop() {
   })
 }
 
+function startPollingAndNotificationLoop() {
+  startPollingLoop()
+  if (config.notificationSchedule != "always") {
+    startNotificationLoop()
+  }
+}
+
 showCustomerInfoAndSupportPhone()
 showQrCode()
 showDeviceId()
@@ -201,11 +217,16 @@ log.info("=======================================")
 log.info(" STARTING MODBUS CLIENT")
 log.info("=======================================")
 
-startPollingLoop()
-startNotificationLoop()
-
 //Do an initial read & send
+log.info("Doing an initial modbus poll & server notification, before starting the scheduling")
 readEnergy()
   .then(function() {
+    showEnergy()
     sendEnergyNotification()
+  })
+  .then(function() {
+    startPollingAndNotificationLoop()
+  })
+  .catch(function(err) {
+    log.error("Something went wrong with the initial poll & notification. But it might be temporary, so I'll nevertheless schedule future polls & notifications.", err)
   })

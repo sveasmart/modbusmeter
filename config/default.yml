@@ -31,11 +31,14 @@ deviceId:
 
 # When should we send notifications?
 # Lower frequency means fewer http requests and more measurements per batch.
-# Use the cron syntax
+#
+# "always" means send it whenever we've done a new poll.
+#
+# Or you can use the cron syntax
 # https://www.npmjs.com/package/node-cron
 # For example, every 10 seconds: ("*/10 * * * * *")
 # Or first minute of every hour: ("0 * * * *")
-notificationSchedule: "*/10 * * * * *"
+notificationSchedule: "always"
 
 # Limit the number of events per notification.
 # If more events than this have been buffered up,
