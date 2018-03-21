@@ -112,6 +112,7 @@ class ModbusClient {
     return q.until(() => {
       return q.fcall(() => {
         let meterSequenceId = serialNumberAndEnergyValues.length
+        log.debug("\n--- " + meterSequenceId + " -----------------------")
         return this._readSerialNumberAndEnergy(meterSequenceId)
           .then((serialNumberAndEnergy) => {
             if (serialNumberAndEnergy) {
@@ -182,7 +183,7 @@ class ModbusClient {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        log.debug("Calling modbus client.readHoldingRegisters with register " + register)
+        log.debug("Reading modbus register " + register + " (serial number)")
         client.readHoldingRegisters(register, 2).then(function (response) {
           log.trace("Modbus response payload: ", response.payload)
           const serialNumber = response.payload.readUIntBE(0, 4)
@@ -215,8 +216,6 @@ class ModbusClient {
    @param meterSequenceId 0 for the first meter, 1 for the next, etc.
    */
   _readEnergy(meterSequenceId) {
-    log.trace("[#" + meterSequenceId + "] readMeterValue...")
-
     const register = (meterSequenceId * registerOffsetPerMeter) + this.meterValueRegister
     const multiplyEnergyBy = this.multiplyEnergyBy
 
@@ -226,10 +225,10 @@ class ModbusClient {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        log.debug("[#" + meterSequenceId + "] Calling modbus client.readHoldingRegisters with register " + register)
+        log.debug("Reading modbus register " + register + " (energy)")
         client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then( (response) => {
           const duration = new Date().getTime() - startTime
-          log.trace("[#" + meterSequenceId + "] Modbus response took " + duration + "ms: ", response)
+          log.trace("Modbus response took " + duration + "ms: ", response)
           const payload = response.payload
           const energyInLocalUnit = payload.readIntBE(0, 8)
           const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
@@ -238,19 +237,19 @@ class ModbusClient {
 
         }).catch(function (err) {
           const duration = new Date().getTime() - startTime
-          log.error("[#" + meterSequenceId + "] Modbus caught an error from the promise after " + duration + " ms", err)
+          log.error("Modbus caught an error from the promise after " + duration + " ms", err)
           reject(err)
 
         }).done(function () {
           const duration = new Date().getTime() - startTime
-          log.debug("[#" + meterSequenceId + "] Modbus done! Took " + duration + "ms")
+          log.debug("Modbus done! Took " + duration + "ms")
           client.close()
         })
       })
 
       client.on('error', function (err) {
         const duration = new Date().getTime() - startTime
-        log.error("[#" + meterSequenceId + "] Modbus error! Took " + duration + "ms", err)
+        log.error("Modbus error! Took " + duration + "ms", err)
         reject(err)
       })
 

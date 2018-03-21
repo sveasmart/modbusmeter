@@ -83,7 +83,6 @@ function sendEnergyNotification() {
 
   //Trigger a send to the server
   log.info("Sending a Notification with " + measurementCount + " measurements to the server...")
-  log.debug("Here is the notification:\n", notification)
 
   const sendId = moment().format("YYYY-MM-DD HH:mm:ss")
   notificationSender.sendEnergyNotification(sendId, notification)
