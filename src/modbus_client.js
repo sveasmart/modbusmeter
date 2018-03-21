@@ -58,9 +58,9 @@ class ModbusClient {
       host,
       port,
       unitId,
-      timeout
-      //logEnabled: true,
-      //logLevel: 'info'  //We don't need to log the internals of node-modbus
+      timeout,
+      logEnabled: true,
+      logLevel: 'warn'  //We don't need to log the internals of node-modbus
     }
   }
 
