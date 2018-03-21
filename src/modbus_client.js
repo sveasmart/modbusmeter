@@ -112,7 +112,7 @@ class ModbusClient {
     return q.until(() => {
       return q.fcall(() => {
         let meterSequenceId = serialNumberAndEnergyValues.length
-        log.debug("\n--- " + meterSequenceId + " -----------------------")
+        log.debug("\n--- SEQUENCE ID " + meterSequenceId + " -----------------------")
         return this._readSerialNumberAndEnergy(meterSequenceId)
           .then((serialNumberAndEnergy) => {
             if (serialNumberAndEnergy) {
@@ -158,12 +158,12 @@ class ModbusClient {
           return this._readEnergy(meterSequenceId)
             .then((meterValue) => {
               serialNumberAndEnergy.energy = meterValue
-              log.debug("[" + meterSequenceId + "] Successfully read: ", serialNumberAndEnergy)
+              log.debug("Successfully read: ", serialNumberAndEnergy)
               return serialNumberAndEnergy
             })
         } else {
           //No serial number. So we return null.
-          log.debug("[" + meterSequenceId + "] No serial number found")
+          log.debug("No serial number found")
           return null
         }
       })
@@ -242,7 +242,7 @@ class ModbusClient {
 
         }).done(function () {
           const duration = new Date().getTime() - startTime
-          log.debug("Modbus done! Took " + duration + "ms")
+          log.trace("Modbus done! Took " + duration + "ms")
           client.close()
         })
       })
