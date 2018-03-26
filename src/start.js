@@ -48,6 +48,7 @@ if (config.simulateModbus) {
   )
 }
 
+let isSendingNotificationRightNow = false
 
 const notificationSender = new EnergyNotificationSender(
   config.serverUrl,
@@ -60,50 +61,67 @@ const notificationSender = new EnergyNotificationSender(
 let bufferedMeasurements = []
 
 function readEnergy() {
-  log.info("-----------------------------------------\nreadEnergy...")
+  log.info(".........................................")
+  log.info("Reading energy...")
   return modbus.readEnergy()
     .then(function(measurements) {
-      
-      
-      log.info("got measurements:\n", util.displayMeasurements(measurements))
-      bufferedMeasurements = bufferedMeasurements.concat(measurements)
-      log.info("Got " + measurements.length + " measurements. We now have " + bufferedMeasurements.length + " measurements in the buffer.")
+      bufferedMeasurements = bufferedMeasurements.concat(measurements) //concat returns a new array, doesn't mutate the existing one.
+      log.info("Got " + measurements.length + " measurements: \n" + util.displayMeasurements(measurements))
+      log.info("We now have " + bufferedMeasurements.length + " measurements in the buffer.")
+      log.info(".........................................")
     })
     .catch(function(err) {
       log.error("Something went wrong when reading from modbus. Ignoring it.", err)
+      log.info(".........................................")
     })
 }
 
 function sendEnergyNotification() {
-  log.info("===============================================\nsendEnergyNotification...")
+  log.trace("sendEnergyNotification...")
   if (bufferedMeasurements.length == 0) {
     log.warn("Strange. I was going to send a notification to the server, but there are no measurements in my buffer!")
+    return
+  }
+  if (isSendingNotificationRightNow) {
+    log.warn("Strange. I was going to send an energyNotification, but I noticed that there is a previous send still in progress (perhaps in a retry loop). So I'll skip sending again. We don't want a bunch of parallell sends going on.")
     return
   }
 
   //Create an energy notification with all measurements in the buffer
   const notification = {
     deviceId: getDeviceId(),
-    measurements: bufferedMeasurements
+    measurements: bufferedMeasurements.splice(0, bufferedMeasurements.length)
   }
+  //Note that we have actually emptied bufferedMeasurements into notification.measurements
+  //We basically flushed the queue.
+  //While we are waiting for the server to respond, new stuff will be added to bufferedMeasurements,
+  //while notification.measurements is in effect immutable.
+
   const measurementCount = notification.measurements.length
 
   //Trigger a send to the server
+  log.info("=====================================================")
   log.info("Sending a Notification with " + measurementCount + " measurements to the server...")
 
-  const sendId = moment().format("YYYY-MM-DD HH:mm:ss")
+  const startTime = new Date().getTime()
+  const sendId = moment().format("YYYY-MM-DD HH:mm:ss") + " (" + measurementCount + " measurements)"
+  isSendingNotificationRightNow = true
   return notificationSender.sendEnergyNotification(sendId, notification)
     .then(function(result) {
-      log.debug("notification send result", result)
-      log.info("Successfully sent a notification " + sendId + " with " + measurementCount + " measurements to the server.")
+      isSendingNotificationRightNow = false
+      log.debug("...notification send result", result)
+      log.info("Successfully sent a notification " + sendId + " to the server. Took " + (new Date().getTime() - startTime) + " ms (including any retries).")
+      log.info("=====================================================")
     })
     .catch(function(err) {
-      log.error("send " + sendId + " failed! I won't retry that send any more. Will put those " + measurementCount + " measurements back into my buffer.", err)
-      bufferedMeasurements = bufferedMeasurements.concat(notification.measurements)
+      isSendingNotificationRightNow = false
+      log.error("Dammit! Notification " + sendId + " failed permanently, after " + (new Date().getTime() - startTime) + " ms of waiting and retrying! I give up. Will lose those measurements.", err)
+      log.info("=====================================================")
+      //We failed! We'll lose those measurements. But not a big deal.
+      //First of all, lots of retries are done so this will only happen if the server has been down for a long time
+      //(or if something is incorrectly formatted in these measurements).
+      //Second of all, new measurements are being done on a regular basis. so the old data isn't critically important.
     })
-
-  //Reset the buffer
-  bufferedMeasurements = []
 }
 
 function getRegistrationUrl() {

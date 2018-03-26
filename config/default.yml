@@ -100,4 +100,4 @@ retry:
   minTimeout: 1000 #First retry is after 1 second
   factor: 2 #and next retry will be after 2 seconds, then 4 seconds, 8 seconds, 16 seconds...
   maxTimeout: 30000 #and all retries after that will be in 30 second intervals
-  retries: 100000 #That's about 1 month of retrying! 100,000 x 30 seconds.
+  retries: 20 #That's about 10 minutes of retrying before giving up.

@@ -44,14 +44,22 @@ class EnergyNotificationSender {
 
     return promiseRetry((retry, number) => {
       if (number == 0) {
-        log.debug("...send " + sendId + ", attempt #" + number);
+        log.debug("...Notification " + sendId + ", attempt #" + number);
       } else {
-        log.info("...send " + sendId + ", attempt #" + number);
+        log.info("...Notification " + sendId + ", attempt #" + number);
       }
-      return this._sendEnergyNotification(notification).catch((error) => {
-        log.warn("send " + sendId + " failed! Will retry. " +  error)
-        retry()
-      });
+      return this._sendEnergyNotification(notification)
+        .then((result) => {
+          if (!result.statusCode || result.statusCode < 200 || result.statusCode > 299) {
+            throw new Error("Got http status code " + result.statusCode + ", with error message: " + result.message)
+          } else {
+            return result
+          }
+        })
+        .catch((error) => {
+          log.warn("...Notification " + sendId + " failed! Will retry. " +  error)
+          retry()
+        });
     }, this.retryConfig)
   }
   
