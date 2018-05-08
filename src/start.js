@@ -60,11 +60,15 @@ const notificationSender = new EnergyNotificationSender(
 //Temporary buffer for measures that haven't yet been sent to the server
 let bufferedMeasurements = []
 
+//How many meters we've received measurements for. To be shown on the display.
+let meterCount = 0
+
 function readEnergy() {
   log.info(".........................................")
   log.info("Reading energy...")
   return modbus.readEnergy()
     .then(function(measurements) {
+      meterCount = measurements.length
       bufferedMeasurements = bufferedMeasurements.concat(measurements) //concat returns a new array, doesn't mutate the existing one.
       log.info("Got " + measurements.length + " measurements: \n" + util.displayMeasurements(measurements))
       log.info("We now have " + bufferedMeasurements.length + " measurements in the buffer.")
@@ -140,22 +144,25 @@ function getDeviceId() {
 /**
  * Retries on failure.
  */
-function showCustomerInfoAndSupportPhone() {
+function showCustomerInfo() {
+  let nextRow = 0
+
   if (!config.customerName && !config.customerAddress) {
-    displayLine(0, "Not registered!")
-    displayLine(1, "")
-    displayLine(2, "Call support!")
+    displayLine(nextRow++, "Not registered!")
+    nextRow++
+    displayLine(nextRow++, "Call support!")
+    if (config.supportUrl) {
+      displayLine(nextRow++, "  " + config.supportUrl)
+    }
   } else {
-    displayLine(0, config.customerName)
-    displayLine(1, config.customerAddress)
-    displayLine(2, "Support:")
+    displayLine(nextRow++, config.customerName)
+    displayLine(nextRow++, config.customerAddress)
   }
-  if (config.supportPhoneNumber) {
-    displayLine(3, "  " + config.supportPhoneNumber)
-  }
-  if (config.supportUrl) {
-    displayLine(4, "  " + config.supportUrl)
-  }
+
+}
+
+function showMeterCount() {
+  displayLine(5, "" + meterCount + " mbus meters")
 }
 
 /**
@@ -175,18 +182,15 @@ function displayLine(row, text) {
     if (displayClient) {
       displayClient.callAndRetry('setRowText', [text, row, false, config.mainDisplayTab])
     } else {
-      log.info(text)
+      console.log("Display line " + row + ": " + text)
     }
   } else {
     if (displayClient) {
       displayClient.callAndRetry('clearRow', [row, config.mainDisplayTab])
+    } else {
+      console.log("Clear display line " + row)
     }
   }
-}
-
-function showEnergy() {
-  //TODO figure out what to show on the display. Total energy perhaps?
-  //displayLine(5, "Energy: " + energy)
 }
 
 function showDeviceId() {
@@ -204,10 +208,10 @@ function startPollingLoop() {
 
   cron.schedule(schedule, function() {
     readEnergy().then(() => {
-        showEnergy()
-        if (config.notificationSchedule == "always") {
-          sendEnergyNotification()
-        }
+      showMeterCount()
+      if (config.notificationSchedule == "always") {
+        sendEnergyNotification()
+      }
     })
   })
 }
@@ -229,7 +233,8 @@ function startPollingAndNotificationLoop() {
   }
 }
 
-showCustomerInfoAndSupportPhone()
+showCustomerInfo()
+showMeterCount()
 showQrCode()
 showDeviceId()
 
@@ -241,7 +246,7 @@ log.info("=======================================")
 log.info("Doing an initial modbus poll & server notification, before starting the scheduling")
 readEnergy()
   .then(function() {
-    showEnergy()
+    showMeterCount()
     return sendEnergyNotification()
   })
   .then(function() {

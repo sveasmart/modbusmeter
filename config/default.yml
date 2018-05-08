@@ -89,7 +89,6 @@ simulateModbus: false
 
 
 # These params are displayed on the screen
-supportPhoneNumber:
 supportUrl:
 customerName:
 customerAddress:

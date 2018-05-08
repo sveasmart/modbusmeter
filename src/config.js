@@ -35,7 +35,6 @@ exports.loadConfig = function() {
     modbusManufacturer: getString("modbusManufacturer"),
     simulateModbus: getBool("simulateModbus"),
 
-    supportPhoneNumber: getOptionalString('supportPhoneNumber'),
     supportUrl: getOptionalString('supportUrl'),
     customerName: getOptionalString('customerName'),
     customerAddress: getOptionalString('customerAddress'),
