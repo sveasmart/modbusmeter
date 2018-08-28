@@ -34,7 +34,7 @@ log.info("Here is my retry config, when talking to the notification server\n", c
 let modbus
 if (config.simulateModbus) {
   log.info("I will fake the modbus connection")
-  modbus = new FakeModbusClient()
+  modbus = new FakeModbusClient(getDeviceId())
 } else {
   log.info("I will connect to modbus on " + config.modbusServerHost + ":" + config.modbusServerPort)
   modbus = new ModbusClient(
