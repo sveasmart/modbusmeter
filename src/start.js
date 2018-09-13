@@ -162,7 +162,7 @@ function showCustomerInfo() {
 }
 
 function showMeterCount() {
-  displayLine(5, "" + meterCount + " mbus meters")
+  displayLine(4, "" + meterCount + " mbus meters")
 }
 
 /**
@@ -233,9 +233,9 @@ function startPollingAndNotificationLoop() {
   }
 }
 
-showCustomerInfo()
+//showCustomerInfo()
 showMeterCount()
-showQrCode()
+//showQrCode()
 showDeviceId()
 
 log.info("=======================================")

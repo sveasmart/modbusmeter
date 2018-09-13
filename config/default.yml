@@ -1,8 +1,8 @@
 #------------------------------------------------
-# This is the default configuration for Meter.
+# This is the default configuration for Modbus Meter.
 # Override it by creating a local.yml next to it.
 # The config isn't hot-reloaded, so you need to restart
-# the meter if you change anything.
+# the app if you change anything.
 #------------------------------------------------
 
 # The URL of the backend to which ticks are posted
