@@ -82,11 +82,10 @@ modbusServerPort: 502
 # 3-letter code for the manufacturer, ex: SEC or GAV.
 # This is used to decide which modbus register to read meter values from.
 # See modbus_client.js
-modbusManufacturer: "SEC"
+modbusManufacturer:
 
 # If true, it won't talk to modbus for real, it will just use fake data
 simulateModbus: false
-
 
 # These params are displayed on the screen
 supportUrl:

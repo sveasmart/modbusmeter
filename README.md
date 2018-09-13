@@ -12,6 +12,8 @@ Default config is in /config/default.yml
 
 To override specific params, create a /config/local.yml
 
+NOTE: There is no default value for modbusManufacturer, and that field is required, so you need to override it.
+
 ## How to run
 npm start
 
