@@ -230,8 +230,13 @@ class ModbusClient {
           const duration = new Date().getTime() - startTime
           log.trace("Modbus response took " + duration + "ms: ", response)
           const payload = response.payload
-          const energyInLocalUnit = payload.readIntBE(0, 8)
+
+          // Wondering why the second param (byteLength) is 6 and not 8?
+          // See https://github.com/nodejs/node/issues/21956
+          const energyInLocalUnit = payload.readIntBE(0, 6)
+
           const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
+
           log.debug("Found energy value " + energyInLocalUnit + ", which means " + energyInWattHours + " Wh")
           resolve(energyInWattHours)
 
