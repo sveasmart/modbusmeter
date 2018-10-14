@@ -230,10 +230,18 @@ class ModbusClient {
           const duration = new Date().getTime() - startTime
           log.trace("Modbus response took " + duration + "ms: ", response)
           const payload = response.payload
+          //The pay load will be a buffer of 8 bytes that look something like this:
+          // [0,0,0,0,0,0,33,11]
 
-          // Wondering why the second param (byteLength) is 6 and not 8?
-          // See https://github.com/nodejs/node/issues/21956
-          const energyInLocalUnit = payload.readIntBE(0, 6)
+          const energyInLocalUnit = payload.readIntBE(2, 6)
+
+          // Wondering why we did readIntBE(2, 6) instead of readIntBE(0, 8)? Good question!
+          // Because the second param (byteLength) must satisfy 0 < byteLength <= 6 (since node10)
+          // https://nodejs.org/api/buffer.html#buffer_buf_readintbe_offset_bytelength
+          //
+          // So although we technically need to read 8 bytes, we skip the first two
+          // and then read the other 6. The first will most likely be zero anyway,
+          // cuz otherwise the int will be to big anyway.
 
           const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
 
