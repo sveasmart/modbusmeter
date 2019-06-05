@@ -1,9 +1,8 @@
-var q = require('q');
+let q = require('q');
 require('q-flow')
 
 const modbus = require('node-modbus')
 const log = require('simple-node-logger').createSimpleLogger()
-
 
 //This is our little hardcoded database of manufacturer-specific settings
 //Some of this info can be automatically checked later
@@ -11,19 +10,23 @@ const manufacturers = {
   SEC: {
     meterValueRegister: 260, //Where is the meter value stored for the first meter
     multiplyEnergyBy: 1, //what to multiply the energy by to get the right number in Wh
+    registerOffsetPerMeter: 260 //How much do we add to the above to get to the next meter
 
   },
   GAV: {
-    meterValueRegister: 20,
-    multiplyEnergyBy: 100 //TODO don't hardcode this, read it from register 26.
+    meterValueRegister: 20, //Where is the meter value stored for the first meter
+    multiplyEnergyBy: 100, //what to multiply the energy by to get the right number in Wh
+    registerOffsetPerMeter: 260 //How much do we add to the above to get to the next meter
+  },
+  Eastron: {
+    meterValueRegister: 20, //Where is the meter value stored for the first meter
+    multiplyEnergyBy: 1, //what to multiply the energy by to get the right number in Wh
+    registerOffsetPerMeter: 130 //How much do we add to the above to get to the next meter
   }
 }
 
 const numberOfRegistersForMeterValue = 4
-
-
-const serialNumberRegister = 10 //Where is the serienumber stored for the first meter
-const registerOffsetPerMeter = 260 //How much do we add to the above to get to the next meter
+const serialNumberRegister = 10 //Where is the serial number stored for the first meter
 
 class ModbusClient {
 
@@ -31,16 +34,18 @@ class ModbusClient {
    * @param host the modbus gateway host (or IP)
    * @param port the modbus gateway port
    * @param unitId
+   * @param manufacturer the electrical meters manufacturer
+   * @param timeout timeout for the modbus library communication
    * @param logLevel the level of detail to log (trace/debug/info/error)
    */
   constructor({
-    host,
-    port,
-    unitId = 1,
-    manufacturer,
-    timeout = 10000,
-    logLevel = 'info'
-  }) {
+                host,
+                port,
+                unitId = 1,
+                manufacturer,
+                timeout = 10000,
+                logLevel = 'info'
+              }) {
     console.assert(host, "missing host")
     console.assert(port, "missing port")
     console.assert(unitId, "missing unitId")
@@ -48,9 +53,10 @@ class ModbusClient {
 
     log.setLevel(logLevel)
 
-    const manufacturerConfig = this.getManufacturerConfig(manufacturer)
+    const manufacturerConfig = ModbusClient.getManufacturerConfig(manufacturer)
     this.meterValueRegister = manufacturerConfig.meterValueRegister
     this.multiplyEnergyBy = manufacturerConfig.multiplyEnergyBy
+    this.registerOffsetPerMeter = manufacturerConfig.registerOffsetPerMeter
 
     log.info("Initializing modbus client with config: ", arguments[0])
 
@@ -63,7 +69,6 @@ class ModbusClient {
       logLevel: 'warn'  //We don't need to log the internals of node-modbus
     }
   }
-
 
   /*
    Polls the modbus server and returns a promise that
@@ -125,7 +130,6 @@ class ModbusClient {
               //So we return true, which means "please stop looping"
               return true
             }
-            return true
           })
       })
     }).then((each) => {
@@ -133,8 +137,6 @@ class ModbusClient {
     })
 
   }
-
-
 
   /**
    Connects to modbus and reads the serial number of the given meter.
@@ -169,15 +171,14 @@ class ModbusClient {
       })
   }
 
-
   /**
-    Connects to modbus and reads the serial number of the given meter.
-    Returns a promise that resolves to the serialNumber, or null if not found.
+   Connects to modbus and reads the serial number of the given meter.
+   Returns a promise that resolves to the serialNumber, or null if not found.
 
-    @param meterSequenceId 0 for the first meter, 1 for the next, etc.
+   @param meterSequenceId 0 for the first meter, 1 for the next, etc.
    */
   _readSerialNumber(meterSequenceId) {
-    const register = (meterSequenceId * registerOffsetPerMeter) + serialNumberRegister
+    const register = (meterSequenceId * this.registerOffsetPerMeter) + serialNumberRegister
 
     return new Promise((resolve, reject) => {
       const client = modbus.client.tcp.complete(this.clientParams)
@@ -216,7 +217,7 @@ class ModbusClient {
    @param meterSequenceId 0 for the first meter, 1 for the next, etc.
    */
   _readEnergy(meterSequenceId) {
-    const register = (meterSequenceId * registerOffsetPerMeter) + this.meterValueRegister
+    const register = (meterSequenceId * this.registerOffsetPerMeter) + this.meterValueRegister
     const multiplyEnergyBy = this.multiplyEnergyBy
 
     const startTime = new Date().getTime()
@@ -226,7 +227,7 @@ class ModbusClient {
 
       client.on('connect', () => {
         log.debug("Reading modbus register " + register + " (energy)")
-        client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then( (response) => {
+        client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then((response) => {
           const duration = new Date().getTime() - startTime
           log.trace("Modbus response took " + duration + "ms: ", response)
           const payload = response.payload
@@ -270,7 +271,7 @@ class ModbusClient {
     })
   }
 
-  getManufacturerConfig(manufacturer) {
+  static getManufacturerConfig(manufacturer) {
     const manufacturerConfig = manufacturers[manufacturer]
     console.assert(manufacturerConfig, "I don't recognize manufacturer '" + manufacturer + "', it is not listed in modbus_client.js")
     return manufacturerConfig
