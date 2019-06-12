@@ -87,7 +87,7 @@ class ModbusClient {
     //First let's look up all the serial numbers.
     return this._readAllSerialNumbersAndEnergyInSequence()
       .then((serialNumbersAndEnergyValues) => {
-        //log.info("Serial numbers & energy values (" + serialNumbersAndEnergyValues.length + "): ", serialNumbersAndEnergyValues)
+        log.debug("Serial numbers & energy values (" + serialNumbersAndEnergyValues.length + "): ", serialNumbersAndEnergyValues)
 
         //Add timestamp
         return serialNumbersAndEnergyValues.map((serialNumberAndEnergy) => {
@@ -128,6 +128,7 @@ class ModbusClient {
             } else {
               //We didn't find a value
               //So we return true, which means "please stop looping"
+              log.debug("No more meters found")
               return true
             }
           })
@@ -154,7 +155,8 @@ class ModbusClient {
 
     return this._readSerialNumber(meterSequenceId)
       .then((serialNumber) => {
-        if (serialNumber) {
+        log.debug("serialNunmber ", serialNumber )
+        if (serialNumber && serialNumber != "0xFFFFFFFF") {
           //Great, we found a serial number! So let's save it in and read the meter value.
           serialNumberAndEnergy = {serialNumber: serialNumber}
           return this._readEnergy(meterSequenceId)
