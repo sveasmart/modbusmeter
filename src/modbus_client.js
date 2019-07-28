@@ -20,7 +20,7 @@ const manufacturers = {
   },
   Eastron: {
     meterValueRegister: 20, //Where is the meter value stored for the first meter
-    multiplyEnergyBy: 1, //what to multiply the energy by to get the right number in Wh
+    multiplyEnergyBy: 10, //what to multiply the energy by to get the right number in Wh
     registerOffsetPerMeter: 130 //How much do we add to the above to get to the next meter
   }
 }
