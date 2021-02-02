@@ -108,7 +108,7 @@ class ModbusClient {
 
           const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
 
-          log.debug("Found register value " + energyInLocalUnit + ", which means " + energyInWattHours + " Wh")
+          log.debug("Found register value " + energyInLocalUnit)
           resolve(energyInWattHours)
 
         }).catch(function (err) {
