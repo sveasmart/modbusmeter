@@ -78,7 +78,7 @@ class ModbusClient {
 
     console.log("readVersion called")
 
-    const register = 274
+    const register = 770
     const multiplyEnergyBy = this.multiplyEnergyBy
 
     const startTime = new Date().getTime()
