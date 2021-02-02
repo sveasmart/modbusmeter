@@ -70,14 +70,14 @@ class ModbusClient {
     }
     console.log("Calling read version...")
     readversions()
-    this.readVersion(11);
-    this.readVersion(11 + 200);
-    this.readVersion(11 + 200 + 260);
+    this.readVersion(11)
+    this.readVersion(11 + 200)
+    this.readVersion(11 + 200 + 260)
   }
 
   readVersion(register) {
 
-    console.log("readVersion called")
+    console.log("readVersion called, register: " + register)
 
     const multiplyEnergyBy = this.multiplyEnergyBy
     let numberOfRegistersForMeterValueXXXX = 4
