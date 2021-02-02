@@ -79,27 +79,12 @@ class ModbusClient {
   }
 
   async foo( ) {
-    await this.readRegisterNiko2(0)
-    await this.readRegisterNiko2(1)
-    await this.readRegisterNiko2(2)
-    await this.readRegisterNiko2(3)
-    await this.readRegisterNiko2(4)
-    await this.readRegisterNiko2(5)
-    await this.readRegisterNiko2(6)
-    await this.readRegisterNiko2(7)
-    await this.readRegisterNiko2(8)
-    await this.readRegisterNiko2(9)
-    await this.readRegisterNiko2(10)
-    await this.readRegisterNiko2(11)
-    await this.readRegisterNiko2(12)
-    await this.readRegisterNiko2(13)
-    await this.readRegisterNiko2(14)
-    await this.readRegisterNiko2(15)
-    await this.readRegisterNiko2(16)
-    await this.readRegisterNiko2(17)
-    await this.readRegisterNiko2(18)
-    await this.readRegisterNiko2(19)
+    await new Promise(r => setTimeout(r, 3000));
 
+    for (let i = 0; i < 300; i++) {
+      await this.readRegisterNiko2(0)
+      await new Promise(r => setTimeout(r, 1000));
+    }
   }
 
   readRegisterNiko(register) {
