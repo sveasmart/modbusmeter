@@ -68,6 +68,66 @@ class ModbusClient {
       logEnabled: true,
       logLevel: 'warn'  //We don't need to log the internals of node-modbus
     }
+    console.log("Calling read version...")
+    this.readVersion();
+
+  }
+
+
+  readVersion() {
+    let meterSequenceId = 100
+    const register = (meterSequenceId * this.registerOffsetPerMeter) + this.meterValueRegister
+    const multiplyEnergyBy = this.multiplyEnergyBy
+
+    const startTime = new Date().getTime()
+
+    return new Promise((resolve, reject) => {
+      const client = modbus.client.tcp.complete(this.clientParams)
+
+      client.on('connect', () => {
+        log.debug("Reading modbus register " + register + " (energy)")
+        client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then((response) => {
+          const duration = new Date().getTime() - startTime
+          log.trace("Modbus response took " + duration + "ms: ", response)
+          const payload = response.payload
+          //The pay load will be a buffer of 8 bytes that look something like this:
+          // [0,0,0,0,0,0,33,11]
+
+          const energyInLocalUnit = payload.readIntBE(2, 6)
+
+          // Wondering why we did readIntBE(2, 6) instead of readIntBE(0, 8)? Good question!
+          // Because the second param (byteLength) must satisfy 0 < byteLength <= 6 (since node10)
+          // https://nodejs.org/api/buffer.html#buffer_buf_readintbe_offset_bytelength
+          //
+          // So although we technically need to read 8 bytes, we skip the first two
+          // and then read the other 6. The first will most likely be zero anyway,
+          // cuz otherwise the int will be to big anyway.
+
+          const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
+
+          log.debug("Found energy value " + energyInLocalUnit + ", which means " + energyInWattHours + " Wh")
+          resolve(energyInWattHours)
+
+        }).catch(function (err) {
+          const duration = new Date().getTime() - startTime
+          log.error("Modbus caught an error from the promise after " + duration + " ms", err)
+          reject(err)
+
+        }).done(function () {
+          const duration = new Date().getTime() - startTime
+          log.trace("Modbus done! Took " + duration + "ms")
+          client.close()
+        })
+      })
+
+      client.on('error', function (err) {
+        const duration = new Date().getTime() - startTime
+        log.error("Modbus error! Took " + duration + "ms", err)
+        reject(err)
+      })
+
+      client.connect()
+    })
   }
 
   /*
