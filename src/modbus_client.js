@@ -69,7 +69,6 @@ class ModbusClient {
       logLevel: 'warn'  //We don't need to log the internals of node-modbus
     }
     console.log("Calling read version...")
-    readversions()
     this.readVersion(11)
     this.readVersion(11 + 200)
     this.readVersion(11 + 200 + 260)
