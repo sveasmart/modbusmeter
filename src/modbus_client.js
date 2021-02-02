@@ -79,7 +79,7 @@ class ModbusClient {
     console.log("readVersion called, register: " + register)
 
     const multiplyEnergyBy = this.multiplyEnergyBy
-    let numberOfRegistersForMeterValueXXXX = 2
+    let numberOfRegistersForMeterValueXXXX = 4
 
     const startTime = new Date().getTime()
 
