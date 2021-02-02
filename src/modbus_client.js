@@ -82,7 +82,11 @@ class ModbusClient {
     await new Promise(r => setTimeout(r, 3000));
 
     for (let i = 0; i < 300; i++) {
-      await this.readRegisterNiko2(i)
+      try {
+        await this.readRegisterNiko2(i)
+      } catch (e) {
+        console.log("Err " + e)
+      }
       await new Promise(r => setTimeout(r, 1000));
     }
   }
