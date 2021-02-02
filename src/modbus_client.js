@@ -79,10 +79,16 @@ class ModbusClient {
   }
 
   async foo( ) {
+    await this.readRegisterNiko2(0)
     await this.readRegisterNiko2(1)
     await this.readRegisterNiko2(2)
     await this.readRegisterNiko2(3)
     await this.readRegisterNiko2(4)
+    await this.readRegisterNiko2(5)
+    await this.readRegisterNiko2(6)
+    await this.readRegisterNiko2(7)
+    await this.readRegisterNiko2(8)
+    await this.readRegisterNiko2(9)
   }
 
   readRegisterNiko(register) {
