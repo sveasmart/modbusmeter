@@ -74,7 +74,7 @@ class ModbusClient {
     this.readRegisterNiko(11 + 200 + 260)  // 471
 
 
-    this.readRegisterNiko2(0)
+    this.readRegisterNiko2(1)
 
   }
 
