@@ -69,16 +69,16 @@ class ModbusClient {
       logLevel: 'warn'  //We don't need to log the internals of node-modbus
     }
     console.log("Calling read version...")
-    this.readVersion();
-
+    readversions()
+    this.readVersion(11);
+    this.readVersion(11 + 200);
+    this.readVersion(11 + 200 + 260);
   }
 
-
-  readVersion() {
+  readVersion(register) {
 
     console.log("readVersion called")
 
-    const register = 11 + 200 + 260
     const multiplyEnergyBy = this.multiplyEnergyBy
     let numberOfRegistersForMeterValueXXXX = 4
 
