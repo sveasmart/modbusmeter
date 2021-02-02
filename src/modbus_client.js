@@ -80,7 +80,7 @@ class ModbusClient {
 
     const register = 771
     const multiplyEnergyBy = this.multiplyEnergyBy
-    let numberOfRegistersForMeterValue = 2
+    let numberOfRegistersForMeterValue = 10
 
     const startTime = new Date().getTime()
 
@@ -108,24 +108,24 @@ class ModbusClient {
 
           const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
 
-          log.debug("Found register value " + energyInLocalUnit)
+          log.debug("NIKONIKO - Found register value " + energyInLocalUnit)
           resolve(energyInWattHours)
 
         }).catch(function (err) {
           const duration = new Date().getTime() - startTime
-          log.error("Modbus caught an error from the promise after " + duration + " ms", err)
+          log.error("NIKONIKO - Modbus caught an error from the promise after " + duration + " ms", err)
           reject(err)
 
         }).done(function () {
           const duration = new Date().getTime() - startTime
-          log.trace("Modbus done! Took " + duration + "ms")
+          log.trace("NIKONIKO - Modbus done! Took " + duration + "ms")
           client.close()
         })
       })
 
       client.on('error', function (err) {
         const duration = new Date().getTime() - startTime
-        log.error("Modbus error! Took " + duration + "ms", err)
+        log.error("NIKONIKO - Modbus error! Took " + duration + "ms", err)
         reject(err)
       })
 
