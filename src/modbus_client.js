@@ -75,11 +75,10 @@ class ModbusClient {
   }
 
   readVersion(register) {
-    register+=1
     console.log("readVersion called, register: " + register)
 
     const multiplyEnergyBy = this.multiplyEnergyBy
-    let numberOfRegistersForMeterValueXXXX = 2
+    let numberOfRegistersForMeterValueXXXX = 4
 
     const startTime = new Date().getTime()
 
@@ -96,7 +95,7 @@ class ModbusClient {
           //The pay load will be a buffer of 8 bytes that look something like this:
           // [0,0,0,0,0,0,33,11]
 
-          const energyInLocalUnit = payload.readIntBE(2, 6)
+          const energyInLocalUnit = payload.readIntBE(0, 8)
 
           // Wondering why we did readIntBE(2, 6) instead of readIntBE(0, 8)? Good question!
           // Because the second param (byteLength) must satisfy 0 < byteLength <= 6 (since node10)
