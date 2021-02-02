@@ -74,8 +74,15 @@ class ModbusClient {
     this.readRegisterNiko(11 + 200 + 260)  // 471
 
 
-    this.readRegisterNiko2(1)
+    thhis.foo()
 
+  }
+
+  async foo( ) {
+    await this.readRegisterNiko2(1)
+    await this.readRegisterNiko2(2)
+    await this.readRegisterNiko2(3)
+    await this.readRegisterNiko2(4)
   }
 
   readRegisterNiko(register) {
@@ -121,11 +128,11 @@ class ModbusClient {
   }
 
 
-  readRegisterNiko2(register) {
+  async readRegisterNiko2(register) {
     console.log("QQQQ-readVersion called, register: " + register)
 
     const multiplyEnergyBy = this.multiplyEnergyBy
-    let numberOfRegistersForMeterValueXXXX = 300
+    let numberOfRegistersForMeterValueXXXX = 4
 
     const startTime = new Date().getTime()
 
