@@ -78,7 +78,7 @@ class ModbusClient {
 
     console.log("readVersion called")
 
-    const register = 770
+    const register = 4096
     const multiplyEnergyBy = this.multiplyEnergyBy
     let numberOfRegistersForMeterValue = 10
 
