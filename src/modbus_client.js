@@ -78,7 +78,7 @@ class ModbusClient {
 
     console.log("readVersion called")
 
-    const register = 20736
+    const register = 11
     const multiplyEnergyBy = this.multiplyEnergyBy
     let numberOfRegistersForMeterValueXXXX = 4
 
@@ -88,9 +88,10 @@ class ModbusClient {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        log.debug("Reading modbus register " + register + " (energy)")
+        log.debug("Reading modbus register " + register )
         client.readHoldingRegisters(register, numberOfRegistersForMeterValueXXXX).then((response) => {
           const duration = new Date().getTime() - startTime
+          log.trace("NIKONIKO - Modbus " + register)
           log.trace("NIKONIKO - Modbus response took " + duration + "ms: ", response)
           const payload = response.payload
           //The pay load will be a buffer of 8 bytes that look something like this:
