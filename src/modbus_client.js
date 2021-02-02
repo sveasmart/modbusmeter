@@ -77,7 +77,7 @@ class ModbusClient {
   readVersion() {
 
     console.log("readVersion called")
-    let meterSequenceId = 100
+    let meterSequenceId = 274
     const register = (meterSequenceId * this.registerOffsetPerMeter) + this.meterValueRegister
     const multiplyEnergyBy = this.multiplyEnergyBy
 
