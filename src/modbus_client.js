@@ -89,13 +89,13 @@ class ModbusClient {
         log.debug("Reading modbus register " + register )
         client.readHoldingRegisters(register, numberOfRegistersForMeterValueXXXX).then((response) => {
           const duration = new Date().getTime() - startTime
-          log.trace("NIKONIKO - Modbus " + register)
-          log.trace("NIKONIKO - Modbus response took " + duration + "ms: ", response)
+          log.trace("NIKONIKO - Modbus " + register + ", resp: ", response)
+          log.trace("NIKONIKO - Modbus response took " + duration + "ms: ")
           const payload = response.payload
           //The pay load will be a buffer of 8 bytes that look something like this:
           // [0,0,0,0,0,0,33,11]
 
-          const energyInLocalUnit = payload.readIntBE(2, 6)
+          // const energyInLocalUnit = payload.readIntBE(2, 6)
 
           // Wondering why we did readIntBE(2, 6) instead of readIntBE(0, 8)? Good question!
           // Because the second param (byteLength) must satisfy 0 < byteLength <= 6 (since node10)
@@ -105,10 +105,11 @@ class ModbusClient {
           // and then read the other 6. The first will most likely be zero anyway,
           // cuz otherwise the int will be to big anyway.
 
-          const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
+          // const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
 
-          log.debug("NIKONIKO - Found register value " + energyInLocalUnit)
-          resolve(energyInWattHours)
+          // log.debug("NIKONIKO - Found register value " + energyInLocalUnit)
+          // resolve(energyInWattHours)
+          resolve(0)
 
         }).catch(function (err) {
           const duration = new Date().getTime() - startTime
