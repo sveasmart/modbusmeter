@@ -149,7 +149,7 @@ class ModbusClient {
     console.log("QQQQ-readVersion called, register: " + register)
 
     const multiplyEnergyBy = this.multiplyEnergyBy
-    let numberOfRegistersForMeterValueXXXX = 4
+    let numberOfRegistersForMeterValueXXXX = 1
 
     const startTime = new Date().getTime()
 
