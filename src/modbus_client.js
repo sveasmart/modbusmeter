@@ -3,7 +3,7 @@ require('q-flow')
 
 const modbus = require('node-modbus')
 const log = require('simple-node-logger').createSimpleLogger()
-console.log("testtest!!!!")
+console.log("testtest----!!!!")
 //This is our little hardcoded database of manufacturer-specific settings
 //Some of this info can be automatically checked later
 const manufacturers = {
