@@ -69,12 +69,16 @@ class ModbusClient {
       logLevel: 'warn'  //We don't need to log the internals of node-modbus
     }
     console.log("Calling read version...")
-    this.readVersion(11)
-    this.readVersion(11 + 200)
-    this.readVersion(11 + 200 + 260)
+    this.readRegisterNiko(11)              // 11
+    this.readRegisterNiko(11 + 200)        // 211
+    this.readRegisterNiko(11 + 200 + 260)  // 471
+
+
+    this.readRegisterNiko2(0)
+
   }
 
-  readVersion(register) {
+  readRegisterNiko(register) {
     console.log("readVersion called, register: " + register)
 
     const multiplyEnergyBy = this.multiplyEnergyBy
@@ -92,23 +96,6 @@ class ModbusClient {
           log.trace("NIKONIKO - Modbus " + register + ", resp: ", response)
           log.trace("NIKONIKO - Modbus response took " + duration + "ms: ")
           const payload = response.payload
-          //The pay load will be a buffer of 8 bytes that look something like this:
-          // [0,0,0,0,0,0,33,11]
-
-          // const energyInLocalUnit = payload.readIntBE(2, 6)
-
-          // Wondering why we did readIntBE(2, 6) instead of readIntBE(0, 8)? Good question!
-          // Because the second param (byteLength) must satisfy 0 < byteLength <= 6 (since node10)
-          // https://nodejs.org/api/buffer.html#buffer_buf_readintbe_offset_bytelength
-          //
-          // So although we technically need to read 8 bytes, we skip the first two
-          // and then read the other 6. The first will most likely be zero anyway,
-          // cuz otherwise the int will be to big anyway.
-
-          // const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
-
-          // log.debug("NIKONIKO - Found register value " + energyInLocalUnit)
-          // resolve(energyInWattHours)
           resolve(0)
 
         }).catch(function (err) {
@@ -126,6 +113,49 @@ class ModbusClient {
       client.on('error', function (err) {
         const duration = new Date().getTime() - startTime
         log.error("NIKONIKO - Modbus error! Took " + duration + "ms", err)
+        reject(err)
+      })
+
+      client.connect()
+    })
+  }
+
+
+  readRegisterNiko2(register) {
+    console.log("QQQQ-readVersion called, register: " + register)
+
+    const multiplyEnergyBy = this.multiplyEnergyBy
+    let numberOfRegistersForMeterValueXXXX = 300
+
+    const startTime = new Date().getTime()
+
+    return new Promise((resolve, reject) => {
+      const client = modbus.client.tcp.complete(this.clientParams)
+
+      client.on('connect', () => {
+        log.debug("QQQQ-Reading modbus register " + register )
+        client.readHoldingRegisters(register, numberOfRegistersForMeterValueXXXX).then((response) => {
+          const duration = new Date().getTime() - startTime
+          log.trace("QQQQ-NIKONIKO - Modbus " + register + ", resp: ", response)
+          log.trace("QQQQ-NIKONIKO - Modbus response took " + duration + "ms: ")
+          const payload = response.payload
+          resolve(0)
+
+        }).catch(function (err) {
+          const duration = new Date().getTime() - startTime
+          log.error("QQQQ-NIKONIKO - Modbus caught an error from the promise after " + duration + " ms", err)
+          reject(err)
+
+        }).done(function () {
+          const duration = new Date().getTime() - startTime
+          log.trace("QQQQ-NIKONIKO - Modbus done! Took " + duration + "ms")
+          client.close()
+        })
+      })
+
+      client.on('error', function (err) {
+        const duration = new Date().getTime() - startTime
+        log.error("QQQQ-NIKONIKO - Modbus error! Took " + duration + "ms", err)
         reject(err)
       })
 
