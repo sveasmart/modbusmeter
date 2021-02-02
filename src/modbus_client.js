@@ -80,7 +80,7 @@ class ModbusClient {
 
     const register = 11
     const multiplyEnergyBy = this.multiplyEnergyBy
-    let numberOfRegistersForMeterValue = 1
+    let numberOfRegistersForMeterValue = 2
 
     const startTime = new Date().getTime()
 
