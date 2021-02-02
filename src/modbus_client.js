@@ -81,13 +81,13 @@ class ModbusClient {
   async foo( ) {
     await new Promise(r => setTimeout(r, 3000));
 
-    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 500; i++) {
       try {
         await this.readRegisterNiko2(i)
       } catch (e) {
         console.log("Err " + e)
       }
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise(r => setTimeout(r, 10));
     }
   }
 
