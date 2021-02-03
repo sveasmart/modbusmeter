@@ -89,7 +89,7 @@ class ModbusClient {
     do {
       console.log('-----------------------------------')
       console.log('Start: ' + next)
-      next = await this.foo(start)
+      next = await this.foo(next)
       console.log('Nästa mätare startar på: ' + next)
     } while (next !== -1)
 
