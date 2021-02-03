@@ -99,11 +99,12 @@ class ModbusClient {
     await new Promise(r => setTimeout(r, 3000));
 
     let manufacturerModbusResponse = await this.readRegisterNiko2(2 + offset);
+    console.log('manufacturerModbusResponse: ')
+    console.log(manufacturerModbusResponse)
+
     const manufacturerRegisterValue = manufacturerModbusResponse.payload.readIntBE(0, 2)
 
 
-    console.log('manufacturerRegisterValue: ')
-    console.log(manufacturerRegisterValue)
 
 
     const thirdLetter = manufacturerRegisterValue & 31
