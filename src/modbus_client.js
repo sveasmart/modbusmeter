@@ -84,14 +84,14 @@ class ModbusClient {
 
   async listMeters() {
     console.log("Första mätaren är på 10")
-    let next = await this.foo(10)
-    console.log("Andra mätarens start: " +  next)
-    next = await this.foo(next)
-    console.log("Tredje mätarens start: " +  next)
-    next = await this.foo(next)
-    console.log("Fjärde mätarens start: " +  next)
-    next = await this.foo(next)
-    console.log("Femte mätarens start: " +  next)
+
+    let next = 10
+    do {
+      console.log('-----------------------------------')
+      console.log('Start: ' + next)
+      next = await this.foo(start)
+      console.log('Nästa mätare startar på: ' + next)
+    } while (next !== -1)
 
   }
 
@@ -103,8 +103,12 @@ class ModbusClient {
     console.log(manufacturerModbusResponse)
     console.log(manufacturerModbusResponse.payload.readIntBE(0, 2))
 
-    const manufacturerRegisterValue = manufacturerModbusResponse.payload.readIntBE(0, 2)
 
+
+    const manufacturerRegisterValue = manufacturerModbusResponse.payload.readIntBE(0, 2)
+    if (manufacturerRegisterValue === -1) {
+      return -1
+    }
 
 
 
