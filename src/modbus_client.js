@@ -88,13 +88,13 @@ class ModbusClient {
     console.log("Första mätaren är på 10")
 
     let next = 10
-    do {
+    while (next !== -1) {
       console.log('-----------------------------------')
       console.log('-----------------------------------')
       console.log('Kollar mätare som startar på: ' + next)
       next = await this.foo(next)
       console.log('Nästa mätare startar på: ' + next)
-    } while (next !== -1)
+    }
     console.log('###########################################')
   }
 
