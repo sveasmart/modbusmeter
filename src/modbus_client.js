@@ -16,7 +16,8 @@ const manufacturers = {
   GAV: {
     meterValueRegister: 20, //Where is the meter value stored for the first meter
     multiplyEnergyBy: 100, //what to multiply the energy by to get the right number in Wh
-    registerOffsetPerMeter: 260 //How much do we add to the above to get to the next meter
+    registerOffsetPerMeter: 260, //How much do we add to the above to get to the next meter
+    registerOffsetPerMeterByVersion: {"199": 260, "211": 200 } //How much do we add to the above to get to the next meter
   },
   Eastron: {
     meterValueRegister: 20, //Where is the meter value stored for the first meter
@@ -74,6 +75,9 @@ class ModbusClient {
     this.readRegisterNiko(11 + 200 + 260)  // 471
 
 
+
+
+
     this.foo()
 
   }
@@ -81,14 +85,38 @@ class ModbusClient {
   async foo( ) {
     await new Promise(r => setTimeout(r, 3000));
 
-    for (let i = 0; i < 500; i++) {
-      try {
-        await this.readRegisterNiko2(i)
-      } catch (e) {
-        console.log("Err " + e)
-      }
-      await new Promise(r => setTimeout(r, 10));
-    }
+
+
+    let manufacturerModbusResponse = await this.readRegisterNiko2(12);
+    const manufacturerRegisterValue = manufacturerModbusResponse.payload.register
+    const thirdLetter = manufacturerRegisterValue & 31
+    const secondLetter = (manufacturerRegisterValue >> 5) & 31
+    const firstLetter = (manufacturerRegisterValue >>> 10)
+
+    const letterLookup = ' ABCDEFGHIJKLMNOPQRSTUVXYZ'.split('')
+    console.log("manufacturer:")
+    console.log(letterLookup[firstLetter])
+    console.log(letterLookup[secondLetter])
+    console.log(letterLookup[thirdLetter])
+
+    let manu = letterLookup[firstLetter] +
+      letterLookup[secondLetter] +
+      letterLookup[thirdLetter]
+    const deviceVersionResponse = await this.readRegisterNiko2(13);
+    console.log("deviceVersion: " + deviceVersionResponse.payload.data[0])
+    console.log('--------------------------------------------')
+
+    // console.log(manufacturers[manu].registerOffsetPerMeterByVersion['' + deviceVersionResponse.payload.data[0]])
+
+
+    // for (let i = 0; i < 500; i++) {
+    //   try {
+    //     await this.readRegisterNiko2(i)
+    //   } catch (e) {
+    //     console.log("Err " + e)
+    //   }
+    //   await new Promise(r => setTimeout(r, 10));
+    // }
   }
 
   readRegisterNiko(register) {
@@ -152,7 +180,7 @@ class ModbusClient {
           log.trace("QQQQ-NIKONIKO - Modbus " + register + ", resp: ", response)
           log.trace("QQQQ-NIKONIKO - Modbus response took " + duration + "ms: ")
           const payload = response.payload
-          resolve(0)
+          resolve(response)
 
         }).catch(function (err) {
           const duration = new Date().getTime() - startTime
