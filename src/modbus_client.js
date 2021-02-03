@@ -136,7 +136,6 @@ class ModbusClient {
     console.log('--------------------------------------------')
 
 
-    manufact = 'SEC'
     console.log(manufacturers[manufact])
     const nextMeterStart = offset + manufacturers[manufact].registerOffsetPerMeterByVersion ?
         manufacturers[manufact].registerOffsetPerMeterByVersion['' + deviceVersion]
