@@ -101,6 +101,7 @@ class ModbusClient {
     let manufacturerModbusResponse = await this.readRegisterNiko2(2 + offset);
     console.log('manufacturerModbusResponse: ')
     console.log(manufacturerModbusResponse)
+    console.log(manufacturerModbusResponse.payload.readIntBE(0, 2))
 
     const manufacturerRegisterValue = manufacturerModbusResponse.payload.readIntBE(0, 2)
 
