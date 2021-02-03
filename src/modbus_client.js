@@ -83,16 +83,19 @@ class ModbusClient {
   }
 
   async listMeters() {
+    console.log('###########################################')
+
     console.log("Första mätaren är på 10")
 
     let next = 10
     do {
       console.log('-----------------------------------')
-      console.log('Start: ' + next)
+      console.log('-----------------------------------')
+      console.log('Kollar mätare som startar på: ' + next)
       next = await this.foo(next)
       console.log('Nästa mätare startar på: ' + next)
     } while (next !== -1)
-
+    console.log('###########################################')
   }
 
   async foo(offset) {
@@ -122,14 +125,17 @@ class ModbusClient {
     console.log(letterLookup[secondLetter])
     console.log(letterLookup[thirdLetter])
 
-    let manu = letterLookup[firstLetter] +
+    let manufact = letterLookup[firstLetter] +
       letterLookup[secondLetter] + letterLookup[thirdLetter]
+
+    console.log("Manufacturer: " + manufact)
+
     const deviceVersionResponse = await this.readRegisterNiko2(3 + offset);
     const deviceVersion = deviceVersionResponse.payload.toJSON().data[0];
     console.log("deviceVersion: " + deviceVersion)
     console.log('--------------------------------------------')
 
-    const nextMeterStart = manufacturers[manu].registerOffsetPerMeterByVersion['' + deviceVersion] + offset;
+    const nextMeterStart = manufacturers[manufact].registerOffsetPerMeterByVersion['' + deviceVersion] + offset;
     console.log(nextMeterStart)
 
     return nextMeterStart
