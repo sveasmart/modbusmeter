@@ -137,12 +137,13 @@ class ModbusClient {
 
 
     console.log(manufacturers[manufact])
-    const nextMeterStart = offset + manufacturers[manufact].registerOffsetPerMeterByVersion ?
+    let numberOfRegistersForThisMeter = manufacturers[manufact].registerOffsetPerMeterByVersion ?
         manufacturers[manufact].registerOffsetPerMeterByVersion['' + deviceVersion]
         : manufacturers[manufact].registerOffsetPerMeter
-    console.log(nextMeterStart)
-
-    return nextMeterStart
+    console.log("Number of registers for this meter" + numberOfRegistersForThisMeter)
+    console.log(numberOfRegistersForThisMeter)
+    console.log("Next meter start: " +  numberOfRegistersForThisMeter +offset)
+    return numberOfRegistersForThisMeter + offset
 
     // for (let i = 0; i < 500; i++) {
     //   try {
