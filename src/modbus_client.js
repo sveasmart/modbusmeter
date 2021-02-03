@@ -135,8 +135,13 @@ class ModbusClient {
     console.log("deviceVersion: " + deviceVersion)
     console.log('--------------------------------------------')
 
-    const nextMeterStart = manufacturers[manufact].registerOffsetPerMeterByVersion['' + deviceVersion] + offset;
-    console.log(nextMeterStart)
+
+    manufact = 'SEC'
+    console.log(manufacturers[manufact])
+    const nextMeterStart = offset + manufacturers[manufact].registerOffsetPerMeterByVersion ?
+        manufacturers[manufact].registerOffsetPerMeterByVersion['' + deviceVersion]
+        : manufacturers[manufact].registerOffsetPerMeter
+    conssole.log(nextMeterStart)
 
     return nextMeterStart
 
