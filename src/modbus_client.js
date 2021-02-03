@@ -106,6 +106,8 @@ class ModbusClient {
       letterLookup[thirdLetter]
     const deviceVersionResponse = await this.readRegisterNiko2(13);
     console.log("deviceVersionResponse: " + deviceVersionResponse)
+    console.log("deviceVersionResponse: ", deviceVersionResponse)
+    console.log("deviceVersionResponse: ", JSON.stringify(deviceVersionResponse))
     console.log("deviceVersion: " + deviceVersionResponse.payload.readIntBE(0, 1))
     console.log('--------------------------------------------')
 
