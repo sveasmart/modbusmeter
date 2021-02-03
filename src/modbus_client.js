@@ -106,7 +106,7 @@ class ModbusClient {
       letterLookup[thirdLetter]
     const deviceVersionResponse = await this.readRegisterNiko2(13);
     console.log("deviceVersionResponse: " + deviceVersionResponse)
-    console.log("deviceVersion: " + deviceVersionResponse.payload.readIntBE(0, 2))
+    console.log("deviceVersion: " + deviceVersionResponse.payload.readIntBE(0, 1))
     console.log('--------------------------------------------')
 
     // console.log(manufacturers[manu].registerOffsetPerMeterByVersion['' + deviceVersionResponse.payload.data[0]])
