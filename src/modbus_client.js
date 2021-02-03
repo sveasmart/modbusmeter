@@ -108,7 +108,8 @@ class ModbusClient {
     console.log("deviceVersionResponse: " + deviceVersionResponse)
     console.log("deviceVersionResponse: ", deviceVersionResponse)
     console.log("deviceVersionResponse: ", JSON.stringify(deviceVersionResponse))
-    console.log("deviceVersion: " + deviceVersionResponse.payload.readIntBE(0, 1))
+    // console.log("deviceVersion: " + deviceVersionResponse.payload.readIntBE(0, 1))
+    console.log("deviceVersion: " + deviceVersionResponse.payload.data[0])
     console.log('--------------------------------------------')
 
     // console.log(manufacturers[manu].registerOffsetPerMeterByVersion['' + deviceVersionResponse.payload.data[0]])
