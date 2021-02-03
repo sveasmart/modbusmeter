@@ -85,11 +85,14 @@ class ModbusClient {
   async listMeters() {
     console.log("Första mätaren är på 10")
     let next = await this.foo(10)
-    console.log("Start för andra mätaren: " +  next)
+    console.log("Andra mätarens start: " +  next)
     next = await this.foo(next)
-    console.log("Tredje mätaren: " +  next)
+    console.log("Tredje mätarens start: " +  next)
     next = await this.foo(next)
-    console.log("Fjärde mätaren: " +  next)
+    console.log("Fjärde mätarens start: " +  next)
+    next = await this.foo(next)
+    console.log("Femte mätarens start: " +  next)
+
   }
 
   async foo(offset) {
