@@ -141,7 +141,7 @@ class ModbusClient {
     const nextMeterStart = offset + manufacturers[manufact].registerOffsetPerMeterByVersion ?
         manufacturers[manufact].registerOffsetPerMeterByVersion['' + deviceVersion]
         : manufacturers[manufact].registerOffsetPerMeter
-    conssole.log(nextMeterStart)
+    console.log(nextMeterStart)
 
     return nextMeterStart
 
