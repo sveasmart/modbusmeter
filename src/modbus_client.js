@@ -102,6 +102,10 @@ class ModbusClient {
     const manufacturerRegisterValue = manufacturerModbusResponse.payload.readIntBE(0, 2)
 
 
+    console.log('manufacturerRegisterValue: ')
+    console.log(manufacturerRegisterValue)
+
+
     const thirdLetter = manufacturerRegisterValue & 31
     const secondLetter = (manufacturerRegisterValue >> 5) & 31
     const firstLetter = (manufacturerRegisterValue >>> 10)
@@ -113,8 +117,7 @@ class ModbusClient {
     console.log(letterLookup[thirdLetter])
 
     let manu = letterLookup[firstLetter] +
-      letterLookup[secondLetter] +
-      letterLookup[thirdLetter]
+      letterLookup[secondLetter] + letterLookup[thirdLetter]
     const deviceVersionResponse = await this.readRegisterNiko2(3 + offset);
     const deviceVersion = deviceVersionResponse.payload.toJSON().data[0];
     console.log("deviceVersion: " + deviceVersion)
