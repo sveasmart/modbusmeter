@@ -117,10 +117,10 @@ class ModbusClient {
     console.log("deviceVersion: " + deviceVersion)
     console.log('--------------------------------------------')
 
-    const thisMetersLastRegister = manufacturers[manu].registerOffsetPerMeterByVersion['' + deviceVersion] + offset;
-    console.log(thisMetersLastRegister)
+    const nextMeterStart = manufacturers[manu].registerOffsetPerMeterByVersion['' + deviceVersion] + offset;
+    console.log(nextMeterStart)
 
-
+    return nextMeterStart
 
     // for (let i = 0; i < 500; i++) {
     //   try {
