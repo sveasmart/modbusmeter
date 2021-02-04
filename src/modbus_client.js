@@ -104,12 +104,9 @@ class ModbusClient {
     await new Promise(r => setTimeout(r, 3000));
 
     let manufacturerModbusResponse = await this.readRegisterNiko2(2 + offset);
-    console.log('manufacturerModbusResponse: ')
-    console.log(manufacturerModbusResponse)
-    console.log(manufacturerModbusResponse.payload.readIntBE(0, 2))
-
-
-
+    // console.log('manufacturerModbusResponse: ')
+    // console.log(manufacturerModbusResponse)
+    // console.log(manufacturerModbusResponse.payload.readIntBE(0, 2))
     const manufacturerRegisterValue = manufacturerModbusResponse.payload.readIntBE(0, 2)
     if (manufacturerRegisterValue === -1) {
 
@@ -123,36 +120,34 @@ class ModbusClient {
       return ret
     }
 
-
-
     const thirdLetter = manufacturerRegisterValue & 31
     const secondLetter = (manufacturerRegisterValue >> 5) & 31
     const firstLetter = (manufacturerRegisterValue >>> 10)
 
     const letterLookup = ' ABCDEFGHIJKLMNOPQRSTUVXYZ'.split('')
-    console.log("manufacturer:")
-    console.log(letterLookup[firstLetter])
-    console.log(letterLookup[secondLetter])
-    console.log(letterLookup[thirdLetter])
+    // console.log("manufacturer:")
+    // console.log(letterLookup[firstLetter])
+    // console.log(letterLookup[secondLetter])
+    // console.log(letterLookup[thirdLetter])
 
     let manufact = letterLookup[firstLetter] +
       letterLookup[secondLetter] + letterLookup[thirdLetter]
 
-    console.log("Manufacturer: " + manufact)
+    // console.log("Manufacturer: " + manufact)
 
     const deviceVersionResponse = await this.readRegisterNiko2(3 + offset);
     const deviceVersion = deviceVersionResponse.payload.toJSON().data[0];
-    console.log("deviceVersion: " + deviceVersion)
-    console.log('--------------------------------------------')
+    // console.log("deviceVersion: " + deviceVersion)
+    // console.log('--------------------------------------------')
 
 
     console.log(manufacturers[manufact])
     let numberOfRegistersForThisMeter = manufacturers[manufact].registerOffsetPerMeterByVersion ?
         manufacturers[manufact].registerOffsetPerMeterByVersion['' + deviceVersion]
         : manufacturers[manufact].registerOffsetPerMeter
-    console.log("Number of registers for this meter" + numberOfRegistersForThisMeter)
-    console.log(numberOfRegistersForThisMeter)
-    console.log("Next meter start: " +  (numberOfRegistersForThisMeter +offset))
+    // console.log("Number of registers for this meter" + numberOfRegistersForThisMeter)
+    // console.log(numberOfRegistersForThisMeter)
+    // console.log("Next meter start: " +  (numberOfRegistersForThisMeter +offset))
 
     const ret = {
       manufacturer: manufact,
@@ -160,8 +155,8 @@ class ModbusClient {
       config: manufacturers[manufact],
       nextMeterStart: numberOfRegistersForThisMeter + offset
     }
-    console.log('ret:')
-    console.log(ret)
+    // console.log('ret:')
+    // console.log(ret)
     return ret
     // return numberOfRegistersForThisMeter + offset
 
@@ -219,7 +214,7 @@ class ModbusClient {
 
 
   async readRegisterNiko2(register) {
-    console.log("QQQQ-readVersion called, register: " + register)
+    // console.log("QQQQ-readVersion called, register: " + register)
 
     const multiplyEnergyBy = this.multiplyEnergyBy
     let numberOfRegistersForMeterValueXXXX = 1
@@ -233,8 +228,8 @@ class ModbusClient {
         log.debug("QQQQ-Reading modbus register " + register )
         client.readHoldingRegisters(register, numberOfRegistersForMeterValueXXXX).then((response) => {
           const duration = new Date().getTime() - startTime
-          log.trace("QQQQ-NIKONIKO - Modbus " + register + ", resp: ", response)
-          log.trace("QQQQ-NIKONIKO - Modbus response took " + duration + "ms: ")
+          // log.trace("QQQQ-NIKONIKO - Modbus " + register + ", resp: ", response)
+          // log.trace("QQQQ-NIKONIKO - Modbus response took " + duration + "ms: ")
           const payload = response.payload
           resolve(response)
 
