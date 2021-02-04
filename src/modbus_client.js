@@ -93,8 +93,9 @@ class ModbusClient {
       console.log('-----------------------------------')
       console.log('Kollar mätare som startar på: ' + next)
       let meterInfo = await this.getMeterInfo(next)
+      console.log('meterInfo: ' , meterInfo)
       console.log('Nästa mätare startar på: ' + next.nextMeterStart)
-      next = meterInfo.nextMeterStart;
+      next = meterInfo.nextMeterStart
     }
     console.log('###########################################')
   }
@@ -111,7 +112,15 @@ class ModbusClient {
 
     const manufacturerRegisterValue = manufacturerModbusResponse.payload.readIntBE(0, 2)
     if (manufacturerRegisterValue === -1) {
-      return -1
+
+      const ret = {
+        manufacturer: 'none',
+        deviceVersion: -1,
+        config: null,
+        nextMeterStart: -1
+      }
+
+      return ret
     }
 
 
@@ -144,12 +153,16 @@ class ModbusClient {
     console.log("Number of registers for this meter" + numberOfRegistersForThisMeter)
     console.log(numberOfRegistersForThisMeter)
     console.log("Next meter start: " +  (numberOfRegistersForThisMeter +offset))
-    return {
+
+    const ret = {
       manufacturer: manufacturers[manufact],
       deviceVersion,
       config: manufacturers[manufact],
       nextMeterStart: numberOfRegistersForThisMeter + offset
     }
+    console.log('ret:')
+    console.log(ret)
+    return ret
     // return numberOfRegistersForThisMeter + offset
 
     // for (let i = 0; i < 500; i++) {
