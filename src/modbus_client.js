@@ -92,13 +92,14 @@ class ModbusClient {
       console.log('-----------------------------------')
       console.log('-----------------------------------')
       console.log('Kollar mätare som startar på: ' + next)
-      next = await this.foo(next)
-      console.log('Nästa mätare startar på: ' + next)
+      let meterInfo = await this.getMeterInfo(next)
+      console.log('Nästa mätare startar på: ' + next.nextMeterStart)
+      next = meterInfo.nextMeterStart;
     }
     console.log('###########################################')
   }
 
-  async foo(offset) {
+  async getMeterInfo(offset) {
     await new Promise(r => setTimeout(r, 3000));
 
     let manufacturerModbusResponse = await this.readRegisterNiko2(2 + offset);
@@ -142,8 +143,14 @@ class ModbusClient {
         : manufacturers[manufact].registerOffsetPerMeter
     console.log("Number of registers for this meter" + numberOfRegistersForThisMeter)
     console.log(numberOfRegistersForThisMeter)
-    console.log("Next meter start: " +  numberOfRegistersForThisMeter +offset)
-    return numberOfRegistersForThisMeter + offset
+    console.log("Next meter start: " +  (numberOfRegistersForThisMeter +offset))
+    return {
+      manufacturer: manufacturers[manufact],
+      deviceVersion,
+      config: manufacturers[manufact],
+      nextMeterStart: numberOfRegistersForThisMeter + offset
+    }
+    // return numberOfRegistersForThisMeter + offset
 
     // for (let i = 0; i < 500; i++) {
     //   try {
