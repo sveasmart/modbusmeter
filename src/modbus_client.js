@@ -94,7 +94,7 @@ class ModbusClient {
       console.log('Kollar mätare som startar på: ' + next)
       let meterInfo = await this.getMeterInfo(next)
       console.log('meterInfo: ' , meterInfo)
-      console.log('Nästa mätare startar på: ' + next.nextMeterStart)
+      console.log('Nästa mätare startar på: ' + meterInfo.nextMeterStart)
       next = meterInfo.nextMeterStart
     }
     console.log('###########################################')
