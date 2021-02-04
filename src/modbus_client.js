@@ -79,12 +79,12 @@ class ModbusClient {
   }
 
   async listMeters() {
+    await new Promise(r => setTimeout(r, 3000));
     console.log('*******************************************')
     console.log('*******************************************')
     console.log('** mbus gw scan')
     console.log('*******************************************')
     console.log('*******************************************')
-
 
     console.log("Första mätaren är på 10 enl spec")
     let meterInfos = []
@@ -111,7 +111,7 @@ class ModbusClient {
   }
 
   async getMeterInfo(offset) {
-    await new Promise(r => setTimeout(r, 3000));
+
 
     let manufacturerModbusResponse = await this.readRegisterNiko2(2 + offset);
     // console.log('manufacturerModbusResponse: ')
