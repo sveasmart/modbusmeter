@@ -16,7 +16,6 @@ const manufacturers = {
   GAV: {
     meterValueRegister: 20, //Where is the meter value stored for the first meter
     multiplyEnergyBy: 100, //what to multiply the energy by to get the right number in Wh
-    registerOffsetPerMeter: 260, //How much do we add to the above to get to the next meter
     registerOffsetPerMeterByVersion: {"199": 260, "211": 200 } //How much do we add to the above to get to the next meter
   },
   Eastron: {
@@ -105,7 +104,7 @@ class ModbusClient {
       if (next === -1) {
         console.log('Sista')
       } else {
-        console.log('Nästa mätare startar på: ' + meterInfo.next)
+        console.log('Nästa mätare startar på: ' + meterInfo.possibleNextMeterStart)
       }
     }
     console.log('########################################################################')
