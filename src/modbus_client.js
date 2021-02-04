@@ -98,7 +98,7 @@ class ModbusClient {
       let meterInfo = await this.getMeterInfo(next)
       console.log('-- meterInfo: ')
       console.log(JSON.stringify(meterInfo,null, 3))
-      if (meterInfo.manufacturer!==-1) {
+      if (meterInfo.config !== null) {
         meterInfos = [...meterInfos, meterInfo]
       }
       console.log('Nästa mätare startar på: ' + meterInfo.nextMeterStart)
@@ -106,7 +106,7 @@ class ModbusClient {
     }
     console.log('###########################################')
     console.log('meterInfos: ')
-    console.log(meterInfos)
+    console.log(JSON.stringify(meterInfos, null, 3);
 
   }
 
