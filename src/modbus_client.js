@@ -83,9 +83,14 @@ class ModbusClient {
   }
 
   async listMeters() {
-    console.log('###########################################')
+    console.log('*******************************************')
+    console.log('*******************************************')
+    console.log('** mbus gw scan')
+    console.log('*******************************************')
+    console.log('*******************************************')
 
-    console.log("Första mätaren är på 10")
+
+    console.log("Första mätaren är på 10 enl spec")
 
     let next = 10
     while (next !== -1) {
