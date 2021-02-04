@@ -155,7 +155,7 @@ class ModbusClient {
     console.log("Next meter start: " +  (numberOfRegistersForThisMeter +offset))
 
     const ret = {
-      manufacturer: manufacturers[manufact],
+      manufacturer: manufact,
       deviceVersion,
       config: manufacturers[manufact],
       nextMeterStart: numberOfRegistersForThisMeter + offset
