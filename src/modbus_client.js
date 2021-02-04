@@ -91,9 +91,12 @@ class ModbusClient {
     while (next !== -1) {
       console.log('-----------------------------------')
       console.log('-----------------------------------')
-      console.log('Kollar mätare som startar på: ' + next)
+      console.log('-----------------------------------')
+      console.log('-----------------------------------')
+      console.log('-- Kollar mätare som startar på: ' + next)
       let meterInfo = await this.getMeterInfo(next)
-      console.log('meterInfo: ' , meterInfo)
+      console.log('-- meterInfo: ')
+      console.log(JSON.stringify(meterInfo,null, 3))
       console.log('Nästa mätare startar på: ' + meterInfo.nextMeterStart)
       next = meterInfo.nextMeterStart
     }
@@ -114,7 +117,8 @@ class ModbusClient {
         manufacturer: 'none',
         deviceVersion: -1,
         config: null,
-        nextMeterStart: -1
+        nextMeterStart: -1,
+        registerCount: -1
       }
 
       return ret
@@ -153,7 +157,8 @@ class ModbusClient {
       manufacturer: manufact,
       deviceVersion,
       config: manufacturers[manufact],
-      nextMeterStart: numberOfRegistersForThisMeter + offset
+      registerCountForThisMeter: numberOfRegistersForThisMeter,
+      nextMeterStart: numberOfRegistersForThisMeter + offset,
     }
     // console.log('ret:')
     // console.log(ret)
