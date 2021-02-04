@@ -106,7 +106,7 @@ class ModbusClient {
     }
     console.log('###########################################')
     console.log('meterInfos: ')
-    console.log(JSON.stringify(meterInfos, null, 3);
+    console.log(JSON.stringify(meterInfos, null, 3))
 
   }
 
