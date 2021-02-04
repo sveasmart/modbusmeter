@@ -74,10 +74,6 @@ class ModbusClient {
     this.readRegisterNiko(11 + 200)        // 211
     this.readRegisterNiko(11 + 200 + 260)  // 471
 
-
-
-
-
     this.listMeters()
 
   }
@@ -91,7 +87,7 @@ class ModbusClient {
 
 
     console.log("Första mätaren är på 10 enl spec")
-
+    let meterInfos = []
     let next = 10
     while (next !== -1) {
       console.log('-----------------------------------')
@@ -102,10 +98,16 @@ class ModbusClient {
       let meterInfo = await this.getMeterInfo(next)
       console.log('-- meterInfo: ')
       console.log(JSON.stringify(meterInfo,null, 3))
+      if (meterInfo.manufacturer!==-1) {
+        meterInfos = [...meterInfos, meterInfo]
+      }
       console.log('Nästa mätare startar på: ' + meterInfo.nextMeterStart)
       next = meterInfo.nextMeterStart
     }
     console.log('###########################################')
+    console.log('meterInfos: ')
+    console.log(meterInfos)
+
   }
 
   async getMeterInfo(offset) {
