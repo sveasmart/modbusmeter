@@ -101,8 +101,12 @@ class ModbusClient {
       if (meterInfo.config !== null) {
         meterInfos = [...meterInfos, meterInfo]
       }
-      console.log('Nästa mätare startar på: ' + meterInfo.nextMeterStart)
-      next = meterInfo.nextMeterStart
+      next = meterInfo.possibleNextMeterStart
+      if (next === -1) {
+        console.log('Sista')
+      } else {
+        console.log('Nästa mätare startar på: ' + meterInfo.next)
+      }
     }
     console.log('########################################################################')
     console.log('meterInfos: ')
@@ -125,7 +129,7 @@ class ModbusClient {
         deviceVersion: -1,
         config: null,
         start: offset,
-        nextMeterStart: -1,
+        possibleNextMeterStart: -1,
         registerCount: -1,
       }
 
@@ -167,7 +171,7 @@ class ModbusClient {
       config: manufacturers[manufact],
       startForThisMeter: offset,
       registerCountForThisMeter: numberOfRegistersForThisMeter,
-      nextMeterStart: numberOfRegistersForThisMeter + offset,
+      possibleNextMeterStart: numberOfRegistersForThisMeter + offset,
     }
     // console.log('ret:')
     // console.log(ret)
