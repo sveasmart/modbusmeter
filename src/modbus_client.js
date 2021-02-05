@@ -348,11 +348,11 @@ class ModbusClient {
       const client = modbus.client.tcp.complete(this.clientParams)
 
       client.on('connect', () => {
-        log.debug("QQQQ-Reading modbus register " + register )
+        log.debug("ENERGY-Reading modbus register " + register )
         client.readHoldingRegisters(register, numberOfRegistersForMeterValueXXXX).then((response) => {
           const duration = new Date().getTime() - startTime
-          // log.trace("QQQQ-NIKONIKO - Modbus " + register + ", resp: ", response)
-          // log.trace("QQQQ-NIKONIKO - Modbus response took " + duration + "ms: ")
+          log.trace("ENERGY-NIKONIKO - Modbus " + register + ", resp: ", response)
+          log.trace("ENERGY-NIKONIKO - Modbus response took " + duration + "ms: ")
           const payload = response.payload
           resolve(response)
 
