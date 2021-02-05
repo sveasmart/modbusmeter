@@ -326,6 +326,9 @@ class ModbusClient {
       console.log(JSON.stringify(ms, null, 3))
     })
 
+    console.log("SERIAL: ")
+    console.log("SERIAL: ")
+    console.log("SERIAL: ")
     console.log(JSON.stringify(serialNumberAndEnergyValues, null, 3))
 
     return q.until(() => {
