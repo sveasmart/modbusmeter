@@ -131,6 +131,7 @@ class ModbusClient {
         start: offset,
         possibleNextMeterStart: -1,
         registerCount: -1,
+        serial: -1
       }
 
       return ret
@@ -165,6 +166,8 @@ class ModbusClient {
     // console.log(numberOfRegistersForThisMeter)
     // console.log("Next meter start: " +  (numberOfRegistersForThisMeter +offset))
 
+    const serial = await this.readRegisterNiko2(offset);
+
     const ret = {
       manufacturer: manufact,
       deviceVersion,
@@ -172,6 +175,7 @@ class ModbusClient {
       startForThisMeter: offset,
       registerCountForThisMeter: numberOfRegistersForThisMeter,
       possibleNextMeterStart: numberOfRegistersForThisMeter + offset,
+      serial
     }
     // console.log('ret:')
     // console.log(ret)
@@ -319,8 +323,10 @@ class ModbusClient {
 
     this.getMeters().then(ms => {
       console.log("meterInfos:")
-      console.log(ms)
+      console.log(JSON.stringify(ms))
     })
+
+    console.log(JSON.stringify(serialNumberAndEnergyValues, null, 3))
 
     return q.until(() => {
       return q.fcall(() => {
