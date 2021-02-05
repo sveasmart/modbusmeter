@@ -319,7 +319,7 @@ class ModbusClient {
 
     this.getMeters().then(ms => {
       console.log("meterInfos:")
-      console.log(this.meterInfos)
+      console.log(ms)
     })
 
     return q.until(() => {
