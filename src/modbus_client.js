@@ -191,7 +191,7 @@ class ModbusClient {
       registerCountForThisMeter: numberOfRegistersForThisMeter,
       possibleNextMeterStart: numberOfRegistersForThisMeter + offset,
       serialNumber,
-      energy
+      energy: energy * config.multiplyEnergyBy
     }
     // console.log('ret:')
     // console.log(ret)
