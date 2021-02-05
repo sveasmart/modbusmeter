@@ -179,7 +179,7 @@ class ModbusClient {
     console.log(energyRegister)
     const energyResponse = await this.readEnergyNiko2(energyRegister);
 
-    const energy = energyResponse.payload.readUIntBE(2, 6)
+    const energy = energyResponse.payload.readIntBE(2, 6)
     log.debug("Found energy: " + energy)
 
 
