@@ -177,9 +177,9 @@ class ModbusClient {
     const energyRegister = offset + config.meterValueRegister;
     console.log('energyRegister')
     console.log(energyRegister)
-    const energyResponse = await this.readSerialNiko2(energyRegister);
+    const energyResponse = await this.readEnergyNiko2(energyRegister);
 
-    const energy = energyResponse.payload.readUIntBE(0, 4)
+    const energy = energyResponse.payload.readUIntBE(2, 6)
     log.debug("Found energy: " + energy)
 
 
@@ -299,6 +299,48 @@ class ModbusClient {
 
     const multiplyEnergyBy = this.multiplyEnergyBy
     let numberOfRegistersForMeterValueXXXX = 2
+
+    const startTime = new Date().getTime()
+
+    return new Promise((resolve, reject) => {
+      const client = modbus.client.tcp.complete(this.clientParams)
+
+      client.on('connect', () => {
+        log.debug("QQQQ-Reading modbus register " + register )
+        client.readHoldingRegisters(register, numberOfRegistersForMeterValueXXXX).then((response) => {
+          const duration = new Date().getTime() - startTime
+          // log.trace("QQQQ-NIKONIKO - Modbus " + register + ", resp: ", response)
+          // log.trace("QQQQ-NIKONIKO - Modbus response took " + duration + "ms: ")
+          const payload = response.payload
+          resolve(response)
+
+        }).catch(function (err) {
+          const duration = new Date().getTime() - startTime
+          log.error("QQQQ-NIKONIKO - Modbus caught an error from the promise after " + duration + " ms", err)
+          reject(err)
+
+        }).done(function () {
+          const duration = new Date().getTime() - startTime
+          log.trace("QQQQ-NIKONIKO - Modbus done! Took " + duration + "ms")
+          client.close()
+        })
+      })
+
+      client.on('error', function (err) {
+        const duration = new Date().getTime() - startTime
+        log.error("QQQQ-NIKONIKO - Modbus error! Took " + duration + "ms", err)
+        reject(err)
+      })
+
+      client.connect()
+    })
+  }
+
+  async readEnergyNiko2(register) {
+    // console.log("QQQQ-readVersion called, register: " + register)
+
+    const multiplyEnergyBy = this.multiplyEnergyBy
+    let numberOfRegistersForMeterValueXXXX = 4
 
     const startTime = new Date().getTime()
 
