@@ -349,7 +349,7 @@ class ModbusClient {
 
       client.on('connect', () => {
         log.debug("ENERGY-Reading modbus register " + register )
-        client.readHoldingRegisters(register, numberOfRegistersForMeterValueXXXX).then((response) => {
+        client.readHoldingRegisters(register-10, numberOfRegistersForMeterValueXXXX).then((response) => {
           const duration = new Date().getTime() - startTime
           log.trace("ENERGY-NIKONIKO - Modbus " + register + ", resp: ", response)
           log.trace("ENERGY-NIKONIKO - Modbus response took " + duration + "ms: ")
