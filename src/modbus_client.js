@@ -70,16 +70,16 @@ class ModbusClient {
       logLevel: 'warn'  //We don't need to log the internals of node-modbus
     }
     console.log("Calling read version...")
-    this.readRegisterNiko(11)              // 11
-    this.readRegisterNiko(11 + 200)        // 211
-    this.readRegisterNiko(11 + 200 + 260)  // 471
+    // this.readRegisterNiko(11)              // 11
+    // this.readRegisterNiko(11 + 200)        // 211
+    // this.readRegisterNiko(11 + 200 + 260)  // 471
 
-    this.listMeters()
+    this.meterInfos = this.getMeters()
 
   }
 
-  async listMeters() {
-    await new Promise(r => setTimeout(r, 3000));
+  async getMeters() {
+    // await new Promise(r => setTimeout(r, 3000));
     console.log('*******************************************')
     console.log('*******************************************')
     console.log('** mbus gw scan')
@@ -111,7 +111,7 @@ class ModbusClient {
     console.log('########################################################################')
     console.log('meterInfos: ')
     console.log(JSON.stringify(meterInfos, null, 3))
-
+    return meterInfos
   }
 
   async getMeterInfo(offset) {
@@ -317,6 +317,11 @@ class ModbusClient {
   _readAllSerialNumbersAndEnergyInSequence() {
     let serialNumberAndEnergyValues = []
 
+    console.log("meterInfos:")
+    console.log(this.meterInfos)
+
+
+
     return q.until(() => {
       return q.fcall(() => {
         let meterSequenceId = serialNumberAndEnergyValues.length
@@ -355,6 +360,7 @@ class ModbusClient {
 
     //We'll chain two promises here: read serial number, and read meter value.
     //If we don't get a serial number, we return a promise that resolves to null
+
 
     return this._readSerialNumber(meterSequenceId)
       .then((serialNumber) => {
