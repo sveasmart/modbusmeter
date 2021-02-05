@@ -74,7 +74,7 @@ class ModbusClient {
     // this.readRegisterNiko(11 + 200)        // 211
     // this.readRegisterNiko(11 + 200 + 260)  // 471
 
-    this.meterInfos = this.getMeters()
+    this.meterInfos = this.getMeters();
 
   }
 
@@ -317,10 +317,10 @@ class ModbusClient {
   _readAllSerialNumbersAndEnergyInSequence() {
     let serialNumberAndEnergyValues = []
 
-    console.log("meterInfos:")
-    console.log(this.meterInfos)
-
-
+    this.getMeters().then(ms => {
+      console.log("meterInfos:")
+      console.log(this.meterInfos)
+    })
 
     return q.until(() => {
       return q.fcall(() => {
