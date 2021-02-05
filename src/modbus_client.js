@@ -323,7 +323,7 @@ class ModbusClient {
 
     this.getMeters().then(ms => {
       console.log("meterInfos:")
-      console.log(JSON.stringify(ms))
+      console.log(JSON.stringify(ms, null, 3))
     })
 
     console.log(JSON.stringify(serialNumberAndEnergyValues, null, 3))
