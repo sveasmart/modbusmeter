@@ -174,7 +174,10 @@ class ModbusClient {
     const config = manufacturers[manufact];
 
 
-    const energyResponse = await this.readSerialNiko2(offset + config.meterValueRegister);
+    const energyRegister = offset + config.meterValueRegister;
+    console.log('energyRegister')
+    console.log(energyRegister)
+    const energyResponse = await this.readSerialNiko2(energyRegister);
 
     const energy = energyResponse.payload.readUIntBE(0, 4)
     log.debug("Found energy: " + energy)
