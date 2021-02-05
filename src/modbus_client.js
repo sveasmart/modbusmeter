@@ -131,7 +131,7 @@ class ModbusClient {
         start: offset,
         possibleNextMeterStart: -1,
         registerCount: -1,
-        serial: -1
+        serialNumber: -1
       }
 
       return ret
@@ -166,7 +166,11 @@ class ModbusClient {
     // console.log(numberOfRegistersForThisMeter)
     // console.log("Next meter start: " +  (numberOfRegistersForThisMeter +offset))
 
-    const serial = await this.readRegisterNiko2(offset);
+    const serialResponse = await this.readSerialNiko2(offset);
+
+    const serialNumber = serialResponse.payload.readUIntBE(0, 4)
+    log.debug("Found serial number: " + serialNumber)
+
 
     const ret = {
       manufacturer: manufact,
@@ -175,7 +179,7 @@ class ModbusClient {
       startForThisMeter: offset,
       registerCountForThisMeter: numberOfRegistersForThisMeter,
       possibleNextMeterStart: numberOfRegistersForThisMeter + offset,
-      serial
+      serialNumber
     }
     // console.log('ret:')
     // console.log(ret)
@@ -277,6 +281,49 @@ class ModbusClient {
     })
   }
 
+
+  async readSerialNiko2(register) {
+    // console.log("QQQQ-readVersion called, register: " + register)
+
+    const multiplyEnergyBy = this.multiplyEnergyBy
+    let numberOfRegistersForMeterValueXXXX = 2
+
+    const startTime = new Date().getTime()
+
+    return new Promise((resolve, reject) => {
+      const client = modbus.client.tcp.complete(this.clientParams)
+
+      client.on('connect', () => {
+        log.debug("QQQQ-Reading modbus register " + register )
+        client.readHoldingRegisters(register, numberOfRegistersForMeterValueXXXX).then((response) => {
+          const duration = new Date().getTime() - startTime
+          // log.trace("QQQQ-NIKONIKO - Modbus " + register + ", resp: ", response)
+          // log.trace("QQQQ-NIKONIKO - Modbus response took " + duration + "ms: ")
+          const payload = response.payload
+          resolve(response)
+
+        }).catch(function (err) {
+          const duration = new Date().getTime() - startTime
+          log.error("QQQQ-NIKONIKO - Modbus caught an error from the promise after " + duration + " ms", err)
+          reject(err)
+
+        }).done(function () {
+          const duration = new Date().getTime() - startTime
+          log.trace("QQQQ-NIKONIKO - Modbus done! Took " + duration + "ms")
+          client.close()
+        })
+      })
+
+      client.on('error', function (err) {
+        const duration = new Date().getTime() - startTime
+        log.error("QQQQ-NIKONIKO - Modbus error! Took " + duration + "ms", err)
+        reject(err)
+      })
+
+      client.connect()
+    })
+  }
+
   /*
    Polls the modbus server and returns a promise that
    resolves to the energy value for all modbus units, like this:
@@ -337,6 +384,7 @@ class ModbusClient {
         log.debug("\n--- SEQUENCE ID " + meterSequenceId + " -----------------------")
         return this._readSerialNumberAndEnergy(meterSequenceId)
           .then((serialNumberAndEnergy) => {
+            console.log("serialNumberAndEnergy: " + serialNumberAndEnergy)
             if (serialNumberAndEnergy) {
               serialNumberAndEnergyValues.push(serialNumberAndEnergy)
               //We found a value
@@ -373,7 +421,8 @@ class ModbusClient {
 
     return this._readSerialNumber(meterSequenceId)
       .then((serialNumber) => {
-        log.debug("serialNunmber ", serialNumber )
+
+        console.log("serialNunmber::: ", serialNumber )
         if (serialNumber && serialNumber != "0xFFFFFFFF") {
           //Great, we found a serial number! So let's save it in and read the meter value.
           serialNumberAndEnergy = {serialNumber: serialNumber}
