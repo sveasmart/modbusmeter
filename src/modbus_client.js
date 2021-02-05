@@ -552,12 +552,8 @@ class ModbusClient {
         log.debug("Reading modbus register " + register + " (energy)")
         client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then((response) => {
           const duration = new Date().getTime() - startTime
-          log.trace("ENERGY-ENERGY-ENERGY-ENERGY-ENERGY-ENERGY")
-          log.trace("ENERGY-ENERGY-ENERGY-ENERGY-ENERGY-ENERGY")
-          log.trace("ENERGY-ENERGY-ENERGY-ENERGY-ENERGY-ENERGY")
-
-          log.trace("Modbus " + register + ", resp: ", response)
-          log.trace("Modbus response took " + duration + "ms: ", response)
+          log.trace("ENERGY-ORIG - Modbus " + register + ", resp: ", response)
+          log.trace("ENERGY-ORIG - Modbus response took " + duration + "ms: ")
           const payload = response.payload
           //The pay load will be a buffer of 8 bytes that look something like this:
           // [0,0,0,0,0,0,33,11]
