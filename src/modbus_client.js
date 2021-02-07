@@ -405,7 +405,7 @@ class ModbusClient {
     });
 
     console.log("meterMeasurements in promiseresolver...");
-    console.log(JSON.stringify(mi, null, 3));
+    console.log(JSON.stringify(meterMeasurements, null, 3));
 
     return meterMeasurements
 
