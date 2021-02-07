@@ -393,9 +393,11 @@ class ModbusClient {
 
   readEnergy() {
     console.log("readEnergyreadEnergyreadEnergyreadEnergy!!!!")
+
+    let q = this.getMeters();
     let promise = new Promise(function(resolve, reject) {
 
-      this.getMeters().then(mi => {
+      q.then(mi => {
             const time = new Date()
             const meterMeasurements = mi.map(meter => {
               return {
