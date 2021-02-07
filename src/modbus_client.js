@@ -391,33 +391,22 @@ class ModbusClient {
    */
 
 
-  readEnergy() {
+  async readEnergy() {
     console.log("readEnergyreadEnergyreadEnergyreadEnergy!!!!")
 
-    let q = this.getMeters();
-    let promise = new Promise(function(resolve, reject) {
-
-      q.then(mi => {
-            const time = new Date()
-            const meterMeasurements = mi.map(meter => {
-              return {
-                serialNumber: meter.serialNumber,
-                energy: meter.energy,
-                time
-              }
-            });
-
-            console.log("meterMeasurements in promiseresolver...");
-            console.log(JSON.stringify(mi, null, 3));
-
-            promise.resolve(meterMeasurements)
-      });
-
+    let meters = await this.getMeters();
+    const meterMeasurements = meters.map(meter => {
+      return {
+        serialNumber: meter.serialNumber,
+        energy: meter.energy,
+        time
+      }
     });
 
-    console.log("reurning the promise!!!!!")
-    return promise
+    console.log("meterMeasurements in promiseresolver...");
+    console.log(JSON.stringify(mi, null, 3));
 
+    return meterMeasurements
 
     // //First let's look up all the serial numbers.
     // return this._readAllSerialNumbersAndEnergyInSequence()
