@@ -393,6 +393,7 @@ class ModbusClient {
 
   async readEnergy() {
     console.log("readEnergyreadEnergyreadEnergyreadEnergy!!!!")
+    const time = new Date()
 
     let meters = await this.getMeters();
     const meterMeasurements = meters.map(meter => {
