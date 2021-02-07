@@ -389,23 +389,32 @@ class ModbusClient {
    energy is in wattHours
    time is in GMT
    */
+
+
   readEnergy() {
-    const time = new Date()
 
-    const meterInfos = this.getMeters();
+    let promise = new Promise(function(resolve, reject) {
 
-    const meterMeasurements = meterInfos.map(meter => {
-      return {serialNumber: meter.serialNumber,
-        energy: meter.energy,
-        time
-      }
+      this.getMeters().then(mi => {
+            const time = new Date()
+            const meterMeasurements = mi.map(meter => {
+              return {
+                serialNumber: meter.serialNumber,
+                energy: meter.energy,
+                time
+              }
+            });
+
+            console.log("meterMeasurements in promiseresolver...");
+            console.log(JSON.stringify(mi, null, 3));
+
+            promise.resolve(meterMeasurements)
+      });
+
     });
 
-
-    console.log("meterMeasurements");
-    console.log(JSON.stringify(meterMeasurements, null, 3));
-
-    return Promise().resolve(meterMeasurements);
+    console.log("reurning the promise!!!!!")
+    return promise
 
 
     // //First let's look up all the serial numbers.
