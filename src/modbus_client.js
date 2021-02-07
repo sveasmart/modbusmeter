@@ -392,24 +392,40 @@ class ModbusClient {
   readEnergy() {
     const time = new Date()
 
-    //First let's look up all the serial numbers.
-    return this._readAllSerialNumbersAndEnergyInSequence()
-      .then((serialNumbersAndEnergyValues) => {
-        log.debug("Serial numbers & energy values (" + serialNumbersAndEnergyValues.length + "): ", serialNumbersAndEnergyValues)
+    const meterInfos = this.getMeters();
 
-        //Add timestamp
-        return serialNumbersAndEnergyValues.map((serialNumberAndEnergy) => {
-          return {
-            serialNumber: serialNumberAndEnergy.serialNumber,
-            energy: serialNumberAndEnergy.energy,
-            time: time
-          }
-        })
+    const meterMeasurements = meterInfos.map(meter => {
+      return {serialNumber: meter.serialNumber,
+        energy: meter.energy,
+        time
+      }
+    });
 
-      })
-      .catch((err) => {
-        log.error("Caught an error", err)
-      })
+
+    console.log("meterMeasurements");
+    console.log(JSON.stringify(meterMeasurements, null, 3));
+
+    return Promise().resolve(meterMeasurements);
+
+
+    // //First let's look up all the serial numbers.
+    // return this._readAllSerialNumbersAndEnergyInSequence()
+    //   .then((serialNumbersAndEnergyValues) => {
+    //     log.debug("Serial numbers & energy values (" + serialNumbersAndEnergyValues.length + "): ", serialNumbersAndEnergyValues)
+    //
+    //     //Add timestamp
+    //     return serialNumbersAndEnergyValues.map((serialNumberAndEnergy) => {
+    //       return {
+    //         serialNumber: serialNumberAndEnergy.serialNumber,
+    //         energy: serialNumberAndEnergy.energy,
+    //         time: time
+    //       }
+    //     })
+    //
+    //   })
+    //   .catch((err) => {
+    //     log.error("Caught an error", err)
+    //   })
   }
 
   /**
