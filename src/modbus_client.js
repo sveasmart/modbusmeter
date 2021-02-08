@@ -69,13 +69,6 @@ class ModbusClient {
       logEnabled: true,
       logLevel: 'warn'  //We don't need to log the internals of node-modbus
     }
-    console.log("Calling read version...")
-    // this.readRegisterNiko(11)              // 11
-    // this.readRegisterNiko(11 + 200)        // 211
-    // this.readRegisterNiko(11 + 200 + 260)  // 471
-
-    // this.meterInfos = this.getMeters();
-
   }
 
   async getMeters() {
@@ -118,9 +111,7 @@ class ModbusClient {
 
 
     let manufacturerModbusResponse = await this.readRegisterNiko2(2 + offset);
-    // console.log('manufacturerModbusResponse: ')
-    // console.log(manufacturerModbusResponse)
-    // console.log(manufacturerModbusResponse.payload.readIntBE(0, 2))
+
     const manufacturerRegisterValue = manufacturerModbusResponse.payload.readIntBE(0, 2)
     if (manufacturerRegisterValue === -1) {
 
@@ -142,29 +133,18 @@ class ModbusClient {
     const firstLetter = (manufacturerRegisterValue >>> 10)
 
     const letterLookup = ' ABCDEFGHIJKLMNOPQRSTUVXYZ'.split('')
-    // console.log("manufacturer:")
-    // console.log(letterLookup[firstLetter])
-    // console.log(letterLookup[secondLetter])
-    // console.log(letterLookup[thirdLetter])
 
     let manufact = letterLookup[firstLetter] +
       letterLookup[secondLetter] + letterLookup[thirdLetter]
 
-    // console.log("Manufacturer: " + manufact)
-
     const deviceVersionResponse = await this.readRegisterNiko2(3 + offset);
     const deviceVersion = deviceVersionResponse.payload.toJSON().data[0];
-    // console.log("deviceVersion: " + deviceVersion)
-    // console.log('--------------------------------------------')
 
 
     console.log(manufacturers[manufact])
     let numberOfRegistersForThisMeter = manufacturers[manufact].registerOffsetPerMeterByVersion ?
         manufacturers[manufact].registerOffsetPerMeterByVersion['' + deviceVersion]
         : manufacturers[manufact].registerOffsetPerMeter
-    // console.log("Number of registers for this meter" + numberOfRegistersForThisMeter)
-    // console.log(numberOfRegistersForThisMeter)
-    // console.log("Next meter start: " +  (numberOfRegistersForThisMeter +offset))
 
     const serialResponse = await this.readSerialNiko2(offset);
 
@@ -193,19 +173,8 @@ class ModbusClient {
       serialNumber,
       energy: energy * config.multiplyEnergyBy
     }
-    // console.log('ret:')
-    // console.log(ret)
-    return ret
-    // return numberOfRegistersForThisMeter + offset
 
-    // for (let i = 0; i < 500; i++) {
-    //   try {
-    //     await this.readRegisterNiko2(i)
-    //   } catch (e) {
-    //     console.log("Err " + e)
-    //   }
-    //   await new Promise(r => setTimeout(r, 10));
-    // }
+    return ret
   }
 
   readRegisterNiko(register) {
@@ -409,207 +378,6 @@ class ModbusClient {
 
     return meterMeasurements
 
-    // //First let's look up all the serial numbers.
-    // return this._readAllSerialNumbersAndEnergyInSequence()
-    //   .then((serialNumbersAndEnergyValues) => {
-    //     log.debug("Serial numbers & energy values (" + serialNumbersAndEnergyValues.length + "): ", serialNumbersAndEnergyValues)
-    //
-    //     //Add timestamp
-    //     return serialNumbersAndEnergyValues.map((serialNumberAndEnergy) => {
-    //       return {
-    //         serialNumber: serialNumberAndEnergy.serialNumber,
-    //         energy: serialNumberAndEnergy.energy,
-    //         time: time
-    //       }
-    //     })
-    //
-    //   })
-    //   .catch((err) => {
-    //     log.error("Caught an error", err)
-    //   })
-  }
-
-  /**
-   * Returns a promise that resolves to an array of serial numbers and meter values, like this:
-   * [
-   *  {serialNumber: 12345, energy: 500}
-   *  ...
-   * ]
-   */
-  _readAllSerialNumbersAndEnergyInSequence() {
-    let serialNumberAndEnergyValues = []
-
-    this.getMeters().then(ms => {
-      console.log("meterInfos:")
-      console.log(JSON.stringify(ms, null, 3))
-    })
-
-    console.log("SERIAL: ")
-    console.log("SERIAL: ")
-    console.log("SERIAL: ")
-    console.log(JSON.stringify(serialNumberAndEnergyValues, null, 3))
-
-    return q.until(() => {
-      return q.fcall(() => {
-        let meterSequenceId = serialNumberAndEnergyValues.length
-        log.debug("\n--- SEQUENCE ID " + meterSequenceId + " -----------------------")
-        return this._readSerialNumberAndEnergy(meterSequenceId)
-          .then((serialNumberAndEnergy) => {
-            console.log("serialNumberAndEnergy: " + serialNumberAndEnergy)
-            if (serialNumberAndEnergy) {
-              serialNumberAndEnergyValues.push(serialNumberAndEnergy)
-              //We found a value
-              //So we return false, which means "please don't stop looping yet"
-              return false
-            } else {
-              //We didn't find a value
-              //So we return true, which means "please stop looping"
-              log.debug("No more meters found")
-              return true
-            }
-          })
-      })
-    }).then((each) => {
-      return serialNumberAndEnergyValues
-    })
-
-  }
-
-  /**
-   Connects to modbus and reads the serial number of the given meter.
-   If found, also reads the meter value.
-   Returns a promise that resolves to {serialNumber: ..., energy: ...},
-   or null if no serial number was found for that sequenceId.
-
-   @param meterSequenceId 0 for the first meter, 1 for the next, etc.
-   */
-  _readSerialNumberAndEnergy(meterSequenceId) {
-    let serialNumberAndEnergy
-
-    //We'll chain two promises here: read serial number, and read meter value.
-    //If we don't get a serial number, we return a promise that resolves to null
-
-
-    return this._readSerialNumber(meterSequenceId)
-      .then((serialNumber) => {
-
-        console.log("serialNunmber::: ", serialNumber )
-        if (serialNumber && serialNumber != "0xFFFFFFFF") {
-          //Great, we found a serial number! So let's save it in and read the meter value.
-          serialNumberAndEnergy = {serialNumber: serialNumber}
-          return this._readEnergy(meterSequenceId)
-            .then((meterValue) => {
-              serialNumberAndEnergy.energy = meterValue
-              log.debug("Successfully read: ", serialNumberAndEnergy)
-              return serialNumberAndEnergy
-            })
-        } else {
-          //No serial number. So we return null.
-          log.debug("No serial number found")
-          return null
-        }
-      })
-  }
-
-  /**
-   Connects to modbus and reads the serial number of the given meter.
-   Returns a promise that resolves to the serialNumber, or null if not found.
-
-   @param meterSequenceId 0 for the first meter, 1 for the next, etc.
-   */
-  _readSerialNumber(meterSequenceId) {
-    const register = (meterSequenceId * this.registerOffsetPerMeter) + serialNumberRegister
-
-    return new Promise((resolve, reject) => {
-      const client = modbus.client.tcp.complete(this.clientParams)
-
-      client.on('connect', () => {
-        log.debug("Reading modbus register " + register + " (serial number)")
-        client.readHoldingRegisters(register, 2).then(function (response) {
-          log.trace("Modbus response payload: ", response.payload)
-          const serialNumber = response.payload.readUIntBE(0, 4)
-          log.debug("Found serial number: " + serialNumber)
-          resolve(serialNumber)
-
-        }).catch(function (err) {
-          log.error("Modbus, caught an error from the promise", err)
-          reject(err)
-
-        }).done(function () {
-          log.trace("Modbus done")
-          client.close()
-        })
-      })
-
-      client.on('error', function (err) {
-        log.error("Modbus error", err)
-        reject(err)
-      })
-
-      client.connect()
-    })
-  }
-
-  /**
-   Connects to modbus and reads the meter value of the given meter.
-   Returns a promise that resolves to the meter value, or null if not found.
-
-   @param meterSequenceId 0 for the first meter, 1 for the next, etc.
-   */
-  _readEnergy(meterSequenceId) {
-    const register = (meterSequenceId * this.registerOffsetPerMeter) + this.meterValueRegister
-    const multiplyEnergyBy = this.multiplyEnergyBy
-
-    const startTime = new Date().getTime()
-
-    return new Promise((resolve, reject) => {
-      const client = modbus.client.tcp.complete(this.clientParams)
-
-      client.on('connect', () => {
-        log.debug("Reading modbus register " + register + " (energy)")
-        client.readHoldingRegisters(register, numberOfRegistersForMeterValue).then((response) => {
-          const duration = new Date().getTime() - startTime
-          log.trace("ENERGY-ORIG - Modbus " + register + ", resp: ", response)
-          log.trace("ENERGY-ORIG - Modbus response took " + duration + "ms: ")
-          const payload = response.payload
-          //The pay load will be a buffer of 8 bytes that look something like this:
-          // [0,0,0,0,0,0,33,11]
-
-          const energyInLocalUnit = payload.readIntBE(2, 6)
-
-          // Wondering why we did readIntBE(2, 6) instead of readIntBE(0, 8)? Good question!
-          // Because the second param (byteLength) must satisfy 0 < byteLength <= 6 (since node10)
-          // https://nodejs.org/api/buffer.html#buffer_buf_readintbe_offset_bytelength
-          //
-          // So although we technically need to read 8 bytes, we skip the first two
-          // and then read the other 6. The first will most likely be zero anyway,
-          // cuz otherwise the int will be to big anyway.
-
-          const energyInWattHours = energyInLocalUnit * multiplyEnergyBy
-
-          log.debug("Found energy value " + energyInLocalUnit + ", which means " + energyInWattHours + " Wh")
-          resolve(energyInWattHours)
-
-        }).catch(function (err) {
-          const duration = new Date().getTime() - startTime
-          log.error("Modbus caught an error from the promise after " + duration + " ms", err)
-          reject(err)
-
-        }).done(function () {
-          const duration = new Date().getTime() - startTime
-          log.trace("Modbus done! Took " + duration + "ms")
-          client.close()
-        })
-      })
-
-      client.on('error', function (err) {
-        const duration = new Date().getTime() - startTime
-        log.error("Modbus error! Took " + duration + "ms", err)
-        reject(err)
-      })
-
-      client.connect()
-    })
   }
 
   static getManufacturerConfig(manufacturer) {
