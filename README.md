@@ -53,3 +53,5 @@ The config param "notificationInterval" determines how often we send the data to
 
 So if notificationInterval is 10x larger than pollInterval, then each notification will contain 10 measurements per slave.
 
+
+...
