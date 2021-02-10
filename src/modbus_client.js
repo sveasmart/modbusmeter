@@ -162,7 +162,6 @@ class ModbusClient {
     const energy = energyResponse.payload.readIntBE(2, 6)
     log.debug("Found energy: " + energy)
 
-
     const ret = {
       manufacturer: manufact,
       deviceVersion,
